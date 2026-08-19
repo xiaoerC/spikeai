@@ -1,0 +1,240 @@
+[div] layer: AI角色市场 - 发现精彩虚拟角色 | 叙梦Naro
+  style: width:440px;height:956px;max-width:440px;background:#0F0D0C;overflow:hidden;position:absolute;left:0px;top:0px
+
+[div] layer: Container
+  style: display:flex;width:440px;height:956px;align-items:flex-start;background:linear-gradient(135deg, #1A1511 0%, #2A221A 100%);overflow:hidden;position:absolute;left:0px;top:0px
+
+[div] layer: Main Content
+  style: display:flex;width:440px;height:956px;padding-bottom:64px;flex-direction:column;align-items:flex-start;flex-shrink:0;overflow:hidden;position:relative
+
+[div] layer: Container
+  style: display:flex;height:892px;flex-direction:column;align-items:flex-start;flex-shrink:0;align-self:stretch;background:linear-gradient(135deg, #1A1511 0%, #2A221A 100%);overflow:hidden;position:relative
+
+[div] layer: Container
+  style: display:flex;height:892px;flex-direction:column;align-items:flex-start;flex-shrink:0;align-self:stretch;overflow:hidden;position:relative
+
+[div] layer: Container
+  style: display:flex;width:440px;padding-bottom:8px;flex-direction:column;align-items:flex-start;position:relative
+
+[div] layer: Container
+  style: display:flex;padding:8px;align-items:flex-start;gap:6px;align-self:stretch;position:relative
+
+[div] layer: Button
+  style: display:flex;width:209px;height:40px;justify-content:center;align-items:center;gap:6px;border-radius:8px;border:1.333px solid #F9C86D;background:#F9C86D;position:relative
+
+[div] layer: 剧情卡
+  style: color:#0C0A09;text-align:center;font-family:'Noto Sans SC';font-size:14px;font-style:normal;font-weight:700;line-height:20px /* 142.857% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Button
+  style: display:flex;width:209px;height:40px;justify-content:center;align-items:center;gap:6px;border-radius:8px;border:1.333px solid #44403C;position:relative
+
+[div] layer: 绅士卡
+  style: color:#78716C;text-align:center;font-family:'Noto Sans SC';font-size:14px;font-style:normal;font-weight:600;line-height:20px /* 142.857% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Container
+  style: display:flex;flex-direction:column;align-items:flex-start;align-self:stretch;border-bottom:0.667px solid rgba(41, 37, 36, 0.50);background:rgba(41, 37, 36, 0.95);box-shadow:0 10px 20px 0 rgba(0, 0, 0, 0.60), 0 6px 10px 0 rgba(0, 0, 0, 0.50);position:relative
+
+[div] layer: Container
+  style: display:flex;padding:8px 4px;flex-direction:column;align-items:flex-start;align-self:stretch;border-radius:8px;border:0.667px solid rgba(83, 71, 65, 0.30);background:rgba(26, 23, 20, 0.95);position:relative
+
+[div] layer: Container
+  style: display:flex;height:39.667px;align-items:flex-start;align-self:stretch;border-bottom:0.667px solid #44403C;position:relative
+
+[div] layer: Container
+  style: display:flex;width:430.667px;align-items:flex-start;align-self:stretch;overflow:hidden;position:relative
+
+[div] layer: Button:margin
+  style: display:flex;width:68px;height:39px;flex-direction:column;align-items:flex-start;flex-shrink:0;position:relative
+
+[div] layer: Button
+  style: display:flex;height:40px;padding:0 12px;align-items:center;gap:6px;position:relative;bottom:-1px;border-bottom:2px solid rgba(0, 0, 0, 0.00)
+
+[div] layer: 热度
+  style: color:#78716C;text-align:center;font-family:'Noto Sans SC';font-size:12px;font-style:normal;font-weight:400;line-height:16px /* 133.333% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Button:margin
+  style: display:flex;width:56px;height:39px;flex-direction:column;align-items:flex-start;flex-shrink:0;position:relative
+
+[div] layer: Button
+  style: display:flex;height:40px;padding:0 12px;align-items:center;gap:6px;position:relative;bottom:-1px;border-bottom:2px solid rgba(0, 0, 0, 0.00)
+
+[div] layer: 荐
+  style: color:#78716C;text-align:center;font-family:'Noto Sans SC';font-size:12px;font-style:normal;font-weight:400;line-height:16px /* 133.333% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Button:margin
+  style: display:flex;width:56px;height:39px;flex-direction:column;align-items:flex-start;flex-shrink:0;position:relative
+
+[div] layer: Button
+  style: display:flex;height:40px;padding:0 12px;align-items:center;gap:6px;position:relative;bottom:-1px;border-bottom:2px solid #F9C86D
+
+[div] layer: 趋
+  style: color:#F9C86D;text-align:center;font-family:'Noto Sans SC';font-size:12px;font-style:normal;font-weight:600;line-height:16px /* 133.333% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Button:margin
+  style: display:flex;width:56px;height:39px;flex-direction:column;align-items:flex-start;flex-shrink:0;position:relative
+
+[div] layer: Button
+  style: display:flex;height:40px;padding:0 12px;align-items:center;gap:6px;position:relative;bottom:-1px;border-bottom:2px solid rgba(0, 0, 0, 0.00)
+
+[div] layer: 随
+  style: color:#78716C;text-align:center;font-family:'Noto Sans SC';font-size:12px;font-style:normal;font-weight:400;line-height:16px /* 133.333% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Button:margin
+  style: display:flex;width:56px;height:39px;flex-direction:column;align-items:flex-start;flex-shrink:0;position:relative
+
+[div] layer: Button
+  style: display:flex;height:40px;padding:0 12px;align-items:center;gap:6px;position:relative;bottom:-1px;border-bottom:2px solid rgba(0, 0, 0, 0.00)
+
+[div] layer: 藏
+  style: color:#78716C;text-align:center;font-family:'Noto Sans SC';font-size:12px;font-style:normal;font-weight:400;line-height:16px /* 133.333% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Container
+  style: display:flex;padding-top:8px;align-items:center;gap:8px;align-self:stretch;position:relative
+
+[div] layer: Container
+  style: width:430.667px;height:32px;position:relative
+
+[div] layer: 探寻角色...
+  style: align-self:stretch;color:#A18D6F;font-family:Arimo;font-size:12px;font-style:normal;font-weight:400;line-height:normal;letter-spacing:-0.176px;position:relative
+
+[div] layer: Container
+  style: display:flex;padding:8px 0 4px 0;flex-direction:column;align-items:flex-start;gap:6px;align-self:stretch;position:relative
+
+[div] layer: Container
+  style: display:flex;height:29.333px;align-items:center;gap:6px;align-self:stretch;overflow:hidden;position:relative
+
+[div] layer: Container
+  style: display:flex;width:169.771px;height:29.333px;align-items:flex-start;border-radius:8px;border:0.667px solid #44403C;overflow:hidden;position:relative
+
+[div] layer: Button
+  style: display:flex;height:28px;padding:0 10px;flex-direction:column;justify-content:center;align-items:center;border-right:0.667px solid #44403C;position:relative
+
+[div] layer: 日趋势
+  style: color:#A8A29E;text-align:center;font-family:'Noto Sans SC';font-size:12px;font-style:normal;font-weight:400;line-height:16px /* 133.333% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Button
+  style: display:flex;height:28px;padding:0 10px;flex-direction:column;justify-content:center;align-items:center;border-right:0.667px solid #44403C;background:#F9C86D;position:relative
+
+[div] layer: 周趋势
+  style: color:#0C0A09;text-align:center;font-family:'Noto Sans SC';font-size:12px;font-style:normal;font-weight:600;line-height:16px /* 133.333% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Button
+  style: display:flex;height:28px;padding:0 10px;flex-direction:column;justify-content:center;align-items:center;border-right:0.667px solid #44403C;position:relative
+
+[div] layer: 月趋势
+  style: color:#A8A29E;text-align:center;font-family:'Noto Sans SC';font-size:12px;font-style:normal;font-weight:400;line-height:16px /* 133.333% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Container
+  style: display:flex;align-items:flex-start;gap:6px;align-self:stretch;position:relative
+
+[div] layer: Button
+  style: display:flex;height:24px;padding:4px 10px;align-items:center;border-radius:9999px;border:0.667px solid rgba(249, 200, 109, 0.15);background:rgba(249, 200, 109, 0.08);position:relative
+
+[div] layer: #工具
+  style: color:#A8A29E;text-align:center;font-family:'Noto Sans SC';font-size:12px;font-style:normal;font-weight:500;line-height:16px /* 133.333% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Button
+  style: display:flex;height:24px;padding:4px 10px;align-items:center;border-radius:9999px;border:0.667px solid rgba(249, 200, 109, 0.15);background:rgba(249, 200, 109, 0.08);position:relative
+
+[div] layer: #同人
+  style: color:#A8A29E;text-align:center;font-family:'Noto Sans SC';font-size:12px;font-style:normal;font-weight:500;line-height:16px /* 133.333% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Button
+  style: display:flex;height:24px;padding:4px 10px;align-items:center;border-radius:9999px;border:0.667px solid rgba(249, 200, 109, 0.15);background:rgba(249, 200, 109, 0.08);position:relative
+
+[div] layer: #二次元
+  style: color:#A8A29E;text-align:center;font-family:'Noto Sans SC';font-size:12px;font-style:normal;font-weight:500;line-height:16px /* 133.333% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Button
+  style: display:flex;height:24px;padding:4px 10px;align-items:center;border-radius:9999px;border:0.667px solid rgba(249, 200, 109, 0.15);background:rgba(249, 200, 109, 0.08);position:relative
+
+[div] layer: #世界
+  style: color:#A8A29E;text-align:center;font-family:'Noto Sans SC';font-size:12px;font-style:normal;font-weight:500;line-height:16px /* 133.333% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Button
+  style: display:flex;height:24px;padding:4px 10px;align-items:center;border-radius:9999px;border:0.667px solid rgba(249, 200, 109, 0.15);background:rgba(249, 200, 109, 0.08);position:relative
+
+[div] layer: #玄幻
+  style: color:#A8A29E;text-align:center;font-family:'Noto Sans SC';font-size:12px;font-style:normal;font-weight:500;line-height:16px /* 133.333% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Button
+  style: display:flex;height:24px;padding:4px 8px;align-items:center;gap:2px;border-radius:9999px;border:0.667px solid rgba(249, 200, 109, 0.15);background:rgba(249, 200, 109, 0.08);position:relative
+
+[div] layer: 更多
+  style: color:#A8A29E;text-align:center;font-family:'Noto Sans SC';font-size:12px;font-style:normal;font-weight:500;line-height:16px /* 133.333% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Container:margin
+  style: display:flex;padding-top:8px;flex-direction:column;align-items:flex-start;align-self:stretch;position:relative
+
+[div] layer: Container
+  style: display:grid;height:10176.771px;row-gap:8px;column-gap:8px;align-self:stretch;grid-template-rows:291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px 291.55px;grid-template-columns:216px 216px;position:relative
+
+[div] layer: Link
+  style: display:flex;height:291.552px;flex-direction:column;align-items:flex-start;align-self:start;grid-row:1 / span 1;grid-column:1 / span 1;justify-self:stretch;border-radius:12px;border:0.667px solid rgba(0, 0, 0, 0.00);background:linear-gradient(180deg, rgba(26, 21, 16, 0.90) 0%, rgba(26, 21, 16, 0.90) 100%), linear-gradient(135deg, #D4AF37 0%, #F9C86D 25%, #FFD700 50%, #F9C86D 75%, #B8860B 100%);box-shadow:0 1px 1px 0 rgba(255, 215, 0, 0.10) inset, 0 0 8px 0 rgba(249, 198, 109, 0.15), 0 2px 4px 0 rgba(0, 0, 0, 0.10);overflow:hidden;position:relative
+
+[div] layer: Container:margin
+  style: display:flex;padding-bottom:4px;flex-direction:column;align-items:flex-start;align-self:stretch;position:relative
+
+[div] layer: Container
+  style: display:flex;width:214.667px;height:286.219px;flex-direction:column;align-items:flex-start;border-radius:8px;background:#292524;overflow:hidden;position:relative
+
+[div] layer: Placeholder for Container
+  style: height:125.417px;flex-shrink:0;align-self:stretch;position:relative
+
+[div] layer: Placeholder for Button
+  style: width:76.125px;height:21.333px;flex-shrink:0;position:relative
+
+[div] layer: Container
+  style: display:flex;align-items:center;gap:4px;align-self:stretch;position:relative
+
+[div] layer: 5799.8k
+  style: color:#EAB308;font-family:Inter;font-size:14px;font-style:normal;font-weight:700;line-height:20px /* 142.857% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Image (西幻世界模拟器（增加11个剧情mod可以购买总计30万字）)
+  style: width:214.667px;height:286.219px;position:relative;overflow:hidden
+
+[div] layer: Container
+  style: display:flex;width:214.667px;padding:4px 4px 6px 4px;flex-direction:column;align-items:flex-start;position:relative;bottom:0
+
+[div] layer: Container
+  style: display:flex;flex-direction:column;align-items:flex-start;align-self:stretch;position:relative
+
+[div] layer: Heading 3
+  style: display:flex;height:33.583px;flex-direction:column;align-items:flex-start;align-self:stretch;overflow:hidden;position:relative
+
+[div] layer: 西幻世界模拟器（增加11个剧情mod可以购买总计30万字）
+  style: width:207px;color:rgba(255, 255, 255, 0.95);font-family:'Noto Sans SC';font-size:14px;font-style:normal;font-weight:600;line-height:16.8px /* 120% */;letter-spacing:-0.28px;position:relative
+
+[div] layer: Container
+  style: display:flex;width:206.667px;height:21px;padding-top:4px;align-items:center;gap:8px;position:relative
+
+[div] layer: 5.41
+  style: color:#FF9F43;font-family:Inter;font-size:10px;font-style:normal;font-weight:600;line-height:17px /* 170% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: 132.1k
+  style: color:#FF9F43;font-family:Inter;font-size:10px;font-style:normal;font-weight:600;line-height:17px /* 170% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: 4.9
+  style: color:#F9C86D;font-family:Inter;font-size:10px;font-style:normal;font-weight:600;line-height:17px /* 170% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Paragraph:margin
+  style: display:flex;padding-top:2px;flex-direction:column;align-items:flex-start;align-self:stretch;position:relative
+
+[div] layer: Paragraph
+  style: display:flex;height:32.5px;flex-direction:column;align-items:flex-start;align-self:stretch;overflow:hidden;position:relative
+
+[div] layer: 新增11个剧情和战斗mod可以购买，序幕更新地图🗺️，更新【四灾】，魔女化灾害、十位魔女，序幕可以
+  style: width:207px;color:rgba(255, 255, 255, 0.70);font-family:'Noto Sans SC';font-size:10px;font-style:normal;font-weight:400;line-height:16.25px /* 162.5% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: Container
+  style: display:flex;width:206.667px;height:26.333px;padding:2px 0;align-items:flex-start;gap:4px;overflow:hidden;position:relative
+
+[div] layer: #RPG
+  style: color:rgba(255, 255, 255, 0.80);font-family:Inter;font-size:10px;font-style:normal;font-weight:500;line-height:17px /* 170% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: #世界
+  style: color:rgba(255, 255, 255, 0.80);font-family:'Noto Sans SC';font-size:10px;font-style:normal;font-weight:500;line-height:17px /* 170% */;letter-spacing:-0.176px;position:relative
+
+[div] layer: +3
+  style: color:rgba(255, 255, 255, 0.60);font-family:Inter;font-size:10px;font-style:normal;font-weight:400;line-height:17px /* 170% */;letter-spacing:-0.176px;position:relative
+
