@@ -70,12 +70,12 @@ function handleBack() {
       >
         <button
           v-for="opt in weekOptions"
-          :key="opt.id"
+          :key="opt.id || opt.value"
           type="button"
-          @click="emit('select-week', opt.id)"
+          @click="emit('select-week', opt.id || opt.value || '')"
           :class="[
             'w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer',
-            selectedWeek === opt.id
+            selectedWeek === (opt.id || opt.value)
               ? 'bg-[#F9C86D]/20 text-[#F9C86D] font-bold'
               : 'text-[#A8A29E] hover:bg-white/5 hover:text-white'
           ]"

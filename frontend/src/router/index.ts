@@ -76,6 +76,30 @@ const router = createRouter({
       },
     },
     {
+      path: "/survey",
+      name: "survey",
+      component: () => import("@/views/survey/index.vue"),
+      meta: {
+        title: "问卷调查 - 叙梦 Naro",
+      },
+    },
+    {
+      path: "/help",
+      name: "help",
+      component: () => import("@/views/help/index.vue"),
+      meta: {
+        title: "帮助中心 - 叙梦 Naro",
+      },
+    },
+    {
+      path: "/character-history",
+      name: "character-history",
+      component: () => import("@/views/character-history/index.vue"),
+      meta: {
+        title: "角色上线历史 - 叙梦 Naro",
+      },
+    },
+    {
       path: "/character/:id",
       name: "character-detail",
       component: () => import("@/views/character-detail/index.vue"),

@@ -1,0 +1,204 @@
+Title: Live Content
+
+Description: Fetched live
+
+Source: https://api.builder.io/api/v1/file/assets/TEMP/qh8xmbyzctmmt2uo6c7
+
+---
+
+<!-- [Note for AI: This is raw Figma design HTML that uses absolute positioning or not quite perfect responsiveness. When
+    converting to code, make it fully responsive by avoiding absolute positioning and instead
+    use modern CSS techniques like flexbox, grid, and responsive units to look great on ALL screen sizes fluidly. Ensure it looks good
+    on all device sizes - mobile, tablet, and desktop. Preserve the design as perfectly as
+    possible, 100% pixel perfect is what we want in the output code. In some cases, there may be a placeholder grey square instead of an image.
+    We want to retain that placeholder square, not try to replace it with a better image. Note there may be
+    multiple screens in the figma design - sometimes this represents different states like
+    desktop vs mobile size or multiple steps in a flow - do your best to infer or ask the user] -->
+
+<!-- Figma selected node: Container -->
+<div layer-name="Container" style="display:flex;height:956px;align-items:flex-start;flex-shrink:0;align-self:stretch;background:linear-gradient(135deg, #1A1511 0%, #2A221A 100%);overflow:hidden;position:relative"><div layer-name="Main Content" style="display:flex;width:440px;height:956px;padding-bottom:64px;flex-direction:column;align-items:flex-start;overflow:hidden;position:relative"><div layer-name="Container" style="display:flex;height:892px;flex-direction:column;align-items:flex-start;flex-shrink:0;align-self:stretch;background:linear-gradient(135deg, #1A1511 0%, #2A221A 100%);overflow:hidden;position:relative"><div layer-name="Container" style="display:flex;height:892px;flex-direction:column;align-items:flex-start;flex-shrink:0;align-self:stretch;overflow:hidden;position:relative"><div layer-name="Container" style="display:flex;width:440px;padding:32px 16px;flex-direction:column;align-items:flex-start;position:relative"><div layer-name="Container" style="display:flex;justify-content:space-between;align-items:center;align-self:stretch;position:relative"><div layer-name="Heading 1" style="display:flex;flex-direction:column;align-items:flex-start;position:relative"><div layer-name="历史记录" style="color:#F5F5F4;font-family:'Noto Sans SC';font-size:20px;font-style:normal;font-weight:600;line-height:24px /* 120% */;letter-spacing:1px;position:relative"><span style="font-family:Noto Sans SC, -apple-system, Roboto, Helvetica, sans-serif;font-weight:600;font-size:20px;color:rgba(245,245,244,1)">历史记录</span></div></div><div layer-name="Button" style="display:flex;width:72.635px;height:36px;padding:0 12px;justify-content:center;align-items:center;gap:6px;border-radius:8px;border:0.667px solid #F9C86D;background:rgba(255, 255, 255, 0.00);box-shadow:0 0 15px 0 rgba(249, 200, 109, 0.08);overflow:hidden;position:relative"><div layer-name="云端备份" style="color:#A8A29E;text-align:center;font-family:'Noto Sans SC';font-size:12px;font-style:normal;font-weight:500;line-height:16px /* 133.333% */;letter-spacing:-0.176px;position:relative"><span style="font-family:Noto Sans SC, -apple-system, Roboto, Helvetica, sans-serif;font-weight:500;font-size:12px;color:rgba(168,162,158,1)">云端备份</span></div></div></div><div layer-name="Container" style="display:flex;width:408px;height:65.333px;padding-top:32px;flex-direction:column;align-items:flex-start;position:relative"><div layer-name="Container" style="display:flex;width:171.083px;padding:2px;align-items:center;gap:2px;border-radius:8px;border:0.667px solid #44403C;background:rgba(68, 64, 60, 0.60);backdrop-filter:blur(8px);position:relative"><div layer-name="Button" style="display:flex;padding:6px 10px;align-items:center;gap:4px;border-radius:6px;background:linear-gradient(135deg, #FFD475 0%, #F9C86D 50%, #D1A35C 100%);box-shadow:0 1px 8px 0 rgba(249, 200, 109, 0.25);position:relative"><div style="display:flex;flex-direction:column;align-items:center;position:relative"><div layer-name="📖" style="color:#0C0A09;text-align:center;font-family:Inter;font-size:11px;font-style:normal;font-weight:600;line-height:11px /* 100% */;letter-spacing:-0.176px;position:relative"><span style="font-family:Inter, -apple-system, Roboto, Helvetica, sans-serif;font-weight:600;font-size:11px;color:rgba(12,10,9,1)">📖</span></div></div><div style="display:flex;width:16px;height:16px;min-width:16px;padding:0 4px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(0, 0, 0, 0.15);position:relative"><div layer-name="4" style="color:#0C0A09;text-align:center;font-family:Inter;font-size:10px;font-style:normal;font-weight:600;line-height:13.333px /* 133.333% */;letter-spacing:-0.176px;position:relative"><span style="font-family:Inter, -apple-system, Roboto, Helvetica, sans-serif;font-weight:600;font-size:10px;color:rgba(12,10,9,1)">4</span></div></div></div><div layer-name="Button" style="display:flex;padding:6px 10px;align-items:center;gap:4px;border-radius:6px;position:relative"><div style="display:flex;flex-direction:column;align-items:center;position:relative"><div layer-name="🏪" style="color:rgba(168, 162, 158, 0.70);text-align:center;font-family:Inter;font-size:11px;font-style:normal;font-weight:400;line-height:11px /* 100% */;letter-spacing:-0.176px;position:relative"><span style="font-family:Inter, -apple-system, Roboto, Helvetica, sans-serif;font-weight:400;font-size:11px;color:rgba(168,162,158,0.699999988079071)">🏪</span></div></div></div><div layer-name="Button" style="display:flex;padding:6px 10px;align-items:center;gap:4px;border-radius:6px;position:relative"><div style="display:flex;flex-direction:column;align-items:center;position:relative"><div layer-name="⚙️" style="color:rgba(168, 162, 158, 0.70);text-align:center;font-family:Inter;font-size:11px;font-style:normal;font-weight:400;line-height:11px /* 100% */;letter-spacing:-0.176px;position:relative"><span style="font-family:Inter, -apple-system, Roboto, Helvetica, sans-serif;font-weight:400;font-size:11px;color:rgba(168,162,158,0.699999988079071)">⚙️</span></div></div></div><div layer-name="Button" style="display:flex;padding:6px 10px;align-items:center;gap:4px;border-radius:6px;position:relative"><div style="display:flex;flex-direction:column;align-items:center;position:relative"><div layer-name="🧩" style="color:rgba(168, 162, 158, 0.70);text-align:center;font-family:Inter;font-size:11px;font-style:normal;font-weight:400;line-height:11px /* 100% */;letter-spacing:-0.176px;position:relative"><span style="font-family:Inter, -apple-system, Roboto, Helvetica, sans-serif;font-weight:400;font-size:11px;color:rgba(168,162,158,0.699999988079071)">🧩</span></div></div></div></div></div><div layer-name="Container:margin" style="display:flex;padding-top:24px;flex-direction:column;align-items:center;align-self:stretch;position:relative"><div layer-name="Container" style="display:flex;justify-content:space-between;align-items:center;align-self:stretch;position:relative"><div layer-name="Container" style="display:flex;align-items:center;gap:8px;position:relative"><div layer-name="Button" style="display:flex;padding:6px 8px;flex-direction:column;justify-content:center;align-items:flex-start;border-radius:6px;border:0.667px solid #44403C;position:relative"><svg id="48:493" layer-name="Icon" style="overflow:hidden;position:relative" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_48_493)">
+<path d="M5 1H2C1.44772 1 1 1.44772 1 2V5C1 5.55228 1.44772 6 2 6H5C5.55228 6 6 5.55228 6 5V2C6 1.44772 5.55228 1 5 1Z" stroke="#A8A29E" stroke-width="1.5"/>
+<path d="M12 1H9C8.44772 1 8 1.44772 8 2V5C8 5.55228 8.44772 6 9 6H12C12.5523 6 13 5.55228 13 5V2C13 1.44772 12.5523 1 12 1Z" stroke="#A8A29E" stroke-width="1.5"/>
+<path d="M5 8H2C1.44772 8 1 8.44772 1 9V12C1 12.5523 1.44772 13 2 13H5C5.55228 13 6 12.5523 6 12V9C6 8.44772 5.55228 8 5 8Z" stroke="#A8A29E" stroke-width="1.5"/>
+<path d="M12 8H9C8.44772 8 8 8.44772 8 9V12C8 12.5523 8.44772 13 9 13H12C12.5523 13 13 12.5523 13 12V9C13 8.44772 12.5523 8 12 8Z" stroke="#A8A29E" stroke-width="1.5"/>
+</g>
+<defs>
+<clipPath id="clip0_48_493">
+<rect width="14" height="14" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</div><div layer-name="Button" style="display:flex;padding:6px 12px;flex-direction:column;justify-content:center;align-items:center;border-radius:6px;border:0.667px solid #44403C;position:relative"><div layer-name="批量删除" style="color:#A8A29E;text-align:center;font-family:'Noto Sans SC';font-size:12px;font-style:normal;font-weight:400;line-height:16px /* 133.333% */;letter-spacing:-0.176px;position:relative"><span style="font-family:Noto Sans SC, -apple-system, Roboto, Helvetica, sans-serif;font-weight:400;font-size:12px;color:rgba(168,162,158,1)">批量删除</span></div></div></div></div></div><div layer-name="Container:margin" style="display:flex;padding-top:12px;flex-direction:column;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Container" style="display:inline-grid;row-gap:12px;column-gap:12px;align-self:stretch;grid-template-rows:279.96px 279.96px;grid-template-columns:198px 198px;position:relative"><div layer-name="Container" style="display:flex;height:279.958px;flex-direction:column;align-items:flex-start;align-self:start;grid-row:1 / span 1;grid-column:1 / span 1;justify-self:stretch;position:relative"><div layer-name="Container" style="display:flex;height:279.958px;flex-direction:column;align-items:flex-start;flex-shrink:0;align-self:stretch;border-radius:12px;border:0.667px solid rgba(83, 71, 65, 0.20);background:rgba(26, 25, 21, 0.60);backdrop-filter:blur(20px);overflow:hidden;position:relative"><div layer-name="Container" style="display:flex;height:278.625px;flex-direction:column;align-items:flex-start;flex-shrink:0;align-self:stretch;position:relative"><div layer-name="Container" style="width:196.667px;height:245.833px;flex-shrink:0;border-radius:4px;position:relative"></div><div layer-name="Container" style="display:flex;padding:8px;flex-direction:column;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Heading 2" style="display:flex;width:180.667px;height:16.792px;flex-direction:column;align-items:flex-start;overflow:hidden;position:relative"><div layer-name="《鬼灭之刃》" style="color:#F5F5F4;font-family:'Noto Sans SC';font-size:14px;font-style:normal;font-weight:600;line-height:16.8px /* 120% */;letter-spacing:0.7px;position:relative"><span style="font-family:Noto Sans SC, -apple-system, Roboto, Helvetica, sans-serif;font-weight:600;font-size:14px;color:rgba(245,245,244,1)">《鬼灭之刃》</span></div></div></div></div><div layer-name="Container" style="display:flex;height:32px;align-items:flex-start;position:relative;right:4.667px;top:4.667px"><div layer-name="Container:margin" style="display:flex;padding-right:2px;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Button - 编辑备注" style="display:flex;width:32px;height:32px;padding:8px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:507" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M9.33334 1.33334H4.00001C3.64638 1.33334 3.30724 1.47381 3.0572 1.72386C2.80715 1.97391 2.66667 2.31305 2.66667 2.66667V13.3333C2.66667 13.687 2.80715 14.0261 3.0572 14.2761C3.30724 14.5262 3.64638 14.6667 4.00001 14.6667H12C12.3536 14.6667 12.6928 14.5262 12.9428 14.2761C13.1929 14.0261 13.3333 13.687 13.3333 13.3333V5.33334L9.33334 1.33334Z" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9.33333 1.33334V5.33334H13.3333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10.6667 8.66667H5.33333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10.6667 11.3333H5.33333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</div></div><div layer-name="Container:margin" style="display:flex;padding-right:2px;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Button - 更新角色卡" style="display:flex;width:32px;height:32px;padding:8px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:514" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_48_514)">
+<path d="M14.3333 1.33333V5.33333H10.3333M1.66666 14.6667V10.6667H5.66666M1.33333 7.66666C1.39647 6.20767 1.93693 4.80976 2.87168 3.68774C3.80642 2.56573 5.08372 1.78168 6.50732 1.45607C7.93092 1.13046 9.42206 1.2813 10.7516 1.88542C12.0812 2.48954 13.1756 3.51351 13.8667 4.8M14.6667 8.33333C14.5904 9.78698 14.0404 11.1757 13.1007 12.2874C12.161 13.3992 10.8833 14.1728 9.46269 14.4902C8.04206 14.8075 6.55659 14.6512 5.23314 14.0451C3.9097 13.4389 2.821 12.4163 2.13333 11.1333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_48_514">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</div></div><div layer-name="Container:margin" style="display:flex;padding-right:2px;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Button - 置顶" style="display:flex;width:32px;height:32px;padding:8px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:518" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M2 4H14" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8 12V5.33333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5.33334 8L8 5.33333L10.6667 8" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</div></div><div layer-name="Container:margin" style="display:flex;padding-right:2px;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Button - 清空历史" style="display:flex;width:32px;height:32px;padding:8px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:524" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M2 4H14" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12.6667 4V13.3333C12.6667 14 12 14.6667 11.3333 14.6667H4.66667C4 14.6667 3.33334 14 3.33334 13.3333V4" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5.33334 4V2.66667C5.33334 2 6 1.33334 6.66667 1.33334H9.33334C10 1.33334 10.6667 2 10.6667 2.66667V4" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.66666 7.33333V11.3333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9.33333 7.33333V11.3333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</div></div><div layer-name="Button - 删除" style="display:flex;width:32px;padding:8px;justify-content:center;align-items:center;align-self:stretch;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:532" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M2 4H3.33333H14" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31304 14.6667 3.9739 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4M5.33333 4V2.66667C5.33333 2.31305 5.47381 1.97391 5.72386 1.72386C5.97391 1.47381 6.31304 1.33334 6.66667 1.33334H9.33333C9.68695 1.33334 10.0261 1.47381 10.2761 1.72386C10.5262 1.97391 10.6667 2.31305 10.6667 2.66667V4" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</div></div></div></div><div layer-name="Container" style="display:flex;height:279.958px;flex-direction:column;align-items:flex-start;align-self:start;grid-row:1 / span 1;grid-column:2 / span 1;justify-self:stretch;position:relative"><div layer-name="Container" style="display:flex;height:279.958px;flex-direction:column;align-items:flex-start;flex-shrink:0;align-self:stretch;border-radius:12px;border:0.667px solid rgba(83, 71, 65, 0.20);background:rgba(26, 25, 21, 0.60);backdrop-filter:blur(20px);overflow:hidden;position:relative"><div layer-name="Container" style="display:flex;height:278.625px;flex-direction:column;align-items:flex-start;flex-shrink:0;align-self:stretch;position:relative"><div layer-name="Container" style="width:196.667px;height:245.833px;flex-shrink:0;border-radius:4px;position:relative"></div><div layer-name="Container" style="display:flex;padding:8px;flex-direction:column;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Heading 2" style="display:flex;width:180.667px;height:16.792px;flex-direction:column;align-items:flex-start;overflow:hidden;position:relative"><div layer-name="☁️英雄救美！前台大姐姐喊我乖崽，我听到咯~" style="width:181px;color:#F5F5F4;font-family:'Noto Sans SC';font-size:14px;font-style:normal;font-weight:600;line-height:16.8px /* 120% */;letter-spacing:0.7px;position:relative"><span style="font-family:Noto Sans SC, -apple-system, Roboto, Helvetica, sans-serif;font-weight:600;font-size:14px;color:rgba(245,245,244,1)">☁️英雄救美！前台大姐姐喊我乖崽，我听到咯~</span></div></div></div></div><div layer-name="Container" style="display:flex;height:32px;align-items:flex-start;position:relative;right:4.667px;top:4.667px"><div layer-name="Container:margin" style="display:flex;padding-right:2px;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Button - 编辑备注" style="display:flex;width:32px;height:32px;padding:8px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:551" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M9.33333 1.33334H4C3.64638 1.33334 3.30724 1.47381 3.05719 1.72386C2.80714 1.97391 2.66667 2.31305 2.66667 2.66667V13.3333C2.66667 13.687 2.80714 14.0261 3.05719 14.2761C3.30724 14.5262 3.64638 14.6667 4 14.6667H12C12.3536 14.6667 12.6928 14.5262 12.9428 14.2761C13.1929 14.0261 13.3333 13.687 13.3333 13.3333V5.33334L9.33333 1.33334Z" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9.33333 1.33334V5.33334H13.3333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10.6667 8.66667H5.33333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10.6667 11.3333H5.33333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</div></div><div layer-name="Container:margin" style="display:flex;padding-right:2px;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Button - 更新角色卡" style="display:flex;width:32px;height:32px;padding:8px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:558" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_48_558)">
+<path d="M14.3333 1.33333V5.33333H10.3333M1.66667 14.6667V10.6667H5.66667M1.33334 7.66666C1.39648 6.20767 1.93694 4.80976 2.87168 3.68774C3.80643 2.56573 5.08373 1.78168 6.50733 1.45607C7.93093 1.13046 9.42207 1.2813 10.7516 1.88542C12.0812 2.48954 13.1756 3.51351 13.8667 4.8M14.6667 8.33333C14.5904 9.78698 14.0404 11.1757 13.1007 12.2874C12.161 13.3992 10.8833 14.1728 9.4627 14.4902C8.04207 14.8075 6.5566 14.6512 5.23315 14.0451C3.9097 13.4389 2.82101 12.4163 2.13334 11.1333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_48_558">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</div></div><div layer-name="Container:margin" style="display:flex;padding-right:2px;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Button - 置顶" style="display:flex;width:32px;height:32px;padding:8px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:562" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M2 4H14" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8 12V5.33333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5.33334 8L8 5.33333L10.6667 8" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</div></div><div layer-name="Container:margin" style="display:flex;padding-right:2px;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Button - 清空历史" style="display:flex;width:32px;height:32px;padding:8px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:568" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M2 4H14" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12.6667 4V13.3333C12.6667 14 12 14.6667 11.3333 14.6667H4.66666C3.99999 14.6667 3.33333 14 3.33333 13.3333V4" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5.33333 4V2.66667C5.33333 2 5.99999 1.33334 6.66666 1.33334H9.33333C10 1.33334 10.6667 2 10.6667 2.66667V4" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.66667 7.33333V11.3333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9.33333 7.33333V11.3333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</div></div><div layer-name="Button - 删除" style="display:flex;width:32px;padding:8px;justify-content:center;align-items:center;align-self:stretch;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:576" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M2 4H3.33333H14" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66666C4.31304 14.6667 3.9739 14.5262 3.72385 14.2761C3.4738 14.0261 3.33333 13.687 3.33333 13.3333V4M5.33333 4V2.66667C5.33333 2.31305 5.4738 1.97391 5.72385 1.72386C5.9739 1.47381 6.31304 1.33334 6.66666 1.33334H9.33333C9.68695 1.33334 10.0261 1.47381 10.2761 1.72386C10.5262 1.97391 10.6667 2.31305 10.6667 2.66667V4" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</div></div></div></div><div layer-name="Container" style="display:flex;height:279.958px;flex-direction:column;align-items:flex-start;align-self:start;grid-row:2 / span 1;grid-column:1 / span 1;justify-self:stretch;position:relative"><div layer-name="Container" style="display:flex;height:279.958px;flex-direction:column;align-items:flex-start;flex-shrink:0;align-self:stretch;border-radius:12px;border:0.667px solid rgba(83, 71, 65, 0.20);background:rgba(26, 25, 21, 0.60);backdrop-filter:blur(20px);overflow:hidden;position:relative"><div layer-name="Container" style="display:flex;height:278.625px;flex-direction:column;align-items:flex-start;flex-shrink:0;align-self:stretch;position:relative"><div layer-name="Container" style="width:196.667px;height:245.833px;flex-shrink:0;border-radius:4px;position:relative"></div><div layer-name="Container" style="display:flex;padding:8px;flex-direction:column;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Heading 2" style="display:flex;width:180.667px;height:16.792px;flex-direction:column;align-items:flex-start;overflow:hidden;position:relative"><div layer-name="《鬼灭之刃》" style="color:#F5F5F4;font-family:'Noto Sans SC';font-size:14px;font-style:normal;font-weight:600;line-height:16.8px /* 120% */;letter-spacing:0.7px;position:relative"><span style="font-family:Noto Sans SC, -apple-system, Roboto, Helvetica, sans-serif;font-weight:600;font-size:14px;color:rgba(245,245,244,1)">《鬼灭之刃》</span></div></div></div></div><div layer-name="Container" style="display:flex;height:32px;align-items:flex-start;position:relative;right:4.667px;top:4.667px"><div layer-name="Container:margin" style="display:flex;padding-right:2px;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Button - 编辑备注" style="display:flex;width:32px;height:32px;padding:8px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:595" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_48_595)">
+<path d="M9.33334 1.33333H4.00001C3.64638 1.33333 3.30724 1.4738 3.0572 1.72385C2.80715 1.9739 2.66667 2.31304 2.66667 2.66666V13.3333C2.66667 13.687 2.80715 14.0261 3.0572 14.2761C3.30724 14.5262 3.64638 14.6667 4.00001 14.6667H12C12.3536 14.6667 12.6928 14.5262 12.9428 14.2761C13.1929 14.0261 13.3333 13.687 13.3333 13.3333V5.33333L9.33334 1.33333Z" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9.33333 1.33333V5.33333H13.3333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10.6667 8.66667H5.33333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10.6667 11.3333H5.33333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_48_595">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</div></div><div layer-name="Container:margin" style="display:flex;padding-right:2px;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Button - 更新角色卡" style="display:flex;width:32px;height:32px;padding:8px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:602" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_48_602)">
+<path d="M14.3333 1.33333V5.33333H10.3333M1.66666 14.6667V10.6667H5.66666M1.33333 7.66666C1.39647 6.20767 1.93693 4.80976 2.87168 3.68774C3.80642 2.56573 5.08372 1.78168 6.50732 1.45607C7.93092 1.13046 9.42206 1.2813 10.7516 1.88542C12.0812 2.48954 13.1756 3.51351 13.8667 4.8M14.6667 8.33333C14.5904 9.78698 14.0404 11.1757 13.1007 12.2874C12.161 13.3992 10.8833 14.1728 9.46269 14.4902C8.04206 14.8075 6.55659 14.6512 5.23314 14.0451C3.9097 13.4389 2.821 12.4163 2.13333 11.1333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_48_602">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</div></div><div layer-name="Container:margin" style="display:flex;padding-right:2px;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Button - 置顶" style="display:flex;width:32px;height:32px;padding:8px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:606" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M2 4H14" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8 12V5.33333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5.33334 7.99999L8 5.33333L10.6667 7.99999" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</div></div><div layer-name="Container:margin" style="display:flex;padding-right:2px;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Button - 清空历史" style="display:flex;width:32px;height:32px;padding:8px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:612" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_48_612)">
+<path d="M2 4H14" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12.6667 4V13.3333C12.6667 14 12 14.6667 11.3333 14.6667H4.66667C4 14.6667 3.33334 14 3.33334 13.3333V4" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5.33334 3.99999V2.66666C5.33334 1.99999 6 1.33333 6.66667 1.33333H9.33334C10 1.33333 10.6667 1.99999 10.6667 2.66666V3.99999" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.66666 7.33333V11.3333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9.33333 7.33333V11.3333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_48_612">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</div></div><div layer-name="Button - 删除" style="display:flex;width:32px;padding:8px;justify-content:center;align-items:center;align-self:stretch;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:620" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_48_620)">
+<path d="M2 4H3.33333H14" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12.6667 3.99999V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31304 14.6667 3.9739 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V3.99999M5.33333 3.99999V2.66666C5.33333 2.31304 5.47381 1.9739 5.72386 1.72385C5.97391 1.4738 6.31304 1.33333 6.66667 1.33333H9.33333C9.68695 1.33333 10.0261 1.4738 10.2761 1.72385C10.5262 1.9739 10.6667 2.31304 10.6667 2.66666V3.99999" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_48_620">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</div></div></div></div><div layer-name="Container" style="display:flex;height:279.958px;flex-direction:column;align-items:flex-start;align-self:start;grid-row:2 / span 1;grid-column:2 / span 1;justify-self:stretch;position:relative"><div layer-name="Container" style="display:flex;height:279.958px;flex-direction:column;align-items:flex-start;flex-shrink:0;align-self:stretch;border-radius:12px;border:0.667px solid rgba(83, 71, 65, 0.20);background:rgba(26, 25, 21, 0.60);backdrop-filter:blur(20px);overflow:hidden;position:relative"><div layer-name="Container" style="display:flex;height:278.625px;flex-direction:column;align-items:flex-start;flex-shrink:0;align-self:stretch;position:relative"><div layer-name="Container" style="width:196.667px;height:245.833px;flex-shrink:0;border-radius:4px;position:relative"></div><div layer-name="Container" style="display:flex;padding:8px;flex-direction:column;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Heading 2" style="display:flex;width:180.667px;height:16.792px;flex-direction:column;align-items:flex-start;overflow:hidden;position:relative"><div layer-name="超级嘴臭雌大鬼——甄芬" style="color:#F5F5F4;font-family:'Noto Sans SC';font-size:14px;font-style:normal;font-weight:600;line-height:16.8px /* 120% */;letter-spacing:0.7px;position:relative"><span style="font-family:Noto Sans SC, -apple-system, Roboto, Helvetica, sans-serif;font-weight:600;font-size:14px;color:rgba(245,245,244,1)">超级嘴臭雌大鬼——甄芬</span></div></div></div></div><div layer-name="Container" style="display:flex;height:32px;align-items:flex-start;position:relative;right:4.667px;top:4.667px"><div layer-name="Container:margin" style="display:flex;padding-right:2px;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Button - 编辑备注" style="display:flex;width:32px;height:32px;padding:8px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:639" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_48_639)">
+<path d="M9.33333 1.33333H4C3.64638 1.33333 3.30724 1.4738 3.05719 1.72385C2.80714 1.9739 2.66667 2.31304 2.66667 2.66666V13.3333C2.66667 13.687 2.80714 14.0261 3.05719 14.2761C3.30724 14.5262 3.64638 14.6667 4 14.6667H12C12.3536 14.6667 12.6928 14.5262 12.9428 14.2761C13.1929 14.0261 13.3333 13.687 13.3333 13.3333V5.33333L9.33333 1.33333Z" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9.33333 1.33333V5.33333H13.3333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10.6667 8.66667H5.33333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10.6667 11.3333H5.33333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_48_639">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</div></div><div layer-name="Container:margin" style="display:flex;padding-right:2px;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Button - 更新角色卡" style="display:flex;width:32px;height:32px;padding:8px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:646" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_48_646)">
+<path d="M14.3333 1.33333V5.33333H10.3333M1.66667 14.6667V10.6667H5.66667M1.33334 7.66666C1.39648 6.20767 1.93694 4.80976 2.87168 3.68774C3.80643 2.56573 5.08373 1.78168 6.50733 1.45607C7.93093 1.13046 9.42207 1.2813 10.7516 1.88542C12.0812 2.48954 13.1756 3.51351 13.8667 4.8M14.6667 8.33333C14.5904 9.78698 14.0404 11.1757 13.1007 12.2874C12.161 13.3992 10.8833 14.1728 9.4627 14.4902C8.04207 14.8075 6.5566 14.6512 5.23315 14.0451C3.9097 13.4389 2.82101 12.4163 2.13334 11.1333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_48_646">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</div></div><div layer-name="Container:margin" style="display:flex;padding-right:2px;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Button - 置顶" style="display:flex;width:32px;height:32px;padding:8px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:650" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M2 4H14" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8 12V5.33333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5.33334 7.99999L8 5.33333L10.6667 7.99999" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</div></div><div layer-name="Container:margin" style="display:flex;padding-right:2px;align-items:flex-start;align-self:stretch;position:relative"><div layer-name="Button - 清空历史" style="display:flex;width:32px;height:32px;padding:8px;justify-content:center;align-items:center;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:656" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_48_656)">
+<path d="M2 4H14" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12.6667 4V13.3333C12.6667 14 12 14.6667 11.3333 14.6667H4.66666C3.99999 14.6667 3.33333 14 3.33333 13.3333V4" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5.33333 3.99999V2.66666C5.33333 1.99999 5.99999 1.33333 6.66666 1.33333H9.33333C10 1.33333 10.6667 1.99999 10.6667 2.66666V3.99999" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.66667 7.33333V11.3333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9.33333 7.33333V11.3333" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_48_656">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</div></div><div layer-name="Button - 删除" style="display:flex;width:32px;padding:8px;justify-content:center;align-items:center;align-self:stretch;border-radius:9999px;background:rgba(26, 23, 20, 0.95);position:relative"><svg id="48:664" layer-name="Icon" style="flex-shrink:0;overflow:hidden;position:absolute;left:8px;top:8px" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_48_664)">
+<path d="M2 4H3.33333H14" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12.6667 3.99999V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66666C4.31304 14.6667 3.9739 14.5262 3.72385 14.2761C3.4738 14.0261 3.33333 13.687 3.33333 13.3333V3.99999M5.33333 3.99999V2.66666C5.33333 2.31304 5.4738 1.9739 5.72385 1.72385C5.9739 1.4738 6.31304 1.33333 6.66666 1.33333H9.33333C9.68695 1.33333 10.0261 1.4738 10.2761 1.72385C10.5262 1.9739 10.6667 2.31304 10.6667 2.66666V3.99999" stroke="#A8A29E" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_48_664">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</div></div></div></div></div></div></div></div></div></div></div>
+
+

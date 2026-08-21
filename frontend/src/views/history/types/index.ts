@@ -1,64 +1,87 @@
 /**
- * 历史记录业务领域强类型定义
+ * 个人历史记录与角色上线历史业务领域强类型定义
  *
  * @packageDocumentation
  */
 
-/**
- * 历史记录角色卡片实体 (Figma 原型)
- */
-export interface HistoryCharacterCard {
-  id: string;
-  title: string;
-  coverUrl: string;
-  heat: string; // 如 "63.8k"
-  commentsCount: string; // 如 "1.6k"
-  tokenUsage: string; // 如 "146.6M"
-  rating?: number; // 如 5.0
-  summary: string;
-  tags: string[]; // 如 ["#世界", "#玄幻", "+3"]
-  authorName: string; // 如 "@路过的hfs101"
-  weekPeriod?: string; // 如 "2026-W33"
-  lastInteractedTime?: string; // 如 "2小时前"
-}
-
-/**
- * 周次选项
- */
-export interface WeekOption {
-  id: string;
-  label: string; // 如 "全部周次", "本周", "第33周 (08.11-08.17)"
-}
-
-/**
- * 兼容历史项类型
- */
-export interface HistoryCardItem {
-  id: string;
-  characterId?: string;
-  title?: string;
-  coverUrl?: string;
-  avatarUrl?: string;
-  author?: string;
-  summary?: string;
-  tags?: string[];
-  type?: "character" | "story" | "worldbook";
-  lastChatTime?: string;
-  lastActiveTime?: string;
-  messageCount?: number;
-  isFavorite?: boolean;
-  isPinned?: boolean;
-  note?: string;
-  customNote?: string;
-  category?: string;
-}
-
+export type UserHistoryCategory = "story" | "tavern" | "custom" | "module";
 export type HistoryTabType =
-  | "all"
-  | "character"
-  | "story"
+  | "recent"
   | "favorite"
+  | "archived"
+  | "all"
+  | "story"
   | "market"
   | "settings"
   | "plugins";
 export type HistoryViewMode = "grid" | "list";
+
+/**
+ * 个人历史对话卡片实体 (1:1 原型高保真)
+ */
+export interface UserHistoryItem {
+  id: string;
+  characterId: string;
+  title: string;
+  avatar: string;
+  category: UserHistoryCategory;
+  isPinned?: boolean;
+  remark?: string;
+  lastChatTime: string;
+  messageCount: number;
+  isCloudBacked?: boolean;
+}
+
+/**
+ * 周次历史回顾实体 (兼容 character-history)
+ */
+export interface WeekOption {
+  id?: string;
+  value?: string;
+  label: string;
+  dateRange?: string;
+}
+
+export interface HistoryCharacterCard {
+  id: string;
+  title: string;
+  avatar?: string;
+  avatarUrl?: string;
+  coverUrl?: string;
+  author?: string;
+  authorName?: string;
+  heat: string;
+  comments?: string;
+  commentsCount?: string;
+  tokens?: string;
+  tokenUsage?: string;
+  rating?: number;
+  tags: string[];
+  week?: string;
+  weekPeriod?: string;
+  summary: string;
+  lastInteractedTime?: string;
+}
+
+export interface HistoryCardItem {
+  id: string;
+  characterId?: string;
+  title: string;
+  avatar?: string;
+  avatarUrl?: string;
+  author?: string;
+  authorName?: string;
+  heat?: string;
+  comments?: string;
+  tokens?: string;
+  rating?: number;
+  tags?: string[];
+  week?: string;
+  summary?: string;
+  roleCount?: number;
+  isPinned?: boolean;
+  customNote?: string;
+  lastActiveTime?: string;
+  messageCount?: number;
+  category?: string;
+}

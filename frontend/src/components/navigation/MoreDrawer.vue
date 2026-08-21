@@ -16,7 +16,7 @@ const router = useRouter();
 function handleItemClick(action: string) {
   appStore.closeMoreDrawer();
   if (action === "history") {
-    router.push("/history");
+    router.push("/character-history");
   } else if (action === "creator") {
     router.push("/creator");
   } else if (action === "ranking") {
@@ -25,6 +25,10 @@ function handleItemClick(action: string) {
     router.push("/activity");
   } else if (action === "notice") {
     router.push("/notice");
+  } else if (action === "survey") {
+    router.push("/survey");
+  } else if (action === "help" || action === "guide") {
+    router.push("/help");
   } else {
     // 其他功能反馈
   }
