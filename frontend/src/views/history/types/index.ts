@@ -28,6 +28,8 @@ export interface UserHistoryItem {
   isPinned?: boolean;
   remark?: string;
   lastChatTime: string;
+  lastChatDate?: string; // 精确时间，如 "2026/08/19 13:28"
+  branchName?: string; // 分支名称，如 "《鬼灭之刃》"
   messageCount: number;
   isCloudBacked?: boolean;
 }

@@ -13,14 +13,7 @@ import {
   type ModelChannelItem,
   type ModelFamilyItem,
 } from "@/views/chat-models/constants/mockModelFamilies";
-import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Moon,
-  Search,
-  Star,
-} from "lucide-vue-next";
+import { ChevronDown, ChevronLeft, ChevronRight, Moon, Search, Star } from "lucide-vue-next";
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 

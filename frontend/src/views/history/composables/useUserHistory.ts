@@ -5,12 +5,13 @@
  */
 
 import { MOCK_USER_HISTORY } from "@/data/mockUserHistory";
-import type { UserHistoryCategory, UserHistoryItem } from "@/views/history/types";
+import type { HistoryViewMode, UserHistoryCategory, UserHistoryItem } from "@/views/history/types";
 import { computed, ref } from "vue";
 
 export function useUserHistory() {
   const historyList = ref<UserHistoryItem[]>(MOCK_USER_HISTORY);
   const currentCategory = ref<UserHistoryCategory>("story");
+  const viewMode = ref<HistoryViewMode>("list"); // 默认为列表视图
   const isBatchMode = ref<boolean>(false);
   const selectedIds = ref<Set<string>>(new Set());
   const editingRemarkItem = ref<UserHistoryItem | null>(null);
@@ -49,6 +50,10 @@ export function useUserHistory() {
   function setCategory(cat: UserHistoryCategory): void {
     currentCategory.value = cat;
     selectedIds.value.clear();
+  }
+
+  function toggleViewMode(): void {
+    viewMode.value = viewMode.value === "grid" ? "list" : "grid";
   }
 
   function toggleBatchMode(): void {
@@ -145,6 +150,7 @@ export function useUserHistory() {
   return {
     historyList: filteredList,
     currentCategory,
+    viewMode,
     storyCount,
     tavernCount,
     customCount,
@@ -155,6 +161,7 @@ export function useUserHistory() {
     isRemarkModalOpen,
     toastMessage,
     setCategory,
+    toggleViewMode,
     toggleBatchMode,
     toggleSelectItem,
     togglePin,

@@ -2,7 +2,7 @@
 /**
  * 叙梦 Naro - 个人历史记录 (Smart Container 主入口)
  *
- * 1:1 像素级还原个人历史记录页面，展示 4 大分类胶囊、云端备份、批量删除、卡片 5 大悬浮快捷操作。
+ * 1:1 像素级还原个人历史记录页面，支持宫格/列表排版切换、4 大分类胶囊、云端备份、批量删除、卡片 5 大悬浮快捷操作。
  *
  * @packageDocumentation
  */
@@ -11,6 +11,7 @@ import BottomTabBar from "@/components/navigation/BottomTabBar.vue";
 import { useAppStore } from "@/stores/app";
 import UserHistoryBatchBar from "@/views/history/components/UserHistoryBatchBar.vue";
 import UserHistoryCardGrid from "@/views/history/components/UserHistoryCardGrid.vue";
+import UserHistoryCardList from "@/views/history/components/UserHistoryCardList.vue";
 import UserHistoryCategoryTabs from "@/views/history/components/UserHistoryCategoryTabs.vue";
 import UserHistoryHeader from "@/views/history/components/UserHistoryHeader.vue";
 import UserHistoryRemarkModal from "@/views/history/components/UserHistoryRemarkModal.vue";
@@ -25,6 +26,7 @@ const appStore = useAppStore();
 const {
   historyList,
   currentCategory,
+  viewMode,
   storyCount,
   tavernCount,
   customCount,
@@ -35,6 +37,7 @@ const {
   isRemarkModalOpen,
   toastMessage,
   setCategory,
+  toggleViewMode,
   toggleBatchMode,
   toggleSelectItem,
   togglePin,
@@ -55,7 +58,7 @@ function handleSelectCard(item: UserHistoryItem) {
 <template>
   <div class="flex flex-col min-h-screen w-full bg-gradient-to-br from-[#1A1511] to-[#2A221A] text-gray-100 relative">
     
-    <main class="w-full max-w-[440px] mx-auto px-4 pb-28 flex flex-col flex-1">
+    <main class="w-full max-w-[440px] mx-auto pb-28 flex flex-col flex-1">
       <!-- 1. 顶部 Header (大标题 "历史记录" + "云端备份" 金边按钮) -->
       <UserHistoryHeader @backup="triggerCloudBackup" />
 
@@ -69,16 +72,19 @@ function handleSelectCard(item: UserHistoryItem) {
         @select-category="setCategory"
       />
 
-      <!-- 3. 操作工具栏 (宫格切换 + 批量删除按钮) -->
+      <!-- 3. 操作工具栏 (宫格/列表排版切换 + 批量删除按钮) -->
       <UserHistoryToolbar
+        :view-mode="viewMode"
         :is-batch-mode="isBatchMode"
+        @toggle-view="toggleViewMode"
         @toggle-batch="toggleBatchMode"
       />
 
-      <!-- 4. 2 列个人历史角色卡片瀑布流 -->
-      <div class="mt-3">
-        <UserHistoryCardGrid
-          v-if="historyList.length > 0"
+      <!-- 4. 个人历史卡片区 (列表模式 / 宫格模式 自由切换) -->
+      <div class="mt-1">
+        <!-- 列表排版视图 -->
+        <UserHistoryCardList
+          v-if="historyList.length > 0 && viewMode === 'list'"
           :history-list="historyList"
           :is-batch-mode="isBatchMode"
           :selected-ids="selectedIds"
@@ -91,10 +97,26 @@ function handleSelectCard(item: UserHistoryItem) {
           @delete="deleteHistory"
         />
 
+        <!-- 宫格排版视图 -->
+        <div v-else-if="historyList.length > 0 && viewMode === 'grid'" class="px-4 pt-3">
+          <UserHistoryCardGrid
+            :history-list="historyList"
+            :is-batch-mode="isBatchMode"
+            :selected-ids="selectedIds"
+            @select-card="handleSelectCard"
+            @toggle-select="toggleSelectItem"
+            @remark="openRemarkModal"
+            @update-card="updateCharacterCard"
+            @pin="togglePin"
+            @clear="clearChatHistory"
+            @delete="deleteHistory"
+          />
+        </div>
+
         <!-- 空状态 -->
         <div
           v-else
-          class="flex flex-col items-center justify-center py-20 text-center"
+          class="flex flex-col items-center justify-center py-20 text-center px-4"
         >
           <div class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-3">
             <span class="text-2xl">📜</span>
@@ -136,7 +158,7 @@ function handleSelectCard(item: UserHistoryItem) {
       <span class="text-xl text-[#C0A480]">🐦</span>
     </button>
 
-    <!-- 9. 全局底部 5-Tab Bar (高亮第 2 个 Tab) -->
+    <!-- 9. 全局底部 5-Tab Bar -->
     <BottomTabBar />
 
     <!-- 10. 登录弹窗 -->

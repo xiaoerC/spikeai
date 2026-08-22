@@ -11,6 +11,9 @@
 import { type AiModelItem, MOCK_AI_MODELS } from "@/views/chat/constants/mockChatData";
 import { Check, ChevronRight, Moon, RefreshCw, Star, Zap } from "lucide-vue-next";
 import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const props = defineProps<{
   open: boolean;
@@ -347,6 +350,7 @@ function handleClose(): void {
         <!-- 5. 底部「更多模型」入口 (1:1 复刻) -->
         <button
           type="button"
+          @click="emit('update:open', false); router.push('/models')"
           class="w-full px-4 py-3.5 flex items-center justify-between border-t border-[#292524] bg-transparent hover:bg-white/5 transition-colors cursor-pointer mt-1"
         >
           <div class="flex items-center gap-2">
@@ -356,6 +360,7 @@ function handleClose(): void {
 
           <ChevronRight class="w-4 h-4 text-[#78716C]" />
         </button>
+
 
       </div>
     </div>

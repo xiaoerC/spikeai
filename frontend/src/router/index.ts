@@ -108,6 +108,14 @@ const router = createRouter({
       },
     },
     {
+      path: "/models",
+      name: "models",
+      component: () => import("@/views/chat-models/index.vue"),
+      meta: {
+        title: "更多模型 - 叙梦 Naro",
+      },
+    },
+    {
       path: "/chat/:id",
       name: "chat",
       component: () => import("@/views/chat/index.vue"),
@@ -115,6 +123,7 @@ const router = createRouter({
         title: "AI 对话 - 叙梦 Naro",
       },
     },
+
     {
       path: "/:pathMatch(.*)*",
       redirect: "/",
