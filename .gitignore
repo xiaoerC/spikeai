@@ -73,3 +73,6 @@ uploads/
 *.tsbuildinfo
 last_steps.json
 
+# CodeGraph Index
+.codegraph/
+

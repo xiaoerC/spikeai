@@ -34,6 +34,7 @@ export interface CharacterDetailData {
   prologue: {
     title: string;
     description: string;
+    html?: string;
     worldInfo: string;
     charactersInfo: string;
   };

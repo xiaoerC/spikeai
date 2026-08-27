@@ -1,3 +1,4 @@
+import { useAppStore } from "@/stores/app";
 import { createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
@@ -25,6 +26,7 @@ const router = createRouter({
       component: () => import("@/views/history/index.vue"),
       meta: {
         title: "历史记录 - 叙梦 Naro",
+        requiresAuth: true,
       },
     },
     {
@@ -33,6 +35,7 @@ const router = createRouter({
       component: () => import("@/views/character-create/index.vue"),
       meta: {
         title: "创建角色 - 叙梦 Naro",
+        requiresAuth: true,
       },
     },
     {
@@ -41,6 +44,7 @@ const router = createRouter({
       component: () => import("@/views/profile/index.vue"),
       meta: {
         title: "个人中心 - 叙梦 Naro",
+        requiresAuth: true,
       },
     },
     {
@@ -121,6 +125,7 @@ const router = createRouter({
       component: () => import("@/views/chat/index.vue"),
       meta: {
         title: "AI 对话 - 叙梦 Naro",
+        requiresAuth: true,
       },
     },
 
@@ -135,6 +140,19 @@ const router = createRouter({
     }
     return { top: 0 };
   },
+});
+
+router.beforeEach((to, _from, next) => {
+  if (to.meta.requiresAuth) {
+    const token = localStorage.getItem("naro_access_token");
+    if (!token) {
+      const appStore = useAppStore();
+      appStore.openLoginModal();
+      next("/");
+      return;
+    }
+  }
+  next();
 });
 
 router.afterEach((to) => {

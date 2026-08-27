@@ -11,7 +11,7 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -34,9 +34,18 @@ settings = get_settings()
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """应用程序生命周期上下文管理器。
 
-    在服务启动时验证连接，在服务停机时优雅释放数据库与 Redis 连接池。
+    在服务启动时验证连接与种子数据预热，在服务停机时优雅释放数据库与 Redis 连接池。
     """
     logger.info("SpikeAI 异步后端服务正在启动 (Env: %s)...", settings.APP_ENV)
+    try:
+        from app.core.database import AsyncSessionLocal
+        from app.services.character_service import CharacterService
+
+        async with AsyncSessionLocal() as db:
+            await CharacterService.ensure_seed_characters(db)
+            await CharacterService.prewarm_market_cache(db)
+    except Exception as e:
+        logger.warning("服务启动时种子注入与预热检查跳过: %s", e)
     yield
     logger.info("SpikeAI 异步后端服务正在停止，正在释放连接池资源...")
     await close_redis_connection()
@@ -68,7 +77,51 @@ def create_application() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # 注册系统自定义业务异常处理器
+    from fastapi.exceptions import RequestValidationError
+    from starlette.exceptions import HTTPException as StarletteHTTPException
+
+    # 1. 拦截所有 HTTP 异常 (401, 403, 404, 400 等)，统一输出标准业务 JSON
+    @app.exception_handler(StarletteHTTPException)
+    @app.exception_handler(HTTPException)
+    async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+        logger.warning(
+            "HTTP 请求异常 [URI: %s] [Status: %s]: %s",
+            request.url.path,
+            exc.status_code,
+            exc.detail,
+        )
+        code = exc.status_code * 100 if exc.status_code >= 400 else exc.status_code
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "code": code,
+                "message": str(exc.detail),
+                "show_message": True,
+                "data": None,
+            },
+            headers=getattr(exc, "headers", None),
+        )
+
+    # 2. 拦截 Pydantic DTO 参数校验异常 (422)
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception_handler(
+        request: Request, exc: RequestValidationError
+    ) -> JSONResponse:
+        logger.warning("请求参数校验失败 [URI: %s]: %s", request.url.path, exc.errors())
+        first_err = exc.errors()[0] if exc.errors() else {}
+        err_msg = first_err.get("msg", "请求参数格式不正确")
+        field = ".".join(str(loc) for loc in first_err.get("loc", []))
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content={
+                "code": 42201,
+                "message": f"参数格式错误 ({field}): {err_msg}" if field else f"参数错误: {err_msg}",
+                "show_message": True,
+                "data": None,
+            },
+        )
+
+    # 3. 注册系统自定义业务异常处理器
     @app.exception_handler(AppException)
     async def app_exception_handler(request: Request, exc: AppException) -> JSONResponse:
         logger.warning(
@@ -78,12 +131,18 @@ def create_application() -> FastAPI:
             exc.message,
             exc.details,
         )
+        code = exc.status_code * 100 if exc.status_code >= 400 else exc.status_code
         return JSONResponse(
             status_code=exc.status_code,
-            content=exc.to_dict(),
+            content={
+                "code": code,
+                "message": exc.message,
+                "show_message": True,
+                "data": exc.details if exc.details else None,
+            },
         )
 
-    # 注册全局未处理兜底异常处理器 (防御性编程：不静默吞掉异常，记录完整堆栈)
+    # 4. 注册全局未处理兜底异常处理器 (防御性编程：不静默吞掉异常，记录完整堆栈)
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
         logger.exception(
@@ -93,17 +152,25 @@ def create_application() -> FastAPI:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
-                "success": False,
-                "error_code": "INTERNAL_SERVER_ERROR",
+                "code": 50001,
                 "message": "服务器发生未知异常，请联系管理员",
-                "details": {"type": type(exc).__name__, "error": str(exc)}
+                "show_message": True,
+                "data": {"type": type(exc).__name__, "error": str(exc)}
                 if settings.DEBUG
-                else {},
+                else None,
             },
         )
 
     # 注册 API 路由树
     app.include_router(api_v1_router, prefix="/api/v1")
+
+    # 挂载本地上传静态文件目录 (Local Fallback)
+    from pathlib import Path
+    from fastapi.staticfiles import StaticFiles
+
+    upload_dir = Path(settings.UPLOAD_DIR)
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    app.mount("/static/uploads", StaticFiles(directory=str(upload_dir)), name="uploads")
 
     return app
 

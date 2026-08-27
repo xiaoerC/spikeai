@@ -1,12 +1,28 @@
 <script setup lang="ts">
 /**
- * 个人中心 - 玩家等级卡片 (1:1 原型高保真)
+ * 个人中心 - 玩家等级卡片 (绑定用户真实等级与经验)
  *
  * @packageDocumentation
  */
 
-import { PLAYER_LEVEL_DATA } from "@/views/profile/constants/profileMock";
 import { ChevronRight, Gem, Moon, Sparkles, Star } from "lucide-vue-next";
+
+interface Props {
+  playerData: {
+    level: number;
+    title: string;
+    currentXp: number;
+    nextLevelXp: number;
+    progressPercentage: number;
+    totalXp: number;
+    moonGemsUsed: number;
+    starCoinsUsed: number;
+    vipUsage: number;
+    totalRecharged: number;
+  };
+}
+
+defineProps<Props>();
 </script>
 
 <template>
@@ -26,10 +42,10 @@ import { ChevronRight, Gem, Moon, Sparkles, Star } from "lucide-vue-next";
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
           <span class="text-[14px] font-semibold text-[#A8A29E] leading-5">
-            {{ PLAYER_LEVEL_DATA.title }}
+            {{ playerData.title }}
           </span>
           <span class="text-xs text-[#78716C] font-medium">
-            等级 {{ PLAYER_LEVEL_DATA.level }}
+            等级 {{ playerData.level }}
           </span>
         </div>
         <button
@@ -45,26 +61,26 @@ import { ChevronRight, Gem, Moon, Sparkles, Star } from "lucide-vue-next";
         <div class="flex items-center justify-between text-xs">
           <span class="text-[#78716C]">经验值</span>
           <span class="text-[#A8A29E] font-mono font-medium">
-            {{ PLAYER_LEVEL_DATA.currentXp }} / {{ PLAYER_LEVEL_DATA.nextLevelXp }} XP
+            {{ playerData.currentXp }} / {{ playerData.nextLevelXp }} XP
           </span>
         </div>
         <div class="w-full h-2 rounded-full bg-[#292524] overflow-hidden relative">
           <div
             class="h-full rounded-full bg-[#F9C86D] opacity-80 shadow-[0_0_8px_rgba(249,200,109,0.15)] transition-all duration-300"
-            :style="{ width: `${PLAYER_LEVEL_DATA.progressPercentage}%` }"
+            :style="{ width: `${playerData.progressPercentage}%` }"
           />
         </div>
-        <p class="text-[11px] text-[#78716C] text-right mt-0.5">
-          {{ PLAYER_LEVEL_DATA.progressPercentage }}% 至下一等级
+        <p class="text-[11px] text-[#78716C] text-right mt-0.5 font-mono">
+          {{ playerData.progressPercentage }}% 至下一等级
         </p>
       </div>
     </div>
 
-    <!-- 3. 5 项指标阵列 (总经验、月华使用、星元使用、会员使用量、累计充值) -->
+    <!-- 3. 5 项真实指标阵列 -->
     <div class="w-full grid grid-cols-5 gap-1 pt-3 mt-1 border-t border-[#44403C]/60 text-center">
       <!-- (1) 总经验 -->
       <div class="flex flex-col items-center">
-        <span class="text-[13px] font-bold text-[#F5F5F4] font-mono tracking-tight">{{ PLAYER_LEVEL_DATA.totalXp }}</span>
+        <span class="text-[13px] font-bold text-[#F5F5F4] font-mono tracking-tight">{{ playerData.totalXp }}</span>
         <span class="text-[10px] text-[#78716C] mt-0.5">总经验</span>
       </div>
 
@@ -72,7 +88,7 @@ import { ChevronRight, Gem, Moon, Sparkles, Star } from "lucide-vue-next";
       <div class="flex flex-col items-center">
         <div class="flex items-center gap-0.5">
           <Moon class="w-2.5 h-2.5 text-[#FF9F43]" />
-          <span class="text-[13px] font-bold text-[#F5F5F4] font-mono tracking-tight">{{ PLAYER_LEVEL_DATA.moonGemsUsed }}</span>
+          <span class="text-[13px] font-bold text-[#F5F5F4] font-mono tracking-tight">{{ playerData.moonGemsUsed }}</span>
         </div>
         <span class="text-[10px] text-[#78716C] mt-0.5">月华使用</span>
       </div>
@@ -81,7 +97,7 @@ import { ChevronRight, Gem, Moon, Sparkles, Star } from "lucide-vue-next";
       <div class="flex flex-col items-center">
         <div class="flex items-center gap-0.5">
           <Star class="w-2.5 h-2.5 text-[#F9C86D] fill-[#F9C86D]" />
-          <span class="text-[13px] font-bold text-[#F5F5F4] font-mono tracking-tight">{{ PLAYER_LEVEL_DATA.starCoinsUsed }}</span>
+          <span class="text-[13px] font-bold text-[#F5F5F4] font-mono tracking-tight">{{ playerData.starCoinsUsed }}</span>
         </div>
         <span class="text-[10px] text-[#78716C] mt-0.5">星元使用</span>
       </div>
@@ -90,14 +106,14 @@ import { ChevronRight, Gem, Moon, Sparkles, Star } from "lucide-vue-next";
       <div class="flex flex-col items-center">
         <div class="flex items-center gap-0.5">
           <Gem class="w-2.5 h-2.5 text-[#60A5FA]" />
-          <span class="text-[13px] font-bold text-[#F5F5F4] font-mono tracking-tight">{{ PLAYER_LEVEL_DATA.vipUsage }}</span>
+          <span class="text-[13px] font-bold text-[#F5F5F4] font-mono tracking-tight">{{ playerData.vipUsage }}</span>
         </div>
         <span class="text-[10px] text-[#78716C] mt-0.5">会员使用量</span>
       </div>
 
       <!-- (5) 累计充值 -->
       <div class="flex flex-col items-center">
-        <span class="text-[13px] font-bold text-[#F5F5F4] font-mono tracking-tight">{{ PLAYER_LEVEL_DATA.totalRecharged }}</span>
+        <span class="text-[13px] font-bold text-[#F5F5F4] font-mono tracking-tight">{{ playerData.totalRecharged }}</span>
         <span class="text-[10px] text-[#78716C] mt-0.5">累计充值</span>
       </div>
     </div>

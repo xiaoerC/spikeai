@@ -5,6 +5,7 @@
  * @packageDocumentation
  */
 
+import { useUserStore } from "@/stores/user";
 import { DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot } from "reka-ui";
 import { ref } from "vue";
 
@@ -21,15 +22,17 @@ const emit = defineEmits<{
   (e: "switchToLogin"): void;
 }>();
 
+const userStore = useUserStore();
+
 /** 表单输入状态 */
 const inviteCode = ref("");
-const email = ref("1103560524@qq.com");
-const password = ref("a1111111");
-const verifyCode = ref("");
+const email = ref("new_traveler@naro.ai");
+const password = ref("pass123456");
+const verifyCode = ref("888888");
 const isAgeConfirmed = ref(true);
 const isSending = ref(false);
 const countdown = ref(0);
-const isSubmitting = ref(false);
+const errorMsg = ref("");
 
 /**
  * 发送验证码
@@ -52,17 +55,23 @@ function handleSendCode(): void {
 /**
  * 提交注册验证
  */
-function handleVerifyAndContinue(): void {
+async function handleVerifyAndContinue(): Promise<void> {
   if (!isAgeConfirmed.value) {
-    alert("请勾选确认已年满18周岁");
+    errorMsg.value = "请勾选确认已年满18周岁";
     return;
   }
-  isSubmitting.value = true;
-  setTimeout(() => {
-    isSubmitting.value = false;
+  if (!email.value || !password.value) {
+    errorMsg.value = "请输入邮箱与密码";
+    return;
+  }
+  errorMsg.value = "";
+  const ok = await userStore.register(email.value, password.value, inviteCode.value);
+  if (ok) {
     emit("success");
     emit("update:open", false);
-  }, 600);
+  } else {
+    errorMsg.value = userStore.errorMessage || "注册失败，请重试";
+  }
 }
 </script>
 
@@ -207,15 +216,20 @@ function handleVerifyAndContinue(): void {
             </button>
           </div>
 
+          <!-- 错误提示 -->
+          <p v-if="errorMsg" class="text-xs text-red-400 text-center mt-1 animate-fade-in">
+            {{ errorMsg }}
+          </p>
+
           <!-- 6. 验证并继续按钮容器 (height: 52px, padding-top: 16px, button height: 36px) -->
           <div class="w-full flex items-center justify-center pt-2">
             <button
               type="button"
               @click="handleVerifyAndContinue"
-              :disabled="isSubmitting"
-              class="h-9 px-4 flex items-center justify-center gap-1.5 rounded-lg bg-[#F9C86D] text-[#0C0A09] font-medium text-[12px] shadow-gold active:scale-95 transition-all cursor-pointer select-none"
+              :disabled="userStore.isLoading"
+              class="h-9 px-4 flex items-center justify-center gap-1.5 rounded-lg bg-[#F9C86D] text-[#0C0A09] font-medium text-[12px] shadow-gold active:scale-95 transition-all cursor-pointer select-none disabled:opacity-50"
             >
-              <span>验证并继续</span>
+              <span>{{ userStore.isLoading ? "注册中..." : "验证并继续" }}</span>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M7.58333 9.91667L10.5 7L7.58333 4.08334M10.5 7H3.5" stroke="#0C0A09" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>

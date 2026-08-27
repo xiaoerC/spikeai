@@ -1,14 +1,14 @@
 <script setup lang="ts">
 /**
- * 个人中心 - 我的背包卡片 (1:1 原型高保真)
+ * 个人中心 - 我的背包卡片 (真实空状态与分类展示)
  *
  * @packageDocumentation
  */
 
-import { Briefcase } from "lucide-vue-next";
+import { Briefcase, PackageOpen } from "lucide-vue-next";
 import { ref } from "vue";
 
-const activeCategory = ref("avatar-frame");
+const activeCategory = ref<"avatar-frame" | "title" | "items">("avatar-frame");
 </script>
 
 <template>
@@ -23,7 +23,7 @@ const activeCategory = ref("avatar-frame");
       </div>
     </div>
 
-    <!-- 2. 分类 Tab 栏 (带橙色高亮下划线) -->
+    <!-- 2. 分类 Tab 栏 -->
     <div class="flex items-center gap-4 border-b border-[#44403C]/50 pt-1">
       <button
         type="button"
@@ -32,7 +32,7 @@ const activeCategory = ref("avatar-frame");
         :class="activeCategory === 'avatar-frame' ? 'text-[#FF9F43] border-[#FF9F43]' : 'text-[#78716C] border-transparent'"
       >
         <span>头像框</span>
-        <span class="text-xs text-[#78716C] font-mono">(1)</span>
+        <span class="text-xs text-[#78716C] font-mono">(0)</span>
       </button>
 
       <button
@@ -56,20 +56,12 @@ const activeCategory = ref("avatar-frame");
       </button>
     </div>
 
-    <!-- 3. 道具网格 -->
-    <div class="grid grid-cols-3 gap-3 pt-2">
-      <!-- 道具 1: 月卡头像框 -->
-      <div class="flex flex-col items-center p-2.5 rounded-xl border-2 border-[#44403C] bg-[#292524]/30 hover:border-[#F9C86D]/50 transition-all cursor-pointer group">
-        <!-- 道具图标/预览 -->
-        <div class="w-14 h-14 rounded-full border border-[#F9C86D]/40 bg-[#1A1714] flex items-center justify-center relative overflow-hidden group-hover:scale-105 transition-transform">
-          <span class="text-xl">🌙</span>
-        </div>
-
-        <span class="text-xs text-[#F5F5F4] font-medium mt-1.5">月卡</span>
-        <span class="text-[11px] text-[#A8A29E]">普通</span>
-        <span class="text-[10px] text-[#78716C]">勋章奖励</span>
-      </div>
+    <!-- 3. 背包空状态 -->
+    <div class="py-8 flex flex-col items-center justify-center gap-2 text-center text-[#78716C]">
+      <PackageOpen class="w-8 h-8 opacity-40 text-[#A8A29E]" />
+      <p class="text-xs">
+        {{ activeCategory === 'avatar-frame' ? '暂无可用头像框' : activeCategory === 'title' ? '暂无专属称号' : '背包中暂无消耗道具' }}
+      </p>
     </div>
-
   </div>
 </template>

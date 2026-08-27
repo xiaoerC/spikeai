@@ -7,10 +7,12 @@
 
 import MoreDrawer from "@/components/navigation/MoreDrawer.vue";
 import { useAppStore } from "@/stores/app";
+import { useUserStore } from "@/stores/user";
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const appStore = useAppStore();
+const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
 
@@ -21,6 +23,16 @@ const currentActiveTab = computed(() => {
   if (route.path === "/") return "community";
   return appStore.activeTab;
 });
+
+function handleMiddleTabClick(): void {
+  if (userStore.isLoggedIn) {
+    if (route.path !== "/profile") {
+      router.push("/profile");
+    }
+  } else {
+    appStore.openLoginModal();
+  }
+}
 
 function handleNavigate(tab: "community" | "history" | "create" | "more") {
   if (tab === "more") {
@@ -90,18 +102,38 @@ function handleNavigate(tab: "community" | "history" | "create" | "more") {
         <span class="text-[9px] leading-[11.25px] tracking-[-0.176px]">历史记录</span>
       </button>
 
-      <!-- 3. 中间圆形暗黑高奢登录徽章 (完全深黑底座，严禁白色) -->
+      <!-- 3. 中间圆形暗黑高奢登录 / 打开账户徽章 (动态状态切换) -->
       <button
         type="button"
-        @click="appStore.openLoginModal()"
-        class="flex flex-col items-center justify-center w-[76.8px] bg-transparent cursor-pointer select-none"
+        @click="handleMiddleTabClick"
+        class="flex flex-col items-center justify-center w-[76.8px] bg-transparent cursor-pointer select-none group"
       >
-        <div class="flex items-center justify-center w-9 h-9 rounded-full border-2 border-[rgba(83,71,65,0.50)] bg-gradient-to-br from-[rgba(83,71,65,0.40)] to-[rgba(30,25,20,0.90)] mb-[2px] shadow-md overflow-hidden">
+        <!-- 已登录状态: 金色高奢龙纹徽章与微光 -->
+        <div
+          v-if="userStore.isLoggedIn"
+          class="flex items-center justify-center w-9 h-9 rounded-full border-2 border-[#F9C86D] bg-gradient-to-br from-[#2D2318] to-[#1A140E] mb-[2px] shadow-[0_0_12px_rgba(249,200,109,0.35)] overflow-hidden group-hover:scale-105 transition-transform"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19.5 7.05c-.35-.72-.94-1.3-1.66-1.66L15.5 4.1a3 3 0 0 0-3.32.42L10 6.3V4a1 1 0 0 0-1.7-.7L5.6 5.99A2.99 2.99 0 0 0 4.5 8.32V12c0 2.2 1.8 4 4 4h1.5a1 1 0 0 1 1 1v1.5a2.5 2.5 0 0 0 2.5 2.5h1a1 1 0 0 0 1-1v-2.1c1.2-.4 2.2-1.3 2.7-2.5l1.5-3.3a3 3 0 0 0 .3-2.05z" fill="#F9C86D"/>
+          </svg>
+        </div>
+
+        <!-- 未登录状态: 深黑底座登录徽章 -->
+        <div
+          v-else
+          class="flex items-center justify-center w-9 h-9 rounded-full border-2 border-[rgba(83,71,65,0.50)] bg-gradient-to-br from-[rgba(83,71,65,0.40)] to-[rgba(30,25,20,0.90)] mb-[2px] shadow-md overflow-hidden group-hover:scale-105 transition-transform"
+        >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z" fill="#F9C86D"/>
           </svg>
         </div>
-        <span class="text-[8px] leading-[10px] text-[#78716C] tracking-[-0.176px]">登录</span>
+
+        <span
+          class="text-[8px] leading-[10px] tracking-[-0.176px] transition-colors"
+          :class="userStore.isLoggedIn ? 'text-[#F9C86D] font-medium' : 'text-[#78716C]'"
+        >
+          {{ userStore.isLoggedIn ? "打开账户" : "登录" }}
+        </span>
       </button>
 
       <!-- 4. 创建角色 -->

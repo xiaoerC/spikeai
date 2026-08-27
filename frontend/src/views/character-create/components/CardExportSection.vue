@@ -8,21 +8,33 @@
 import { AppButton } from "@/components/common";
 import { useCardExporter } from "@/views/character-create/composables/useCardExporter";
 import type { CharacterFormData, FormValidationError } from "@/views/character-create/types";
-import { AlertCircle, Check, Code, Copy, Download, Eye } from "lucide-vue-next";
+import { AlertCircle, Check, Code, Copy, Download, Eye, Sparkles, Wand2 } from "lucide-vue-next";
 import { ref } from "vue";
 
-const props = defineProps<{
-  /** 角色全量表单数据 */
-  formData: CharacterFormData;
-  /** 校验错误列表 */
-  validationErrors: FormValidationError[];
-  /** 是否通过全部校验 */
-  isValid: boolean;
+const props = withDefaults(
+  defineProps<{
+    /** 角色全量表单数据 */
+    formData: CharacterFormData;
+    /** 校验错误列表 */
+    validationErrors: FormValidationError[];
+    /** 是否通过全部校验 */
+    isValid: boolean;
+    /** 是否正在提交发布 */
+    isSubmitting?: boolean;
+  }>(),
+  {
+    isSubmitting: false,
+  }
+);
+
+const emit = defineEmits<{
+  (e: "publish"): void;
+  (e: "simulate-upload"): void;
 }>();
 
-const { jsonPreviewString, downloadJsonFile, copyJsonToClipboard } = useCardExporter({
-  value: props.formData,
-});
+const { jsonPreviewString, downloadJsonFile, copyJsonToClipboard } = useCardExporter(
+  () => props.formData
+);
 
 const isJsonExpanded = ref<boolean>(false);
 const isCopied = ref<boolean>(false);
@@ -91,25 +103,50 @@ async function handleCopyJson(): Promise<void> {
         </ul>
       </div>
 
-      <!-- 下载大按钮 (金黄渐变实心大按钮) -->
-      <button
-        type="button"
-        :disabled="!isValid"
-        @click="downloadJsonFile"
-        :class="[
-          'w-full h-11 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-xl select-none',
-          isValid
-            ? 'bg-gradient-to-r from-[#FFD475] via-[#F9C86D] to-[#D1A35C] text-[#0C0A09] hover:opacity-90 active:scale-[0.98] cursor-pointer'
-            : 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-50'
-        ]"
-      >
-        <Download class="w-4 h-4" />
-        <span>下载角色卡</span>
-      </button>
+      <!-- 按钮组: 发布到社区 + 一键模拟上传 + 下载角色卡 -->
+      <div class="flex flex-col gap-2.5">
+        <!-- 1. 发布到社区大按钮 (金黄渐变实心大按钮) -->
+        <button
+          type="button"
+          :disabled="!isValid || isSubmitting"
+          @click="emit('publish')"
+          :class="[
+            'w-full h-12 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-xl select-none border-[1px] border-solid border-[#F9C86D]/60',
+            isValid && !isSubmitting
+              ? 'bg-gradient-to-r from-[#FFD475] via-[#F9C86D] to-[#D1A35C] text-[#0C0A09] hover:brightness-110 active:scale-[0.98] cursor-pointer'
+              : 'bg-neutral-800 text-neutral-500 border-neutral-700 cursor-not-allowed opacity-50'
+          ]"
+        >
+          <Sparkles class="w-4 h-4" />
+          <span>{{ isSubmitting ? "正在发布角色卡..." : "发布到叙梦社区 (享受星元/月华回报)" }}</span>
+        </button>
+
+        <!-- 2. 一键模拟全字段并上传角色 (快速发布高保真完整角色) -->
+        <button
+          type="button"
+          :disabled="isSubmitting"
+          @click="emit('simulate-upload')"
+          class="w-full h-11 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 border-[1px] border-solid border-[#F9C86D]/60 bg-[rgba(249,200,109,0.15)] text-[#F9C86D] hover:bg-[rgba(249,200,109,0.25)] transition-all cursor-pointer select-none shadow-lg active:scale-[0.98]"
+        >
+          <Wand2 class="w-4 h-4" />
+          <span>一键模拟填充并上传角色 (全参数自动落库)</span>
+        </button>
+
+        <!-- 3. 下载角色卡 (SillyTavern 格式) -->
+        <button
+          type="button"
+          :disabled="!isValid"
+          @click="downloadJsonFile"
+          class="w-full h-10 rounded-xl font-medium text-xs flex items-center justify-center gap-2 border-[1px] border-solid border-[#44403C] bg-[#292524]/60 text-[#D6D3D1] hover:border-[#F9C86D]/40 hover:text-[#F9C86D] transition-all cursor-pointer select-none"
+        >
+          <Download class="w-3.5 h-3.5" />
+          <span>导出为 SillyTavern 标准卡片 (JSON)</span>
+        </button>
+      </div>
 
       <!-- 社区上传收益引导说明 -->
       <p class="text-center text-[11px] text-[#78716C] leading-normal">
-        从历史记录-我的上传-上传到社区，即可上传（原创卡片享受星元/月华回报）
+        原创角色卡发布后将进入社区市场，其他旅人游玩与打赏将为您带来分成收益。
       </p>
     </div>
 

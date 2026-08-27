@@ -25,9 +25,9 @@ const characterId = (route.params.id as string) || "c1";
 
 const {
   character,
+  comments,
   isLiked,
   isFavorited,
-  toastMessage,
   handleStartChat,
   handleToggleLike,
   handleToggleFavorite,
@@ -77,22 +77,14 @@ const {
     <!-- 7. 详细信息元数据卡片 (创建/更新/版本/公开性) -->
     <CharacterMetaInfoCard :meta="character.meta" />
 
-    <!-- 8. 评论区输入与空状态模块 -->
-    <CharacterCommentsCard @submit-comment="handleAddComment" />
+    <!-- 8. 评论区输入与真实评论列表 -->
+    <CharacterCommentsCard :comments="comments" @submit-comment="handleAddComment" />
 
     <!-- 9. 右下角悬浮粉鸟吉祥物微章 -->
     <FloatingMascotBadge @click="handleStartChat" />
 
     <!-- 10. 全局底部导航栏 -->
     <BottomTabBar />
-
-    <!-- 11. 轻量浮动 Toast 反馈 -->
-    <div
-      v-if="toastMessage"
-      class="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-[#F9C86D] text-[#0C0A09] font-medium text-xs shadow-2xl animate-fade-in pointer-events-none"
-    >
-      {{ toastMessage }}
-    </div>
 
   </div>
 </template>

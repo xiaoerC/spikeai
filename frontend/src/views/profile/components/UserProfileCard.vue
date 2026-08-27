@@ -6,8 +6,16 @@
  */
 
 import { PROFILE_USER_DATA } from "@/views/profile/constants/profileMock";
-import { Check, Copy, Moon, Sparkles, Star } from "lucide-vue-next";
+import { Check, Copy, Moon, RotateCcw, Sparkles, Star } from "lucide-vue-next";
 import { ref } from "vue";
+
+interface Props {
+  userData?: typeof PROFILE_USER_DATA;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  userData: () => PROFILE_USER_DATA,
+});
 
 const emit = defineEmits<{
   (e: "recharge"): void;
@@ -19,7 +27,7 @@ const emit = defineEmits<{
 const copied = ref(false);
 
 function handleCopyId(): void {
-  navigator.clipboard.writeText(PROFILE_USER_DATA.id);
+  navigator.clipboard.writeText(props.userData.id);
   copied.value = true;
   setTimeout(() => {
     copied.value = false;
@@ -40,7 +48,7 @@ function handleCopyId(): void {
       <!-- 大圆形头像 -->
       <div class="w-20 h-20 rounded-full border-2 border-[#F9C86D]/40 bg-[#292524] overflow-hidden flex items-center justify-center shadow-lg">
         <img
-          :src="PROFILE_USER_DATA.avatarUrl"
+          :src="props.userData.avatarUrl"
           alt="Avatar"
           class="w-full h-full object-cover"
         />
@@ -53,15 +61,15 @@ function handleCopyId(): void {
     <!-- 2. 用户名、邮箱与 ID -->
     <div class="flex flex-col items-center mt-3 gap-0.5">
       <h2 class="text-[20px] font-semibold text-[#F5F5F4] tracking-[-0.4px] leading-6 font-sans">
-        {{ PROFILE_USER_DATA.username }}
+        {{ props.userData.username }}
       </h2>
       <p class="text-xs text-[#78716C] tracking-[-0.176px]">
-        {{ PROFILE_USER_DATA.email }}
+        {{ props.userData.email }}
       </p>
 
       <!-- ID 与复制按钮 -->
       <div class="flex items-center gap-1 mt-1 text-[10px] text-[#78716C] font-mono">
-        <span>{{ PROFILE_USER_DATA.shortId }}</span>
+        <span>{{ props.userData.shortId }}</span>
         <button
           type="button"
           @click="handleCopyId"
@@ -79,85 +87,86 @@ function handleCopyId(): void {
       <!-- 星元胶囊 -->
       <div class="flex items-center gap-1 px-2.5 py-1 rounded-full border border-[#F9C86D]/30 bg-[#292524]">
         <Star class="w-3 h-3 text-[#F9C86D] fill-[#F9C86D]" />
-        <span class="text-xs font-bold text-[#F9C86D]">{{ PROFILE_USER_DATA.starCoins }}</span>
+        <span class="text-xs font-bold text-[#F9C86D]">{{ props.userData.starCoins }}</span>
       </div>
 
       <!-- 月华胶囊 -->
       <div class="flex items-center gap-1 px-2.5 py-1 rounded-full border border-[#FF9F43]/30 bg-[#292524]">
         <Moon class="w-3 h-3 text-[#FF9F43] fill-[#FF9F43]" />
-        <span class="text-xs font-bold text-[#FF9F43]">{{ PROFILE_USER_DATA.moonGems }}</span>
+        <span class="text-xs font-bold text-[#FF9F43]">{{ props.userData.moonGems }}</span>
       </div>
 
       <!-- 会员等级胶囊 -->
       <div class="flex items-center gap-1 px-2.5 py-1 rounded-full border border-[#6A7282]/30 bg-[#6A7282]/20">
-        <span class="text-xs font-medium text-[#99A1AF]">{{ PROFILE_USER_DATA.vipLevel }}</span>
+        <span class="text-xs font-medium text-[#99A1AF]">{{ props.userData.vipLevel }}</span>
       </div>
     </div>
 
-    <!-- 4. 快捷主操作按钮行 (充值 / 每日奖励日常) -->
-    <div class="w-full grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-[#44403C]/30">
+    <!-- 4. 快捷主操作按钮行 (续费 / 每日奖励日常) -->
+    <div class="w-full grid grid-cols-2 gap-2.5 mt-4 pt-3 border-t border-[#44403C]/30">
       <button
         type="button"
         @click="emit('recharge')"
-        class="h-8 rounded-full border border-[#F9C86D]/60 flex items-center justify-center gap-1.5 text-xs font-semibold text-[#F9C86D] hover:bg-[#F9C86D]/10 active:scale-95 transition-all cursor-pointer select-none"
+        class="h-8.5 rounded-full border-[1px] border-solid border-[#F9C86D] bg-transparent flex items-center justify-center gap-1.5 text-xs font-semibold text-[#F9C86D] hover:bg-[#F9C86D]/10 active:scale-95 transition-all cursor-pointer select-none"
       >
-        <span>充值</span>
+        <RotateCcw class="w-3.5 h-3.5 text-[#F9C86D]" />
+        <span>续费</span>
       </button>
 
       <button
         type="button"
         @click="emit('dailyReward')"
-        class="h-8 rounded-full border border-[#F9C86D]/60 bg-gradient-to-r from-[#F9C86D]/20 to-[#F9C86D]/20 flex items-center justify-center gap-1.5 text-xs font-medium text-[#F9C86D] hover:from-[#F9C86D]/30 hover:to-[#F9C86D]/30 active:scale-95 transition-all cursor-pointer select-none"
+        class="h-8.5 rounded-full border-[1px] border-solid border-[#F9C86D] bg-gradient-to-r from-[#F9C86D]/20 via-[#F9C86D]/25 to-[#F9C86D]/20 flex items-center justify-center gap-1.5 text-xs font-semibold text-[#F9C86D] hover:from-[#F9C86D]/35 hover:to-[#F9C86D]/35 active:scale-95 transition-all cursor-pointer select-none shadow-[0_0_12px_rgba(249,200,109,0.1)]"
       >
         <span>每日奖励日常</span>
       </button>
     </div>
 
-    <!-- 5. 辅助功能导航微胶囊 -->
-    <div class="w-full flex items-center gap-2 overflow-x-auto no-scrollbar mt-3 pt-3 pb-2 border-t border-[#44403C]/30">
+    <!-- 5. 辅助功能导航微胶囊 (带显式 border 与深色背景) -->
+    <div class="w-full flex items-center gap-2 overflow-x-auto no-scrollbar mt-3 pt-3 pb-1 border-t border-[#44403C]/30">
       <button
         type="button"
         @click="emit('navigate', 'home')"
-        class="px-3 py-1 rounded-full border border-[#A8A29E]/50 text-xs text-[#A8A29E] hover:text-white hover:border-[#F9C86D] whitespace-nowrap transition-colors cursor-pointer shrink-0"
+        class="px-3.5 py-1 rounded-full border-[1px] border-solid border-[#57534E] bg-[#292524] text-xs font-normal text-[#D6D3D1] hover:text-white hover:border-[#F9C86D] hover:bg-[#34302D] whitespace-nowrap transition-all cursor-pointer shrink-0 select-none"
       >
         个人首页
       </button>
       <button
         type="button"
         @click="emit('navigate', 'community')"
-        class="px-3 py-1 rounded-full border border-[#A8A29E]/50 text-xs text-[#A8A29E] hover:text-white hover:border-[#F9C86D] whitespace-nowrap transition-colors cursor-pointer shrink-0"
+        class="px-3.5 py-1 rounded-full border-[1px] border-solid border-[#57534E] bg-[#292524] text-xs font-normal text-[#D6D3D1] hover:text-white hover:border-[#F9C86D] hover:bg-[#34302D] whitespace-nowrap transition-all cursor-pointer shrink-0 select-none"
       >
         社区
       </button>
       <button
         type="button"
         @click="emit('navigate', 'search-pref')"
-        class="px-3 py-1 rounded-full border border-[#A8A29E]/50 text-xs text-[#A8A29E] hover:text-white hover:border-[#F9C86D] whitespace-nowrap transition-colors cursor-pointer shrink-0"
+        class="px-3.5 py-1 rounded-full border-[1px] border-solid border-[#57534E] bg-[#292524] text-xs font-normal text-[#D6D3D1] hover:text-white hover:border-[#F9C86D] hover:bg-[#34302D] whitespace-nowrap transition-all cursor-pointer shrink-0 select-none"
       >
         搜索偏好
       </button>
       <button
         type="button"
         @click="emit('navigate', 'advanced')"
-        class="px-3 py-1 rounded-full border border-[#A8A29E]/50 text-xs text-[#A8A29E] hover:text-white hover:border-[#F9C86D] whitespace-nowrap transition-colors cursor-pointer shrink-0"
+        class="px-3.5 py-1 rounded-full border-[1px] border-solid border-[#57534E] bg-[#292524] text-xs font-normal text-[#D6D3D1] hover:text-white hover:border-[#F9C86D] hover:bg-[#34302D] whitespace-nowrap transition-all cursor-pointer shrink-0 select-none"
       >
         高级设置
       </button>
       <button
         type="button"
         @click="emit('navigate', 'guide')"
-        class="px-3 py-1 rounded-full border border-[#A8A29E]/50 text-xs text-[#A8A29E] hover:text-white hover:border-[#F9C86D] whitespace-nowrap transition-colors cursor-pointer shrink-0"
+        class="px-3.5 py-1 rounded-full border-[1px] border-solid border-[#57534E] bg-[#292524] text-xs font-normal text-[#D6D3D1] hover:text-white hover:border-[#F9C86D] hover:bg-[#34302D] whitespace-nowrap transition-all cursor-pointer shrink-0 select-none"
       >
         新手攻略
       </button>
     </div>
 
-    <!-- 6. 退出登录全宽红边按钮 -->
-    <div class="w-full mt-2">
+    <!-- 6. 退出登录全宽红边胶囊按钮 (对齐图1完整红边) -->
+    <div class="w-full mt-3">
       <button
         type="button"
         @click="emit('logout')"
-        class="w-full h-8 rounded-full border border-[#EF4444]/30 flex items-center justify-center text-xs font-medium text-[#EF4444] hover:bg-[#EF4444]/10 active:scale-98 transition-all cursor-pointer select-none"
+        class="w-full h-8.5 rounded-full border-[1px] border-solid border-[#EF4444] bg-[#EF4444]/[0.03] flex items-center justify-center text-xs font-medium text-[#EF4444] hover:bg-[#EF4444]/15 active:scale-98 transition-all cursor-pointer select-none"
       >
         退出登录
       </button>

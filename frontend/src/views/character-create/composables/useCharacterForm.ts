@@ -1,11 +1,11 @@
 /**
- * 角色卡创建表单组合式 Hook
+ * 角色卡创建表单组合式 Hook (基于 Reactive 全深度响应式体系)
  *
  * @packageDocumentation
  */
 
 import type { CharacterFormData, FormValidationError } from "@/views/character-create/types";
-import { computed, ref } from "vue";
+import { computed, reactive } from "vue";
 
 /**
  * 初始空白表单数据
@@ -39,20 +39,20 @@ function createInitialFormData(): CharacterFormData {
  * 角色卡表单状态机
  */
 export function useCharacterForm() {
-  const formData = ref<CharacterFormData>(createInitialFormData());
+  const formData = reactive<CharacterFormData>(createInitialFormData());
 
   /**
    * 表单完善度校验
    */
   const validationErrors = computed<FormValidationError[]>(() => {
     const errors: FormValidationError[] = [];
-    if (!formData.value.name.trim()) {
+    if (!formData.name.trim()) {
       errors.push({ field: "name", message: "角色/故事名称不能为空" });
     }
-    if (formData.value.tags.length === 0) {
+    if (formData.tags.length === 0) {
       errors.push({ field: "tags", message: "请至少选择一个标签" });
     }
-    if (!formData.value.firstMes.trim()) {
+    if (!formData.firstMes.trim()) {
       errors.push({ field: "firstMes", message: "首次问候语不能为空" });
     }
     return errors;
@@ -64,7 +64,7 @@ export function useCharacterForm() {
    * 重置清空表单
    */
   function resetForm(): void {
-    formData.value = createInitialFormData();
+    Object.assign(formData, createInitialFormData());
   }
 
   /**
@@ -77,15 +77,15 @@ export function useCharacterForm() {
       // 兼容 SillyTavern V2 (parsed.data) 与普通格式
       const charData = parsed.data || parsed;
 
-      formData.value = {
+      Object.assign(formData, {
         creatorNotes: charData.creator_notes || charData.creatorNotes || "",
         name: charData.name || "",
-        avatarUrl: charData.avatarUrl || "",
+        avatarUrl: charData.avatarUrl || charData.extensions?.naro_avatar_url || "",
         tags: Array.isArray(charData.tags) ? charData.tags.slice(0, 5) : [],
         description: charData.description || "",
         personality: charData.personality || "",
         scenario: charData.scenario || "",
-        prologueHtml: charData.prologueHtml || "",
+        prologueHtml: charData.prologueHtml || charData.extensions?.naro_prologue_html || "",
         firstMes: charData.first_mes || charData.firstMes || "",
         alternateGreetings: Array.isArray(charData.alternate_greetings)
           ? charData.alternate_greetings.map((g: string, idx: number) => ({
@@ -96,8 +96,16 @@ export function useCharacterForm() {
           : [],
         systemPrompt: charData.system_prompt || "",
         postHistoryInstructions: charData.post_history_instructions || "",
-        worldbookEntries: [],
-      };
+        worldbookEntries: charData.character_book?.entries
+          ? charData.character_book.entries.map((wb: any, idx: number) => ({
+              id: `wb-${idx + 1}`,
+              name: wb.name || `设定 ${idx + 1}`,
+              keys: wb.keys || [],
+              content: wb.content || "",
+              isEnabled: wb.enabled ?? true,
+            }))
+          : [],
+      });
       return true;
     } catch (err) {
       console.error("Failed to parse imported character JSON:", err);

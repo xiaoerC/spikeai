@@ -1,6 +1,6 @@
 ---
 name: naro-ui-components
-description: SpikeAI / 叙梦 Naro 前端通用基础组件库 (AppButton, AppModal, AppDrawer, AppTabs) 与无头原语 (Reka UI + Vaul Vue + UnoCSS) 使用指南与大厂级最佳实践。
+description: SpikeAI / 叙梦 Naro 前端通用基础组件库 (AppButton, AppModal, AppDrawer, AppTabs) 与无头原语 (Reka UI + Vaul Vue + UnoCSS) 使用指南。包含绝对禁止原生 alert/confirm、杜绝 Ad-hoc 弹窗与大厂级最佳实践。
 license: MIT
 file_patterns:
   - "frontend/src/components/common/**/*"
@@ -15,6 +15,7 @@ triggers:
   - "Vaul Vue"
   - "BottomSheet"
   - "Dialog"
+  - "Toast feedback"
   - "Common UI components"
 ---
 
@@ -67,7 +68,6 @@ const isModelDrawerOpen = ref(false)
 const selectedModel = ref('deepseek-v3')
 
 function handleConfirm() {
-  // 业务逻辑
   isModelDrawerOpen.value = false
 }
 </script>
@@ -80,7 +80,6 @@ function handleConfirm() {
     :snap-points="['380px', '700px', 1]"
     show-close
   >
-    <!-- 抽屉滚动内容 -->
     <div class="flex flex-col gap-2.5">
       <div 
         v-for="model in ['deepseek-v3', 'claude-3-7-sonnet', 'gpt-4o']" 
@@ -94,7 +93,6 @@ function handleConfirm() {
       </div>
     </div>
 
-    <!-- 底部固定吸底操作区 -->
     <template #footer>
       <div class="flex items-center gap-3">
         <AppButton variant="ghost" class="flex-1" @click="isModelDrawerOpen = false">取消</AppButton>
@@ -120,43 +118,29 @@ function handleConfirm() {
 | `showClose` | `boolean` | `true` | 是否展示右上角关闭按钮 |
 | `customClass` | `string` | `""` | 弹窗卡片额外类名 (如 `max-w-md`) |
 
-#### 💡 实操范式：登录授权与关键操作确认
+#### 💡 实操范式：登录授权与关键确认
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
 import { AppModal, AppButton } from '@/components/common'
 
-const isLoginModalOpen = ref(false)
-const isLoading = ref(false)
+const isLogoutModalOpen = ref(false)
 
-async function submitLogin() {
-  isLoading.value = true
-  try {
-    // 登录 API
-    isLoginModalOpen.value = false
-  } finally {
-    isLoading.value = false
-  }
+function handleLogout() {
+  // 执行退出逻辑，绝不弹原生 alert！
+  isLogoutModalOpen.value = false
 }
 </script>
 
 <template>
   <AppModal
-    v-model:open="isLoginModalOpen"
-    title="欢迎回到叙梦 Naro"
-    description="登录以同步您的云端角色卡、剧情分支与星元月华资产"
+    v-model:open="isLogoutModalOpen"
+    title="确认退出登录"
+    description="退出后将无法同步云端剧情分支与资产记录，确定退出吗？"
   >
-    <div class="flex flex-col gap-3 py-2">
-      <input 
-        type="text" 
-        placeholder="请输入邮箱 / 账号" 
-        class="w-full px-4 py-2.5 rounded-xl bg-obsidian-surface border border-obsidian-border text-gray-200 placeholder-naro-muted text-sm focus:border-naro-gold focus:outline-none"
-      />
-    </div>
-
     <template #footer>
-      <AppButton variant="ghost" @click="isLoginModalOpen = false">稍后体验</AppButton>
-      <AppButton variant="gold" :loading="isLoading" @click="submitLogin">立即进入</AppButton>
+      <AppButton variant="ghost" @click="isLogoutModalOpen = false">取消</AppButton>
+      <AppButton variant="danger" @click="handleLogout">确认退出</AppButton>
     </template>
   </AppModal>
 </template>
@@ -178,84 +162,30 @@ async function submitLogin() {
 | `type` | `'button' \| 'submit' \| 'reset'` | `'button'` | 原生按钮类型 |
 | `@click` | `(event: MouseEvent) => void` | - | 点击事件回调 |
 
-#### 💡 变体使用准则
-```vue
-<!-- 主要高亮操作 (香槟金渐变高光) -->
-<AppButton variant="gold" size="md">创建新角色</AppButton>
-
-<!-- 次级幽暗操作 (黑曜石面板边框) -->
-<AppButton variant="ghost" size="md">取消 / 返回</AppButton>
-
-<!-- 危险警告操作 (暗红半透光晕) -->
-<AppButton variant="danger" size="sm">删除此分支</AppButton>
-
-<!-- 描边轻量操作 (金线通透) -->
-<AppButton variant="outline" size="sm">导出 PNG 角色卡</AppButton>
-
-<!-- 图标专属按钮 -->
-<AppButton variant="ghost" size="icon">
-  <span class="i-carbon-settings text-lg" />
-</AppButton>
-```
-
 ---
 
 ### 4. `AppTabs` —— 黑金分栏切换组件 (基于 Reka UI Tabs)
 
 支持左右方向键键盘漫游、胶囊态（`pills`）与下划线态（`line`），支持角标（Badge）。
 
-#### Props & Emits
-| 属性名 | 类型 | 默认值 | 说明 |
-| :--- | :--- | :--- | :--- |
-| `v-model` | `string` | **必填** | 当前选中的 Tab Key |
-| `items` | `TabItem[]` | **必填** | `[{ value: 'all', label: '全部', badge: 12 }]` |
-| `variant` | `'pills' \| 'line'` | `'pills'` | `pills` 胶囊悬浮 / `line` 底部金线 |
-| `customClass` | `string` | `""` | 容器扩展类名 |
-
-#### 💡 实操范式
-```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-import { AppTabs } from '@/components/common'
-import type { TabItem } from '@/components/common'
-
-const currentTab = ref('all')
-const tabs: TabItem[] = [
-  { value: 'all', label: '全部推荐' },
-  { value: 'story', label: '深度剧情卡', badge: 'HOT' },
-  { value: 'gentleman', label: '绅士秘境', badge: 8 }
-]
-</script>
-
-<template>
-  <AppTabs v-model="currentTab" :items="tabs" variant="pills" />
-</template>
-```
-
 ---
 
 ## 三、 大厂级开发铁律与反模式（Forbidden Anti-Patterns）
 
-在编写前端业务组件时，必须严格遵守以下 5 条铁律：
+在编写前端业务组件与交互时，必须严格遵守以下 6 条铁律：
 
-1. ❌ **严禁手写 Ad-hoc 的 `position: fixed` 遮罩与弹窗**：
+1. ❌ **绝对禁止调用浏览器原生 `alert()` / `confirm()` / `prompt()` (Zero Native Dialogs)**：
+   - 严禁出现诸如 `alert('已退出登录')` 或 `confirm('确认删除吗？')` 的原生白底弹窗！原生弹窗会破坏黑金玻璃拟物沉浸感、阻塞 JS 线程且样式无法定制。
+   - **正确做法**：轻量提示使用 **Toast 轻提示**，破坏性/二次确认操作使用 **`<AppModal>`** 或 **`<AppDrawer>`**。
+2. ❌ **严禁手写 Ad-hoc 的 `position: fixed` 遮罩与弹窗**：
    - 必须统一使用 `AppModal` 或 `AppDrawer`。手写遮罩容易丢失 iOS 滚动穿透防护、A11y 焦点管理和 ESC 键盘关闭能力。
-2. ❌ **严禁移动端硬套居中 Modal**：
+3. ❌ **严禁移动端硬套居中 Modal**：
    - 在手机端（`< 768px`），复杂筛选、长表单、多选项列表一律使用 **`AppDrawer` (BottomSheet)**，只有极简确认提示（如 1~2 行文案）才使用居中 `AppModal`。
-3. ❌ **严禁内联硬编码颜色与按钮类名**：
+4. ❌ **严禁内联硬编码颜色与按钮类名**：
    - 按钮必须使用 `<AppButton>`，杜绝在 `<div>` 或 `<button>` 上随意手写 `bg-[#f9c86d]` 或硬编码样式。
-4. ❌ **严格遵循 UnoCSS 配色 Token**：
+5. ❌ **严格遵循 UnoCSS 配色 Token**：
    - 背景使用 `bg-obsidian-bg` (`#0F0D0C`) 或 `bg-obsidian-surface` (`#1A1714`)。
    - 边框使用 `border-obsidian-border` (`#44403C`)。
    - 金色文字/高光使用 `text-naro-gold` (`#F9C86D`)。
-5. ❌ **严格保证 Safe Area 底部留白**：
+6. ❌ **严格保证 Safe Area 底部留白**：
    - 任何涉及移动端底部吸底的面板或抽屉，必须带有 `pb-safe`（已内置在 `AppDrawer` 的 content/footer 中）。
-
----
-
-## 四、 扩展新无头组件的方法 (Using Reka UI)
-
-如需增加下拉菜单（DropdownMenu）、下拉选择器（Select）、开关（Switch）等新组件：
-1. 从 `reka-ui` 引入无头原语（如 `DropdownMenuRoot`, `DropdownMenuTrigger`, `DropdownMenuContent`, `DropdownMenuItem`）。
-2. 在 `src/components/common/` 封装新组件，仅挂载 UnoCSS 黑金设计类（`bg-obsidian-surface border border-obsidian-border shadow-gold-card text-gray-200`）。
-3. 在 `src/components/common/index.ts` 统一导出。

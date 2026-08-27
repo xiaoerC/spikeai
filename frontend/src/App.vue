@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppToast from "@/components/common/AppToast.vue";
 import { useAppStore } from "@/stores/app";
 import { checkIsMobileViewport, setupVisualViewportListener } from "@/utils/viewport";
 import ForgotPasswordModal from "@/views/login/components/ForgotPasswordModal.vue";
@@ -35,6 +36,9 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <!-- 全局 Toast 提示容器 -->
+  <AppToast />
+
   <!-- 桌面端居中容器包装器 (Mobile-First 架构，基准 440px) -->
   <div class="min-h-screen w-full bg-[#050508] flex justify-center font-sans antialiased selection:bg-naro-gold selection:text-black">
     <!-- 主移动端视窗画布 (严格 440px，自适应小屏) -->

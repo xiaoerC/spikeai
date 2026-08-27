@@ -34,6 +34,7 @@ async_engine: AsyncEngine = create_async_engine(
     pool_size=settings.DB_POOL_SIZE,
     max_overflow=settings.DB_MAX_OVERFLOW,
     pool_timeout=settings.DB_POOL_TIMEOUT,
+    pool_recycle=60,
     pool_pre_ping=True,
 )
 

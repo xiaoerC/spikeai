@@ -19,10 +19,21 @@ const props = defineProps<{
   prologueContent?: string;
 }>();
 
-const emit =
-  defineEmits<
-    (e: "readAloud" | "regenerate" | "branch" | "edit" | "delete", msg: ChatMessage) => void
-  >();
+const emit = defineEmits<{
+  (
+    e:
+      | "readAloud"
+      | "regenerate"
+      | "rerunMemory"
+      | "continue"
+      | "branch"
+      | "edit"
+      | "share"
+      | "delete",
+    msg: ChatMessage,
+  ): void;
+  (e: "saveEdit", msg: ChatMessage, newContent: string, regenerate: boolean): void;
+}>();
 
 const scrollContainer = ref<HTMLElement | null>(null);
 
@@ -68,8 +79,12 @@ watch(
         :message="msg"
         @read-aloud="(m) => emit('readAloud', m)"
         @regenerate="(m) => emit('regenerate', m)"
+        @rerun-memory="(m) => emit('rerunMemory', m)"
+        @continue="(m) => emit('continue', m)"
         @branch="(m) => emit('branch', m)"
         @edit="(m) => emit('edit', m)"
+        @save-edit="(m, text, regen) => emit('saveEdit', m, text, regen)"
+        @share="(m) => emit('share', m)"
         @delete="(m) => emit('delete', m)"
       />
     </div>

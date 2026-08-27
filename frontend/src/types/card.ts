@@ -57,8 +57,10 @@ export interface MarketCard {
   author: string;
   /** 创作者头像（可选） */
   authorAvatarUrl?: string;
-  /** 角色立绘/封面图 URL */
+  /** 角色立绘 URL */
   avatarUrl?: string;
+  /** 角色背景/封面大图 URL */
+  bannerUrl?: string;
   /** 总热度展示值，如 `5799.8k` */
   heat: string;
   /** 趋势增长指数，如 `5.41` */

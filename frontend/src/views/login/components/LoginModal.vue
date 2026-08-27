@@ -5,6 +5,7 @@
  * @packageDocumentation
  */
 
+import { useUserStore } from "@/stores/user";
 import { DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot } from "reka-ui";
 import { ref } from "vue";
 
@@ -22,21 +23,29 @@ const emit = defineEmits<{
   (e: "switchToForgot"): void;
 }>();
 
+const userStore = useUserStore();
+
 /** 表单输入状态 */
-const email = ref("1103560524@qq.com");
-const password = ref("a1111111");
-const isSubmitting = ref(false);
+const email = ref("alice@naro.ai");
+const password = ref("mypassword123");
+const errorMsg = ref("");
 
 /**
  * 提交登录
  */
-function handleLogin(): void {
-  isSubmitting.value = true;
-  setTimeout(() => {
-    isSubmitting.value = false;
+async function handleLogin(): Promise<void> {
+  if (!email.value || !password.value) {
+    errorMsg.value = "请输入邮箱与密码";
+    return;
+  }
+  errorMsg.value = "";
+  const ok = await userStore.login(email.value, password.value);
+  if (ok) {
     emit("success");
     emit("update:open", false);
-  }, 500);
+  } else {
+    errorMsg.value = userStore.errorMessage || "登录失败，请检查账号密码";
+  }
 }
 </script>
 
@@ -94,6 +103,10 @@ function handleLogin(): void {
               <!-- 向两端渐隐的流光底线 -->
               <div class="w-[300px] h-[1px] bg-gradient-to-r from-transparent via-[#F4E8C1]/30 to-transparent group-focus-within:via-[#F9C86D] transition-all" />
             </div>
+            <!-- 错误提示 -->
+            <p v-if="errorMsg" class="text-xs text-red-400 text-center mt-1 animate-fade-in">
+              {{ errorMsg }}
+            </p>
           </div>
 
           <!-- 4. Google 登录容器 (padding-top: 24px, height: 36px) -->
@@ -117,10 +130,10 @@ function handleLogin(): void {
             <button
               type="button"
               @click="handleLogin"
-              :disabled="isSubmitting"
-              class="h-9 px-4 flex items-center justify-center gap-1.5 rounded-lg bg-[#F9C86D] text-[#0C0A09] font-medium text-[12px] shadow-gold active:scale-95 transition-all cursor-pointer select-none"
+              :disabled="userStore.isLoading"
+              class="h-9 px-4 flex items-center justify-center gap-1.5 rounded-lg bg-[#F9C86D] text-[#0C0A09] font-medium text-[12px] shadow-gold active:scale-95 transition-all cursor-pointer select-none disabled:opacity-50"
             >
-              <span>登录</span>
+              <span>{{ userStore.isLoading ? "登录中..." : "登录" }}</span>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M7.58333 9.91667L10.5 7L7.58333 4.08333M10.5 7H3.5" stroke="#0C0A09" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>

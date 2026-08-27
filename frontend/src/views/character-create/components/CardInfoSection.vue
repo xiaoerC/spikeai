@@ -7,10 +7,11 @@
  * @packageDocumentation
  */
 
+import { useToast } from "@/composables/useToast";
+import { uploadService } from "@/services/upload";
 import { PRESET_CHARACTER_TAGS } from "@/views/character-create/constants/tags";
-import { Plus, Trash2, UploadCloud, X } from "lucide-vue-next";
-import { ref, toRef } from "vue";
-import { useTagSelector } from "../composables/useTagSelector";
+import { Loader2, Plus, Trash2, UploadCloud, X } from "lucide-vue-next";
+import { computed, ref } from "vue";
 
 const props = defineProps<{
   /** 角色名称 */
@@ -27,24 +28,61 @@ const emit = defineEmits<{
   (e: "update:tags", val: string[]): void;
 }>();
 
+const toast = useToast();
+const isUploading = ref<boolean>(false);
 const avatarInputRef = ref<HTMLInputElement | null>(null);
 
-const tagsRef = toRef(props, "tags");
-const { customTagInput, tagCount, isMaxTagsReached, togglePresetTag, addCustomTag, removeTag } =
-  useTagSelector(tagsRef);
+const customTagInput = ref<string>("");
+const tagCount = computed<number>(() => props.tags.length);
+const isMaxTagsReached = computed<boolean>(() => props.tags.length >= 5);
+
+function togglePresetTag(tag: string): void {
+  const current = [...props.tags];
+  const idx = current.indexOf(tag);
+  if (idx !== -1) {
+    current.splice(idx, 1);
+  } else {
+    if (current.length < 5) {
+      current.push(tag);
+    }
+  }
+  emit("update:tags", current);
+}
+
+function addCustomTag(): void {
+  const tag = customTagInput.value.trim().replace(/^#/, "");
+  if (!tag) return;
+  if (!props.tags.includes(tag) && props.tags.length < 5) {
+    emit("update:tags", [...props.tags, tag]);
+    customTagInput.value = "";
+  }
+}
+
+function removeTag(tag: string): void {
+  emit("update:tags", props.tags.filter((t) => t !== tag));
+}
 
 function triggerAvatarUpload(): void {
   avatarInputRef.value?.click();
 }
 
-function handleAvatarChange(event: Event): void {
+async function handleAvatarChange(event: Event): Promise<void> {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0];
   if (!file) return;
 
-  const url = URL.createObjectURL(file);
-  emit("update:avatarUrl", url);
-  target.value = "";
+  isUploading.value = true;
+  try {
+    const uploadedUrl = await uploadService.uploadImage(file, "avatars");
+    emit("update:avatarUrl", uploadedUrl);
+    toast.success("立绘已成功上传至对象存储！");
+  } catch (err: any) {
+    console.error("立绘上传失败:", err);
+    toast.error("立绘上传失败，请重试");
+  } finally {
+    isUploading.value = false;
+    target.value = "";
+  }
 }
 
 function removeAvatar(): void {
@@ -129,14 +167,18 @@ function removeAvatar(): void {
         <!-- 大号立绘上传与即时预览框 (3:4 比例) -->
         <div
           v-if="!avatarUrl"
-          @click="triggerAvatarUpload"
-          class="w-full h-64 rounded-xl border-2 border-dashed border-[#44403C] hover:border-[#F9C86D]/60 bg-[rgba(26,23,20,0.50)] flex flex-col items-center justify-center gap-2.5 transition-all cursor-pointer group"
+          @click="!isUploading && triggerAvatarUpload()"
+          :class="[
+            'w-full h-64 rounded-xl border-2 border-dashed border-[#44403C] hover:border-[#F9C86D]/60 bg-[rgba(26,23,20,0.50)] flex flex-col items-center justify-center gap-2.5 transition-all group',
+            isUploading ? 'cursor-wait opacity-70' : 'cursor-pointer'
+          ]"
         >
           <div class="w-12 h-12 rounded-full bg-[#F9C86D]/10 text-[#F9C86D] flex items-center justify-center group-hover:scale-110 transition-transform">
-            <Plus class="w-6 h-6" />
+            <Loader2 v-if="isUploading" class="w-6 h-6 animate-spin" />
+            <Plus v-else class="w-6 h-6" />
           </div>
           <span class="text-xs font-medium text-[#A8A29E] group-hover:text-[#F9C86D]">
-            点击上传图片
+            {{ isUploading ? "正在上传至 MinIO 对象存储..." : "点击上传立绘图片" }}
           </span>
         </div>
 

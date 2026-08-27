@@ -24,8 +24,20 @@ import { useRouter } from "vue-router";
 const appStore = useAppStore();
 const router = useRouter();
 
-const { noticeCount, handleRecharge, handleDailyReward, handleOpenSettings, handleLogout } =
-  useUserProfile();
+const {
+  userData,
+  badges,
+  playerLevelData,
+  creatorLevelData,
+  inviteInfo,
+  transactionsState,
+  noticeCount,
+  handleRecharge,
+  handleDailyReward,
+  handleOpenSettings,
+  handleLogout,
+  fetchTransactions,
+} = useUserProfile();
 
 onMounted(() => {
   appStore.setActiveTab("more");
@@ -42,7 +54,6 @@ function handleNavigate(feature: string): void {
   <div class="flex flex-col min-h-screen w-full max-w-[440px] mx-auto bg-gradient-to-br from-[#1A1511] to-[#2A221A] text-[#F5F5F4] relative shadow-2xl">
     
     <!-- 1. 顶部 Header -->
-
     <ProfileHeader
       :unread-count="noticeCount"
       @open-settings="handleOpenSettings"
@@ -52,6 +63,7 @@ function handleNavigate(feature: string): void {
     <main class="flex-1 px-3 pb-28 w-full flex flex-col gap-4">
       <!-- (1) 用户核心资料卡片 -->
       <UserProfileCard
+        :user-data="userData"
         @recharge="handleRecharge"
         @daily-reward="handleDailyReward"
         @navigate="handleNavigate"
@@ -59,22 +71,25 @@ function handleNavigate(feature: string): void {
       />
 
       <!-- (2) 我的勋章成就卡片 -->
-      <ProfileBadgesCard />
+      <ProfileBadgesCard :badges="badges" />
 
       <!-- (3) 玩家等级卡片 -->
-      <PlayerLevelCard />
+      <PlayerLevelCard :player-data="playerLevelData" />
 
       <!-- (4) 创作者等级卡片 -->
-      <CreatorLevelCard />
+      <CreatorLevelCard :creator-data="creatorLevelData" />
 
       <!-- (5) 邀请活动福利卡片 -->
-      <InviteBannerCard />
+      <InviteBannerCard :invite-data="inviteInfo" />
 
       <!-- (6) 我的背包卡片 -->
       <UserBackpackCard />
 
       <!-- (7) 资产使用记录流水卡片 -->
-      <AssetUsageHistoryCard />
+      <AssetUsageHistoryCard
+        :transactions="transactionsState"
+        @change-page="fetchTransactions"
+      />
     </main>
 
     <!-- 3. 全局底部导航栏 -->

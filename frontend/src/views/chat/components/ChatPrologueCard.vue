@@ -23,7 +23,12 @@ defineProps<{
 
     <!-- 2. 剧情卡片主体 -->
     <div class="w-full rounded-lg border border-[#44403C]/40 bg-[#292524]/40 p-4 shadow-sm backdrop-blur-sm">
-      <p class="text-xs text-[#A8A29E] leading-relaxed font-sans italic">
+      <div
+        v-if="content.includes('<') && content.includes('>')"
+        class="text-xs text-[#A8A29E] leading-relaxed font-sans space-y-1.5"
+        v-html="content"
+      />
+      <p v-else class="text-xs text-[#A8A29E] leading-relaxed font-sans whitespace-pre-line italic">
         {{ content }}
       </p>
     </div>

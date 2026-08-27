@@ -57,12 +57,16 @@ class Settings(BaseSettings):
     # 基础服务信息
     APP_NAME: str = "SpikeAI API"
     APP_VERSION: str = "0.1.0"
-    APP_ENV: Literal["development", "staging", "production"] = "development"
+    APP_ENV: Literal["development", "staging", "production", "test"] = "development"
     DEBUG: bool = True
     SECRET_KEY: str = Field(
         default="spikeai_dev_secret_key_32_characters_long_min",
         description="用于系统内部加密的密钥",
     )
+
+    @property
+    def ENV(self) -> str:
+        return self.APP_ENV
 
     # 异步数据库配置 (PostgreSQL 16)
     DATABASE_URL: str = Field(
@@ -95,9 +99,26 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     OLLAMA_BASE_URL: str = "http://localhost:11434"
 
+    # MIMO API (小米 mimo-v2.5)
+    MIMO_API_KEY: str = "sk-cm6d7d8eo1ymvfo748hq68nqdcrwnwp0onaqbjujinst5seo"
+    MIMO_BASE_URL: str = "https://api.xiaomimimo.com/v1"
+
+    # LongCat API (LongCat-2.0)
+    LONGCAT_API_KEY: str = "ak_2lI2QB9o81qD3K61fH9kJ1xB0hP0a"
+    LONGCAT_BASE_URL: str = "https://api.longcat.chat/openai"
+
     # 角色卡与静态资源存储
     UPLOAD_DIR: str = "./uploads"
     MAX_UPLOAD_SIZE_MB: int = 20
+
+    # MinIO / S3 对象存储配置
+    STORAGE_BACKEND: Literal["minio", "local"] = "minio"
+    MINIO_ENDPOINT: str = "140.143.87.234:9000"
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin"
+    MINIO_BUCKET_NAME: str = "naro-assets"
+    MINIO_PUBLIC_URL_PREFIX: str = "http://140.143.87.234:9000/naro-assets"
+    MINIO_SECURE: bool = False
 
 
 @lru_cache(maxsize=1)

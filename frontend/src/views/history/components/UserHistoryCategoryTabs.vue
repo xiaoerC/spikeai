@@ -21,7 +21,7 @@ const emit = defineEmits<(e: "select-category", cat: UserHistoryCategory) => voi
 <template>
   <div class="px-4 pt-8">
     <div class="inline-flex items-center gap-[2px] p-[2px] rounded-[8px] border border-[#44403C] bg-[rgba(68,64,60,0.60)] backdrop-blur-[8px]">
-      <!-- 1. 📖 剧情/全部卡片 -->
+      <!-- 1. 📖 剧情/全部卡片 (徽标默认展示 5 或实际条数) -->
       <button
         type="button"
         @click="emit('select-category', 'story')"
@@ -36,15 +36,15 @@ const emit = defineEmits<(e: "select-category", cat: UserHistoryCategory) => voi
         <span
           v-if="storyCount > 0"
           :class="[
-            'px-1 py-0.2 rounded-full text-[10px] font-bold leading-none min-w-[16px] text-center',
-            currentCategory === 'story' ? 'bg-black/15 text-[#0C0A09]' : 'bg-white/10 text-[#A8A29E]'
+            'px-1 py-0.2 rounded-full text-[10px] leading-none min-w-[16px] text-center',
+            currentCategory === 'story' ? 'bg-black/15 text-[#0C0A09] font-bold' : 'bg-[#F9C86D]/10 text-[#A8A29E] font-normal'
           ]"
         >
           {{ storyCount }}
         </span>
       </button>
 
-      <!-- 2. 🏪 酒馆/商城卡片 -->
+      <!-- 2. 🏪 我的上传记录/社区卡片 -->
       <button
         type="button"
         @click="emit('select-category', 'tavern')"
@@ -59,8 +59,8 @@ const emit = defineEmits<(e: "select-category", cat: UserHistoryCategory) => voi
         <span
           v-if="tavernCount > 0"
           :class="[
-            'px-1 py-0.2 rounded-full text-[10px] font-bold leading-none min-w-[16px] text-center',
-            currentCategory === 'tavern' ? 'bg-black/15 text-[#0C0A09]' : 'bg-white/10 text-[#A8A29E]'
+            'px-1 py-0.2 rounded-full text-[10px] leading-none min-w-[16px] text-center',
+            currentCategory === 'tavern' ? 'bg-black/15 text-[#0C0A09] font-bold' : 'bg-white/10 text-[#A8A29E] font-normal'
           ]"
         >
           {{ tavernCount }}
@@ -82,8 +82,8 @@ const emit = defineEmits<(e: "select-category", cat: UserHistoryCategory) => voi
         <span
           v-if="customCount > 0"
           :class="[
-            'px-1 py-0.2 rounded-full text-[10px] font-bold leading-none min-w-[16px] text-center',
-            currentCategory === 'custom' ? 'bg-black/15 text-[#0C0A09]' : 'bg-white/10 text-[#A8A29E]'
+            'px-1 py-0.2 rounded-full text-[10px] leading-none min-w-[16px] text-center',
+            currentCategory === 'custom' ? 'bg-black/15 text-[#0C0A09] font-bold' : 'bg-white/10 text-[#A8A29E] font-normal'
           ]"
         >
           {{ customCount }}
@@ -105,8 +105,8 @@ const emit = defineEmits<(e: "select-category", cat: UserHistoryCategory) => voi
         <span
           v-if="moduleCount > 0"
           :class="[
-            'px-1 py-0.2 rounded-full text-[10px] font-bold leading-none min-w-[16px] text-center',
-            currentCategory === 'module' ? 'bg-black/15 text-[#0C0A09]' : 'bg-white/10 text-[#A8A29E]'
+            'px-1 py-0.2 rounded-full text-[10px] leading-none min-w-[16px] text-center',
+            currentCategory === 'module' ? 'bg-black/15 text-[#0C0A09] font-bold' : 'bg-white/10 text-[#A8A29E] font-normal'
           ]"
         >
           {{ moduleCount }}

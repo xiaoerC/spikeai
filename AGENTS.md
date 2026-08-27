@@ -24,14 +24,16 @@
 *   **前端工程 (`frontend/`)**：
     *   **技术栈**：Vue 3.5 + TypeScript + Vite 6 + UnoCSS + Pinia + Vue Flow + Reka UI (无头组件) + Vaul Vue (手势抽屉)。
     *   **设计语言**：黑金奢华暗黑玻璃拟物（Obsidian Gold Glassmorphism），Mobile-First 移动端优先（Safe Area 与软键盘避让）。
-    *   **排版、架构与组件库 7 大铁律**：
+    *   **排版、架构、组件库与交互 9 大铁律**：
         1. **UnoCSS 绝对优先**：能用 UnoCSS 原子类解决的严禁写原生 `<style>` 或内联样式。
         2. **现代布局铁律**：排版一律使用 `Flexbox` 与 `Grid`，禁用 `float` / `inline-block`。
         3. **Gap 主导间距**：元素间距一律在父级使用 `gap`，严格杜绝子元素 `margin` 间距。
         4. **组件库规范**：统一使用 `@/components/common` 下的 `AppButton`、`AppModal`、`AppDrawer`、`AppTabs`，严禁手写 Ad-hoc 的简陋 fixed 遮罩弹窗。
-        5. **特性内聚与就近原则 (Colocation & Feature-First)**：页面私有组件、composables、constants、utils 就近存放在 `views/{feature}/` 内；主入口 `index.vue` 仅作为容器胶水层（~100行）。
-        6. **公共组件严格升格机制 (Promotion Rule)**：全局 `src/components/common/` 仅放无业务绑定的 UI 基础设施，仅当逻辑被 ≥ 2 个业务域复用时才允许升格至全局。
-        7. **Composition API 组织与 Composable 4 大铁律**：小组件内使用【注释功能域】将变量/方法/watch/mounted 物理聚拢；抽离 composable 时遵循 `MaybeRefOrGetter` 入参、普通对象包裹 ref 安全解构、`onUnmounted` 自动清理以及 `readonly()` 状态单向流保护。
+        5. **绝对禁止原生 Alert 弹窗 (Zero Native Dialogs)**：严禁在任何业务逻辑中调用 `window.alert()` / `confirm()` / `prompt()` 原生弹窗，所有反馈必须使用 Toast 轻提示或 `<AppModal>`。
+        6. **特性内聚与就近原则 (Colocation & Feature-First)**：页面私有组件、composables、constants、utils 就近存放在 `views/{feature}/` 内；主入口 `index.vue` 仅作为容器胶水层（~100行）。
+        7. **公共组件严格升格机制 (Promotion Rule)**：全局 `src/components/common/` 仅放无业务绑定的 UI 基础设施，仅当逻辑被 ≥ 2 个业务域复用时才允许升格至全局。
+        8. **Composition API 组织与 Composable 4 大铁律**：小组件内使用【注释功能域】将变量/方法/watch/mounted 物理聚拢；抽离 composable 时遵循 `MaybeRefOrGetter` 入参、普通对象包裹 ref 安全解构、`onUnmounted` 自动清理以及 `readonly()` 状态单向流保护。
+        9. **强类型 API 契约与 SSE 流式状态**：所有请求经 `src/services/` 强类型包装，SSE 打字机流消费带 `AbortController` 优雅中止与 60fps 帧率保护，Pinia 状态单向流及 IndexedDB 异步持久化。
     *   **包管理器**：`pnpm`。
 *   **后端工程 (`backend/`)**：
     *   **技术栈**：FastAPI (Python 3.12, `uv` 管理) + SQLAlchemy 2.0 Async + PostgreSQL 16 (pgvector) + Redis 7 + Pillow (PNG tEXt/iTXt 编解码) + SSE 流式网关。
@@ -50,7 +52,7 @@ spikeai/
 │   ├── karpathy-guidelines/                 # 底层行为守则基线
 │   ├── grill-me/                            # 需求与接口设计极限追问
 │   ├── tdd/                                 # 核心算法与纯逻辑单测驱动
-│   ├── diagnose/                            # 6步疑难排错闭环
+│   ├── diagnose/                            # 6步疑难排错闭查
 │   ├── cso/                                 # 资金流水与 JWT 安全审计
 │   ├── qa/                                  # 真机视口渲染与端到端回归
 │   ├── design-review/                       # 视觉与交互专项审查
@@ -59,9 +61,10 @@ spikeai/
 │
 ├── frontend/.agents/                        # 【前端专属隔离层】(仅在 frontend/ 作用域生效)
 │   ├── rules/
-│   │   └── frontend_habits.md               # 🌟 前端 7 大排版、架构、组件库与 Composition API 铁律
+│   │   └── frontend_habits.md               # 🌟 前端 9 大排版、架构、组件库、状态与禁止原生弹窗铁律
 │   └── skills/
-│       ├── naro-ui-components/              # 🌟 黑金基础组件库 (AppButton/Modal/Drawer/Tabs/Reka)
+│       ├── naro-ui-components/              # 🌟 黑金基础组件库 (AppButton/Modal/Drawer/Tabs/禁止alert)
+│       ├── frontend-api-sse-state/          # 🌟 API 契约、SSE 流式打字机与 Pinia 状态专家
 │       ├── frontend-layout-habits/          # 🌟 前端布局、就近内聚与架构习惯专家
 │       ├── antfu-vue-unocss/                # 🌟 Vue 3.5 + UnoCSS + Composition API 规范专家
 │       ├── ui-ux-pro-max/                   # 黑金暗黑拟物 + 移动端手势与安全区规范
@@ -73,10 +76,12 @@ spikeai/
 ```
 
 ### 1. 前端任务路由规则 (Scope: `frontend/`)
+- 当编写/修改 API 请求、SSE 流式打字机消费、Pinia 状态与前后端数据联调时：
+  - 调用 `frontend-api-sse-state` 规范构建 Axios 泛型拦截器、`useChatStream` 打字机 Composable 与 Pinia 状态持久化。
 - 当编写/修改 `.vue`、`.ts`、`uno.config.ts` 或调整移动端 UI 布局与页面开发时：
+  - 调用 `naro-ui-components` 规范调用 `AppButton`、`AppModal`、`AppDrawer` (BottomSheet) 与 `AppTabs`，**绝对禁止调用原生 `alert()`/`confirm()`**。
+  - 自动遵守 `frontend_habits.md` 规则与 `frontend-layout-habits`（UnoCSS优先、Flex/Grid排版、Gap间距、特性内聚、升格机制、无原生弹窗）。
   - 调用 `antfu-vue-unocss` 遵循 Anthony Fu 的 Vue 3.5 响应式解构、注释功能块聚拢与 Composable 4 大铁律。
-  - 调用 `naro-ui-components` 规范调用 `AppButton`、`AppModal`、`AppDrawer` (BottomSheet) 与 `AppTabs`，或基于 Reka UI 扩展新无头组件。
-  - 自动遵守 `frontend_habits.md` 规则与 `frontend-layout-habits`（UnoCSS优先、Flex/Grid排版、Gap间距、特性内聚、升格机制）。
   - 调用 `ui-ux-pro-max` 遵循 Obsidian Gold 调色板、磨砂玻璃模糊度、Safe Area 及软键盘防遮挡规范。
   - 调用 `vue-flow-dag` 构建分支剧情树画布与自适应 Dagre 排版。
   - 调用 `design-review` 审查最终界面视觉与手势交互。
@@ -89,3 +94,12 @@ spikeai/
   - 核心编解码（`card_parser.py`）与 DAG 分支算法（`tree_service.py`）遵循 `sillytavern-card-spec` 与 `tdd` 驱动。
   - 遇到复杂逻辑异常时遵循 `diagnose` 6 步闭环。
   - 涉及钱包余额与权限校验时调用 `cso` 审查。
+
+---
+
+## 四、 代码知识图谱与智能检索 (CodeGraph)
+
+本项目已全面接入 **CodeGraph (AST 代码知识图谱)**：
+- **符号与架构探索**：优先使用 `codegraph_explore` 替代大面积无序 grep，一次性检索跨文件符号定义与调用拓扑；
+- **重构影响分析 (Impact Analysis)**：在修改公共 DTO、Pinia 状态、数据库模型或核心 Service 前，使用 `codegraph_impact` 与 `codegraph_callers` 预先评估受影响组件与 API，杜绝破坏性重构；
+- **知识库同步**：本地 SQLite 索引文件自动存放在 `.codegraph/` 目录，已加入 `.gitignore` 保护。

@@ -1,8 +1,12 @@
 <script setup lang="ts">
 /**
- * 个人历史记录 2 列卡片流组件 (1:1 原型高保真)
+ * 个人历史记录 2 列网格卡片流组件 (1:1 Figma 原型高保真)
  *
- * 包含卡片封面、标题、5 大圆形快捷悬浮操作按钮与批量选择多选框。
+ * 严格按照 Figma 原型 media_1787833396896.png 像素级还原：
+ * - 2 列网格瀑布流 (grid grid-cols-2 gap-3)
+ * - 高比例沉浸式卡片 (h-[270px], rounded-2xl, border-[#44403C]/40, overflow-hidden)
+ * - 顶部 5 大圆形微光悬浮操作按钮 (编辑备注 / 更新角色 / 置顶 / 清空 / 删除)
+ * - 底部渐变半透明黑金遮罩 + 角色卡标题与备注
  *
  * @packageDocumentation
  */
@@ -32,49 +36,47 @@ const emit = defineEmits<{
     <div
       v-for="item in historyList"
       :key="item.id"
-      class="group relative flex flex-col rounded-xl border border-[rgba(83,71,65,0.30)] bg-[rgba(26,25,21,0.70)] backdrop-blur-xl overflow-hidden shadow-lg transition-all duration-200 hover:border-[#F9C86D]/40"
+      class="group relative flex flex-col h-[270px] rounded-2xl border border-[rgba(83,71,65,0.40)] bg-[#1A1511] overflow-hidden shadow-xl transition-all duration-300 hover:border-[#F9C86D]/50 hover:shadow-[0_8px_24px_rgba(0,0,0,0.6)] select-none"
     >
-      <!-- 1. 卡片主体 (点击进入对话) -->
+      <!-- 1. 卡片背景大封面 (点击进入对话) -->
       <div
         @click="isBatchMode ? emit('toggle-select', item.id) : emit('select-card', item)"
-        class="flex flex-col cursor-pointer select-none"
+        class="absolute inset-0 w-full h-full cursor-pointer"
       >
-        <!-- 封面图容器 -->
-        <div class="relative w-full aspect-[4/5] overflow-hidden bg-[#161412]">
-          <img
-            :src="item.avatar"
-            :alt="item.title"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            loading="lazy"
-          />
-          <!-- 渐变阴影底衬 -->
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-        </div>
+        <img
+          :src="item.avatar"
+          :alt="item.title"
+          class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+        />
 
-        <!-- 底部标题栏 -->
-        <div class="p-2.5 flex flex-col">
-          <h3 class="text-xs font-bold text-[#F5F5F4] truncate leading-tight">
+        <!-- 顶部微暗遮罩 (让顶部操作按钮更清晰) -->
+        <div class="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
+
+        <!-- 底部渐变暗黑遮罩 + 标题栏 -->
+        <div class="absolute inset-x-0 bottom-0 pt-10 pb-3 px-3 bg-gradient-to-t from-black/95 via-black/60 to-transparent flex flex-col justify-end">
+          <h3 class="text-[13px] font-bold text-white truncate leading-snug drop-shadow-md">
             {{ item.title }}
           </h3>
-          <span v-if="item.remark" class="text-[10px] text-[#F9C86D] truncate mt-0.5">
+          <span v-if="item.remark" class="text-[10.5px] text-[#F9C86D] truncate mt-0.5 font-medium drop-shadow">
             📝 {{ item.remark }}
           </span>
         </div>
       </div>
 
-      <!-- 2. 卡片右上角 5 大圆形快捷悬浮操作按钮 -->
+      <!-- 2. 卡片顶部 5 大圆形快捷悬浮操作按钮 -->
       <div
         v-if="!isBatchMode"
-        class="absolute top-1.5 right-1.5 flex items-center gap-1 z-20"
+        class="absolute top-2 inset-x-2 flex items-center justify-between z-20 pointer-events-auto"
       >
         <!-- ① 编辑备注 -->
         <button
           type="button"
           @click.stop="emit('remark', item)"
           title="编辑备注"
-          class="w-7 h-7 rounded-full bg-[rgba(26,23,20,0.92)] border border-white/10 text-[#A8A29E] hover:text-[#F9C86D] hover:scale-110 active:scale-95 flex items-center justify-center transition-all cursor-pointer shadow-md"
+          class="w-6.5 h-6.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white/70 hover:text-[#F9C86D] hover:bg-black/80 hover:scale-110 active:scale-95 flex items-center justify-center transition-all cursor-pointer shadow-md"
         >
-          <Edit3 class="w-3.5 h-3.5" />
+          <Edit3 class="w-3 h-3" />
         </button>
 
         <!-- ② 更新角色卡 -->
@@ -82,9 +84,9 @@ const emit = defineEmits<{
           type="button"
           @click.stop="emit('update-card', item)"
           title="更新角色卡"
-          class="w-7 h-7 rounded-full bg-[rgba(26,23,20,0.92)] border border-white/10 text-[#A8A29E] hover:text-[#F9C86D] hover:scale-110 active:scale-95 flex items-center justify-center transition-all cursor-pointer shadow-md"
+          class="w-6.5 h-6.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white/70 hover:text-[#F9C86D] hover:bg-black/80 hover:scale-110 active:scale-95 flex items-center justify-center transition-all cursor-pointer shadow-md"
         >
-          <RefreshCw class="w-3.5 h-3.5" />
+          <RefreshCw class="w-3 h-3" />
         </button>
 
         <!-- ③ 置顶 -->
@@ -93,13 +95,13 @@ const emit = defineEmits<{
           @click.stop="emit('pin', item.id)"
           title="置顶角色"
           :class="[
-            'w-7 h-7 rounded-full border transition-all cursor-pointer shadow-md flex items-center justify-center hover:scale-110 active:scale-95',
+            'w-6.5 h-6.5 rounded-full border transition-all cursor-pointer shadow-md flex items-center justify-center hover:scale-110 active:scale-95 backdrop-blur-md',
             item.isPinned
               ? 'bg-[#F9C86D] border-[#F9C86D] text-[#0C0A09]'
-              : 'bg-[rgba(26,23,20,0.92)] border-white/10 text-[#A8A29E] hover:text-[#F9C86D]'
+              : 'bg-black/60 border-white/10 text-white/70 hover:text-[#F9C86D] hover:bg-black/80'
           ]"
         >
-          <Pin class="w-3.5 h-3.5" />
+          <Pin class="w-3 h-3" />
         </button>
 
         <!-- ④ 清空历史 -->
@@ -107,9 +109,9 @@ const emit = defineEmits<{
           type="button"
           @click.stop="emit('clear', item.id)"
           title="清空历史"
-          class="w-7 h-7 rounded-full bg-[rgba(26,23,20,0.92)] border border-white/10 text-[#A8A29E] hover:text-amber-400 hover:scale-110 active:scale-95 flex items-center justify-center transition-all cursor-pointer shadow-md"
+          class="w-6.5 h-6.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white/70 hover:text-amber-400 hover:bg-black/80 hover:scale-110 active:scale-95 flex items-center justify-center transition-all cursor-pointer shadow-md"
         >
-          <RotateCcw class="w-3.5 h-3.5" />
+          <RotateCcw class="w-3 h-3" />
         </button>
 
         <!-- ⑤ 删除 -->
@@ -117,9 +119,9 @@ const emit = defineEmits<{
           type="button"
           @click.stop="emit('delete', item.id)"
           title="删除"
-          class="w-7 h-7 rounded-full bg-[rgba(26,23,20,0.92)] border border-white/10 text-[#A8A29E] hover:text-red-400 hover:scale-110 active:scale-95 flex items-center justify-center transition-all cursor-pointer shadow-md"
+          class="w-6.5 h-6.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white/70 hover:text-red-400 hover:bg-black/80 hover:scale-110 active:scale-95 flex items-center justify-center transition-all cursor-pointer shadow-md"
         >
-          <Trash2 class="w-3.5 h-3.5" />
+          <Trash2 class="w-3 h-3" />
         </button>
       </div>
 
@@ -131,13 +133,13 @@ const emit = defineEmits<{
       >
         <div
           :class="[
-            'w-5 h-5 rounded-md border flex items-center justify-center transition-all cursor-pointer',
+            'w-6 h-6 rounded-md border flex items-center justify-center transition-all cursor-pointer shadow-lg backdrop-blur-md',
             selectedIds.has(item.id)
               ? 'bg-[#F9C86D] border-[#F9C86D] text-[#0C0A09]'
-              : 'bg-black/50 border-white/40 text-transparent'
+              : 'bg-black/60 border-white/40 text-transparent'
           ]"
         >
-          <Check class="w-3.5 h-3.5 stroke-[3]" />
+          <Check class="w-4 h-4 stroke-[3]" />
         </div>
       </div>
     </div>

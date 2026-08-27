@@ -1,22 +1,42 @@
 <script setup lang="ts">
 /**
- * 个人中心 - 邀请活动卡片 (1:1 原型高保真)
+ * 个人中心 - 邀请活动卡片 (绑定真实专属邀请码与统计)
  *
  * @packageDocumentation
  */
 
-import { PROFILE_USER_DATA } from "@/views/profile/constants/profileMock";
+import { useToast } from "@/composables/useToast";
 import { Check, Copy, Gift } from "lucide-vue-next";
 import { ref } from "vue";
 
+interface Props {
+  inviteData: {
+    invite_code: string;
+    invite_url: string;
+    invited_count: number;
+    reward_earned_star: number;
+  };
+}
+
+const props = defineProps<Props>();
+const { success } = useToast();
 const copied = ref(false);
 
 function handleCopyInvite(): void {
-  navigator.clipboard.writeText(PROFILE_USER_DATA.inviteCode);
+  const code = props.inviteData.invite_code;
+  if (!code) return;
+  navigator.clipboard.writeText(code);
   copied.value = true;
+  success("邀请码已复制到剪贴板");
   setTimeout(() => {
     copied.value = false;
-  }, 1500);
+  }, 2000);
+}
+
+function handleCopyInviteLink(): void {
+  const url = props.inviteData.invite_url || `https://naro.ai/login?invite=${props.inviteData.invite_code}`;
+  navigator.clipboard.writeText(url);
+  success("专属邀请链接已复制");
 }
 </script>
 
@@ -31,7 +51,7 @@ function handleCopyInvite(): void {
         </h3>
       </div>
       <span class="text-xs text-[#78716C]">
-        已邀请 <strong class="text-[#A8A29E] font-mono">0/∞</strong>
+        已邀请 <strong class="text-[#A8A29E] font-mono">{{ inviteData.invited_count }}/∞</strong>
       </span>
     </div>
 
@@ -49,7 +69,7 @@ function handleCopyInvite(): void {
           邀请你的朋友来叙梦naro！
         </p>
         <p class="text-xs text-[#78716C] mt-0.5">
-          大家都可以获得额外的100星元！
+          每成功邀请一位好友，双方各得 100 星元奖励！
         </p>
       </div>
     </div>
@@ -58,12 +78,13 @@ function handleCopyInvite(): void {
     <div class="flex items-center justify-between pt-3 border-t border-[#44403C]/40">
       <div class="flex items-center gap-2">
         <div class="px-3 py-1 rounded-full bg-[#A8A29E]/20 text-xs font-mono font-medium text-[#F9C86D]">
-          {{ PROFILE_USER_DATA.inviteCode }}
+          {{ inviteData.invite_code || "加载中..." }}
         </div>
         <button
           type="button"
           @click="handleCopyInvite"
           class="p-1 text-[#A8A29E] hover:text-[#F9C86D] transition-colors cursor-pointer"
+          title="复制邀请码"
         >
           <Check v-if="copied" class="w-3.5 h-3.5 text-[#22C55E]" />
           <Copy v-else class="w-3.5 h-3.5" />
@@ -73,15 +94,10 @@ function handleCopyInvite(): void {
       <div class="flex items-center gap-2">
         <button
           type="button"
+          @click="handleCopyInviteLink"
           class="px-3 py-1 rounded-full border border-[#A8A29E]/50 text-xs font-medium text-[#A8A29E] hover:text-white hover:border-[#F9C86D] transition-all cursor-pointer select-none"
         >
           生成链接
-        </button>
-        <button
-          type="button"
-          class="px-3 py-1 rounded-full border border-[#A8A29E]/50 text-xs font-medium text-[#A8A29E] hover:text-white hover:border-[#F9C86D] transition-all cursor-pointer select-none"
-        >
-          详情
         </button>
       </div>
     </div>
