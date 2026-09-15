@@ -213,6 +213,7 @@ function sanitizeInlineHtml(raw: string): string {
       "ul",
       "ol",
       "li",
+      "style",
     ],
     ALLOWED_ATTR: [
       "style",

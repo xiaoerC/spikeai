@@ -328,6 +328,8 @@ class TavernService:
 
             if preset_row and isinstance(preset_row.config, dict):
                 loaded = TavernPresetConfig.model_validate(preset_row.config)
+                loaded.preset_name = preset_row.preset_name
+                loaded.is_active = bool(preset_row.is_active)
                 if not loaded.regex_scripts:
                     loaded.regex_scripts = cls.get_default_preset().regex_scripts
                 cls.normalize_prompt_order(loaded)
@@ -833,33 +835,47 @@ class TavernService:
             return None
 
     @classmethod
-    def make_js_replacer(cls, replace_string: str) -> Callable[[Any], str]:
+    def make_js_replacer(
+        cls, replace_string: str, trim_strings: list[str] | None = None
+    ) -> Callable[[Any], str]:
         """构造兼容 JS String.prototype.replace 规范的替换函数。
 
         仅解析 $$, $&, $1..$99 反向引用，对其它所有反斜杠转义 (如 \\s, \\d 等) 均保持 100% 字面量。
+        若指定了 trim_strings，严格遵循 SillyTavern 规范：仅从捕获组 ($1, $2, $&...) 中修剪对应子串，绝不全局误杀。
 
         Usage:
-            >>> repl_func = TavernService.make_js_replacer("hello $1 \\s")
+            >>> repl_func = TavernService.make_js_replacer("hello $1 \\s", ["<"])
             >>> compiled = re_engine.compile(r"h(.*)o")
-            >>> result = compiled.sub(repl_func, "hello")
+            >>> result = compiled.sub(repl_func, "h<ell>o")
         """
+        trim_list = [ts for ts in (trim_strings or []) if ts]
+
         def replacer(match: Any) -> str:
             def token_sub(m: Any) -> str:
                 tok = m.group(0)
                 if tok == "$$":
                     return "$"
                 if tok == "$&":
-                    return match.group(0)
+                    val = match.group(0)
+                    for ts in trim_list:
+                        val = val.replace(ts, "")
+                    return val
                 if tok.startswith("$") and tok[1:].isdigit():
                     group_idx = int(tok[1:])
                     try:
                         val = match.group(group_idx)
-                        return val if val is not None else ""
+                        if val is None:
+                            return ""
+                        for ts in trim_list:
+                            val = val.replace(ts, "")
+                        return val
                     except (IndexError, Exception):
                         return tok
                 return tok
 
-            return re_engine.sub(r"\$\$|\$&|\$[0-9]+", token_sub, replace_string)
+            # 兼容 {{match}} 宏代换为 $0 / $&
+            raw = replace_string.replace("{{match}}", "$&")
+            return re_engine.sub(r"\$\$|\$&|\$[0-9]+", token_sub, raw)
 
         return replacer
 
@@ -870,14 +886,21 @@ class TavernService:
         scripts: list[TavernRegexScript],
         placement: int,
         depth: int | None = None,
+        is_prompt: bool = False,
     ) -> str:
         """按顺序严格执行指定时机与深度的酒馆正则脚本。
+
+        严格遵循 SillyTavern 规范：
+        1. promptOnly: 仅在拼装提示词 (is_prompt=True) 时执行，AI 最终输出渲染展示时绝对跳过。
+        2. markdownOnly: 仅在 Markdown 渲染阶段执行，拼装提示词阶段绝对跳过。
+        3. trimStrings: 仅从正则表达式命中的捕获组中剔除对应子串，严禁全局字符串粗暴 replace 造成 HTML 标签误杀。
 
         Args:
             text: 输入文本
             scripts: 正则脚本清单
             placement: 生效时机 (1=用户输入/提示词, 2=AI输出回复清洗, 3=快捷命令, 4=世界书, 5=推理)
             depth: 消息在聊天历史中的深度 (如最新消息 depth=1)
+            is_prompt: 是否处于上下文提示词拼装流程中
 
         Returns:
             经过正则处理与修剪后的文本
@@ -888,6 +911,12 @@ class TavernService:
         current = text
         for s in scripts:
             if s.disabled:
+                continue
+
+            # 严格遵循 SillyTavern promptOnly 与 markdownOnly 作用域隔离
+            if not is_prompt and s.promptOnly:
+                continue
+            if is_prompt and s.markdownOnly:
                 continue
 
             # 作用范围时机判定:
@@ -911,24 +940,13 @@ class TavernService:
             parsed = cls.parse_js_regex(s.findRegex, s.replaceString)
             if not parsed:
                 continue
-            compiled, repl = parsed
+            compiled, _ = parsed
 
             try:
-                current = compiled.sub(repl, current)
+                repl_func = cls.make_js_replacer(s.replaceString, s.trimStrings)
+                current = compiled.sub(repl_func, current)
             except Exception as err:
-                # 若因 repl 中包含 JS/HTML 特有转义 (如 \s, \d, \b 等) 导致 Python sub 报 bad escape 异常，使用纯字面量 JS 替换回调兜底
-                if "bad escape" in str(err) or isinstance(err, re_engine.error):
-                    try:
-                        repl_func = cls.make_js_replacer(s.replaceString)
-                        current = compiled.sub(repl_func, current)
-                    except Exception as fallback_err:
-                        logger.warning("执行正则脚本 [%s] JS 兜底替换异常: %s", s.scriptName, fallback_err)
-                else:
-                    logger.warning("执行正则脚本 [%s] 异常: %s", s.scriptName, err)
-
-            for trim_str in s.trimStrings:
-                if trim_str:
-                    current = current.replace(trim_str, "")
+                logger.warning("执行正则脚本 [%s] 异常: %s", s.scriptName, err)
 
         return current
 
@@ -1107,6 +1125,15 @@ class TavernService:
                             scripts=preset.regex_scripts,
                             placement=1,
                             depth=depth,
+                            is_prompt=True,
+                        )
+                    elif h_role == "assistant" and preset.regex_scripts:
+                        h_content = cls.execute_regex_scripts(
+                            text=h_content,
+                            scripts=preset.regex_scripts,
+                            placement=2,
+                            depth=depth,
+                            is_prompt=True,
                         )
 
                     # 思考链治理：根据 reasoning_history_depth 控制是否回传历史思考
