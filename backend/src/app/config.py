@@ -40,6 +40,7 @@ class Settings(BaseSettings):
         OPENAI_API_KEY (str): OpenAI API 密钥。
         OPENAI_BASE_URL (str): OpenAI API 代理/基础网关地址。
         DEEPSEEK_API_KEY (str): DeepSeek API 密钥。
+        DEEPSEEK_BASE_URL (str): DeepSeek 基础网关地址。
         GEMINI_API_KEY (str): Gemini API 密钥。
         OLLAMA_BASE_URL (str): 本地 Ollama 接口地址。
 
@@ -95,7 +96,8 @@ class Settings(BaseSettings):
     # 多渠道大模型 API
     OPENAI_API_KEY: str = ""
     OPENAI_BASE_URL: str = "https://api.openai.com/v1"
-    DEEPSEEK_API_KEY: str = ""
+    DEEPSEEK_API_KEY: str = "sk-0c8b28fe2a4d47a38734a4c54be64706"
+    DEEPSEEK_BASE_URL: str = "https://api.deepseek.com"
     GEMINI_API_KEY: str = ""
     OLLAMA_BASE_URL: str = "http://localhost:11434"
 

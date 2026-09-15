@@ -10,7 +10,7 @@ import httpx
 
 async def main() -> None:
     print("正在创建【火影忍者博人传 · 漩涡博人】全量信息角色卡...")
-    async with httpx.AsyncClient(base_url="http://127.0.0.1:8000", timeout=20.0) as client:
+    async with httpx.AsyncClient(base_url="http://127.0.0.1:8080", timeout=20.0) as client:
         # 1. 登录获取 JWT 令牌
         login_resp = await client.post(
             "/api/v1/auth/login",

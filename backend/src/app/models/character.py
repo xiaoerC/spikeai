@@ -10,7 +10,7 @@ Usage:
 
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import (
     BigInteger,
@@ -160,6 +160,12 @@ class Character(Base):
         default="1.0.0",
         nullable=False,
         doc="角色卡版本号",
+    )
+    extensions: Mapped[dict[str, Any]] = mapped_column(
+        JSONB().with_variant(JSON(), "sqlite"),
+        default=dict,
+        nullable=False,
+        doc="SillyTavern 与叙梦专属扩展属性 (variables, regex_scripts, opening_replies, bgm_url 等)",
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

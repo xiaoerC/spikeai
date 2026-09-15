@@ -1,29 +1,32 @@
 <script setup lang="ts">
 /**
- * AI 聊天界面 - 剧情分支与时间线抽屉 (方案 1: 移动端黑金折叠分支抽屉)
+ * AI 聊天界面 - 剧情分支与时间线抽屉 (StoryBranchDrawer.vue)
  *
  * 优化特性:
  * 1. 过滤冗余 thinking 代码杂音，仅展示纯净高价值的剧情转折点;
- * 2. 顶部支持横向平滑切换不同的平行分支路线 (主线 / 分支1 / 分支2);
+ * 2. 顶部支持横向平滑切换真实的平行分支路线 (主线 / 分支1 / 分支2);
  * 3. 垂直黑金发光时间轴，清晰标记当前所在节点 (金色脉冲光晕);
- * 4. 支持一键「回溯至此」、「从此开辟新分支」与「删除分支」;
+ * 4. 支持一键「回溯至此」、「从此开辟新分支」、「删除分支」与「唤起全景拓扑图」;
  * 5. 底部高奢全宽主按钮，极度贴合移动端单手操作体验。
  *
  * @packageDocumentation
  */
 
 import AppDrawer from "@/components/common/AppDrawer.vue";
+import type { StoryBranchDetail } from "@/services/chat";
 import type { ChatMessage } from "@/views/chat/constants/mockChatData";
-import { Clock, GitBranch, History, Plus, RotateCcw, Sparkles, Trash2, X } from "lucide-vue-next";
+import {
+  Clock,
+  GitBranch,
+  History,
+  LayoutGrid,
+  Plus,
+  RotateCcw,
+  Sparkles,
+  Trash2,
+  X,
+} from "lucide-vue-next";
 import { computed, ref, watch } from "vue";
-
-export interface BranchRoute {
-  id: string;
-  name: string;
-  isMain: boolean;
-  createdAt: string;
-  nodeCount: number;
-}
 
 export interface StoryTimelineNode {
   id: string;
@@ -34,131 +37,93 @@ export interface StoryTimelineNode {
   summary: string;
   timestamp: string;
   isCurrent: boolean;
-  isChoicePoint?: boolean; // 是否为关键抉择点
+  isChoicePoint?: boolean;
+  actIndex: number;
 }
 
 const props = defineProps<{
   open: boolean;
+  currentBranchId?: string;
+  branches: StoryBranchDetail[];
   currentMessageId?: string;
   messages: ChatMessage[];
 }>();
 
 const emit = defineEmits<{
   (e: "update:open", val: boolean): void;
-  (e: "jumpToNode", messageId: string): void;
-  (e: "createBranch", fromMessageId: string, branchName: string): void;
+  (e: "switchBranch", branchId: string): void;
+  (e: "createBranch", fromMessageId?: string, branchName?: string): void;
   (e: "deleteBranch", branchId: string): void;
+  (e: "jumpToNode", messageId: string): void;
+  (e: "rollback", messageId: string, mode: "fork" | "truncate"): void;
+  (e: "openCanvas"): void;
 }>();
 
-// 平行分支路线列表
-const branchRoutes = ref<BranchRoute[]>([
-  {
-    id: "main",
-    name: "🌿 主线剧情 (当前)",
-    isMain: true,
-    createdAt: "20:00",
-    nodeCount: 3,
+// 当前选中的分支 ID
+const activeBranchId = ref<string>("");
+
+watch(
+  () => props.currentBranchId,
+  (newId) => {
+    if (newId) {
+      activeBranchId.value = newId;
+    }
   },
-  {
-    id: "branch-1",
-    name: "🔀 分支 1：独自探查破庙",
-    isMain: false,
-    createdAt: "20:05",
-    nodeCount: 2,
-  },
-  {
-    id: "branch-2",
-    name: "🔀 分支 2：向炭治郎坦白身份",
-    isMain: false,
-    createdAt: "20:12",
-    nodeCount: 4,
-  },
-]);
+  { immediate: true },
+);
 
-const activeBranchId = ref("main");
-
-// 基于当前消息列表构建时间轴节点
-const timelineNodes = computed<StoryTimelineNode[]>(() => {
-  if (activeBranchId.value === "main") {
-    return props.messages.map((m, idx) => {
-      // 过滤掉思考标签与多余空格
-      const cleanText = m.content
-        .replace(/<thinking>[\s\S]*?<\/thinking>/gi, "")
-        .replace(/<!--[\s\S]*?-->/gi, "")
-        .trim();
-
-      const isLast = idx === props.messages.length - 1;
-
-      return {
-        id: `node-${m.id}`,
-        messageId: m.id,
-        sender: m.sender,
-        characterName: m.sender === "ai" ? m.characterName || "AI" : "我",
-        avatarUrl: m.avatarUrl,
-        summary: cleanText.length > 60 ? `${cleanText.slice(0, 60)}...` : cleanText,
-        timestamp: m.timestamp || "20:00",
-        isCurrent: props.currentMessageId ? m.id === props.currentMessageId : isLast,
-        isChoicePoint: m.sender === "user",
-      };
-    });
+// 备用兜底分支列表
+const displayBranches = computed<StoryBranchDetail[]>(() => {
+  if (props.branches && props.branches.length > 0) {
+    return props.branches;
   }
-
-  // 模拟分支路线的节点数据
-  if (activeBranchId.value === "branch-1") {
-    return [
-      {
-        id: "node-b1-1",
-        messageId: "msg-1",
-        sender: "ai",
-        characterName: "灶门炭治郎",
-        summary: "夜色渐浓，深山中的寒风呼啸而过。我能闻到空气中那一丝极淡却危险的血腥味……",
-        timestamp: "20:00",
-        isCurrent: false,
-      },
-      {
-        id: "node-b1-2",
-        messageId: "b1-u1",
-        sender: "user",
-        characterName: "我",
-        summary: "“炭治郎，你留在这里照顾伤员，我去前方的破庙探查情况！”",
-        timestamp: "20:05",
-        isCurrent: true,
-        isChoicePoint: true,
-      },
-      {
-        id: "node-b1-3",
-        messageId: "b1-a1",
-        sender: "ai",
-        characterName: "灶门炭治郎",
-        summary: "（炭治郎紧紧握住日轮刀，神色担忧）“不行，太危险了！破庙里很可能有十二鬼月！”",
-        timestamp: "20:06",
-        isCurrent: false,
-      },
-    ];
-  }
-
   return [
     {
-      id: "node-b2-1",
-      messageId: "msg-1",
-      sender: "ai",
-      characterName: "灶门炭治郎",
-      summary: "夜色渐浓，深山中的寒风呼啸而过。我能闻到空气中那一丝极淡却危险的血腥味……",
-      timestamp: "20:00",
-      isCurrent: false,
-    },
-    {
-      id: "node-b2-2",
-      messageId: "b2-u1",
-      sender: "user",
-      characterName: "我",
-      summary: "“其实……我并不是鬼杀队的队员，我来自一个完全不同的世界。”",
-      timestamp: "20:12",
-      isCurrent: true,
-      isChoicePoint: true,
+      id: "main",
+      session_id: "",
+      name: "🌿 主线剧情",
+      is_main: true,
+      node_count: props.messages.length,
+      total_path_count: props.messages.length,
+      created_at: new Date().toISOString(),
     },
   ];
 });
+
+// 基于当前消息列表构建时间轴节点 (倒序: 越新的越在顶部展示)
+const timelineNodes = computed<StoryTimelineNode[]>(() => {
+  const total = props.messages.length;
+  const reversed = [...props.messages].reverse();
+
+  return reversed.map((m, revIdx) => {
+    // 过滤掉思考标签与多余空格
+    const cleanText = m.content
+      .replace(/<thinking>[\s\S]*?<\/thinking>/gi, "")
+      .replace(/<!--[\s\S]*?-->/gi, "")
+      .trim();
+
+    const originalIdx = total - 1 - revIdx;
+    const isNewest = revIdx === 0;
+
+    return {
+      id: `node-${m.id}`,
+      messageId: m.id,
+      sender: m.sender,
+      characterName: m.sender === "ai" ? m.characterName || "AI" : "我",
+      avatarUrl: m.avatarUrl,
+      summary: cleanText.length > 60 ? `${cleanText.slice(0, 60)}...` : cleanText,
+      timestamp: m.timestamp || "20:00",
+      isCurrent: props.currentMessageId ? m.id === props.currentMessageId : isNewest,
+      isChoicePoint: m.sender === "user",
+      actIndex: originalIdx + 1,
+    };
+  });
+});
+
+function handleSelectBranch(branchId: string): void {
+  activeBranchId.value = branchId;
+  emit("switchBranch", branchId);
+}
 
 function handleJump(messageId: string): void {
   emit("jumpToNode", messageId);
@@ -166,22 +131,17 @@ function handleJump(messageId: string): void {
 }
 
 function handleCreateNewBranch(fromMessageId?: string): void {
-  const targetId =
-    fromMessageId || props.currentMessageId || props.messages[props.messages.length - 1]?.id;
-  const newBranchName = `🔀 分支 ${branchRoutes.value.length}：平行抉择线`;
-  emit("createBranch", targetId, newBranchName);
-  branchRoutes.value.push({
-    id: `branch-${Date.now()}`,
-    name: newBranchName,
-    isMain: false,
-    createdAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    nodeCount: 1,
-  });
-  activeBranchId.value = branchRoutes.value[branchRoutes.value.length - 1].id;
+  emit("createBranch", fromMessageId);
+  emit("update:open", false);
 }
 
-function handleClose(): void {
+function handleDeleteCurrentBranch(branchId: string): void {
+  emit("deleteBranch", branchId);
+}
+
+function handleOpenCanvas(): void {
   emit("update:open", false);
+  emit("openCanvas");
 }
 </script>
 
@@ -198,38 +158,61 @@ function handleClose(): void {
       <div class="px-4 py-2.5 border-b border-[#44403C]/60 bg-[#292524]/60 flex items-center justify-between gap-2">
         <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5 flex-1">
           <button
-            v-for="route in branchRoutes"
-            :key="route.id"
+            v-for="b in displayBranches"
+            :key="b.id"
             type="button"
-            @click="activeBranchId = route.id"
+            @click="handleSelectBranch(b.id)"
             :class="[
-              'px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer shrink-0 shadow-sm',
-              activeBranchId === route.id
+              'px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer shrink-0 shadow-sm group',
+              activeBranchId === b.id
                 ? 'bg-[#F9C86D] text-[#0C0A09] shadow-[0_0_12px_rgba(249,200,109,0.3)]'
                 : 'border border-[#44403C] bg-[#2A261F] text-[#A8A29E] hover:text-white hover:border-[#F9C86D]/40'
             ]"
           >
-            <span>{{ route.name }}</span>
+            <span>{{ b.name }}</span>
             <span
               :class="[
                 'text-[10px] px-1.5 py-0.2 rounded-full font-mono',
-                activeBranchId === route.id ? 'bg-black/20 text-[#0C0A09]' : 'bg-black/40 text-[#A8A29E]'
+                activeBranchId === b.id ? 'bg-black/20 text-[#0C0A09]' : 'bg-black/40 text-[#A8A29E]'
               ]"
             >
-              {{ route.nodeCount }} 节
+              {{ b.total_path_count || b.node_count || 1 }} 节
+            </span>
+
+            <!-- 删除非主线分支 -->
+            <span
+              v-if="!b.is_main"
+              @click.stop="handleDeleteCurrentBranch(b.id)"
+              class="w-3.5 h-3.5 rounded-full flex items-center justify-center opacity-60 hover:opacity-100 hover:text-red-500 transition-opacity ml-0.5"
+              title="删除此分支"
+            >
+              <Trash2 class="w-3 h-3" />
             </span>
           </button>
         </div>
 
-        <!-- + 新增分支快捷小按钮 -->
-        <button
-          type="button"
-          @click="handleCreateNewBranch()"
-          class="w-7 h-7 rounded-full border border-[#D1A35C]/60 bg-[#292524] flex items-center justify-center text-[#F9C86D] hover:scale-105 active:scale-95 transition-transform cursor-pointer shrink-0"
-          title="开辟新分支"
-        >
-          <Plus class="w-3.5 h-3.5" />
-        </button>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <!-- 全景拓扑图按钮 -->
+          <button
+            type="button"
+            @click="handleOpenCanvas"
+            class="px-2 py-1 rounded-lg border border-[#D1A35C]/50 bg-[#292524] flex items-center gap-1 text-[#F9C86D] text-xs hover:bg-[#D1A35C]/20 transition-all cursor-pointer"
+            title="全景剧情树画布"
+          >
+            <LayoutGrid class="w-3.5 h-3.5" />
+            <span class="hidden sm:inline">全景图</span>
+          </button>
+
+          <!-- + 新增分支快捷小按钮 -->
+          <button
+            type="button"
+            @click="handleCreateNewBranch()"
+            class="w-7 h-7 rounded-full border border-[#D1A35C]/60 bg-[#292524] flex items-center justify-center text-[#F9C86D] hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+            title="开辟新分支"
+          >
+            <Plus class="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
       <!-- 2. 主体: 垂直发光时间轴列表 -->
@@ -239,9 +222,9 @@ function handleClose(): void {
         <div class="p-2.5 rounded-lg border border-[#44403C]/40 bg-[#292524]/40 flex items-center justify-between text-xs text-[#A8A29E]">
           <div class="flex items-center gap-1.5">
             <GitBranch class="w-3.5 h-3.5 text-[#F9C86D]" />
-            <span>当前路线：<strong class="text-white/90">{{ branchRoutes.find(r => r.id === activeBranchId)?.name }}</strong></span>
+            <span>当前路线：<strong class="text-white/90">{{ displayBranches.find(r => r.id === activeBranchId)?.name || '主线剧情' }}</strong></span>
           </div>
-          <span class="text-[11px] font-mono text-[#F9C86D]/80">点击节点可回溯或衍生</span>
+          <span class="text-[11px] font-mono text-[#F9C86D]/80">点击节点可回溯或分叉</span>
         </div>
 
         <!-- 节点时间轴树 -->
@@ -311,13 +294,14 @@ function handleClose(): void {
               <!-- 底部操作按钮栏 -->
               <div class="pt-2.5 mt-1 flex items-center justify-between text-xs">
                 <span v-if="node.isCurrent" class="text-[11px] text-[#F9C86D] font-medium flex items-center gap-1">
-                  ● 处于当前节点
+                  ● 当前最新进度 (第 {{ node.actIndex }} 幕)
                 </span>
                 <span v-else class="text-[11px] text-[#78716C]">
-                  第 {{ index + 1 }} 幕
+                  第 {{ node.actIndex }} 幕
                 </span>
 
-                <div class="flex items-center gap-2">
+                <!-- 仅对 AI 角色发言节点显示分叉与回溯操作 (避免用户发言节点回溯后产生连续两句用户输入) -->
+                <div v-if="node.sender === 'ai'" class="flex items-center gap-2">
                   <!-- 1. 回溯至此 -->
                   <button
                     type="button"
@@ -338,6 +322,9 @@ function handleClose(): void {
                     <span>从此分叉</span>
                   </button>
                 </div>
+                <div v-else class="text-[10.5px] text-[#78716C] italic font-mono">
+                  用户发言节点
+                </div>
               </div>
 
             </div>
@@ -355,7 +342,7 @@ function handleClose(): void {
           class="flex-1 h-10 rounded-xl bg-[#F9C86D] text-[#0C0A09] font-medium text-sm flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_4px_16px_rgba(249,200,109,0.3)] cursor-pointer"
         >
           <GitBranch class="w-4 h-4" />
-          <span>基于当前对话开辟新分支</span>
+          <span>从当前对话派生全新独立记录</span>
         </button>
       </div>
 

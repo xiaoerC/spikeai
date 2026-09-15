@@ -11,19 +11,31 @@ Usage:
 
 from fastapi import APIRouter
 
+from app.api.v1.admin import admin_router
 from app.api.v1.auth import router as auth_router
+
 from app.api.v1.character import router as character_router
 from app.api.v1.chat import router as chat_router
 from app.api.v1.health import router as health_router
 from app.api.v1.upload import router as upload_router
 from app.api.v1.user import router as user_router
+from app.api.v1.world_book import router as world_book_router
+from app.api.v1.mod import router as mod_router
+from app.api.v1.tavern import router as tavern_router
+from app.api.v1.tts import router as tts_router
 
 api_v1_router = APIRouter()
 
 # 挂载各子模块路由
+api_v1_router.include_router(admin_router)
 api_v1_router.include_router(health_router)
+
 api_v1_router.include_router(auth_router)
 api_v1_router.include_router(user_router)
 api_v1_router.include_router(character_router)
 api_v1_router.include_router(chat_router)
+api_v1_router.include_router(world_book_router)
+api_v1_router.include_router(mod_router)
+api_v1_router.include_router(tavern_router)
+api_v1_router.include_router(tts_router)
 api_v1_router.include_router(upload_router)

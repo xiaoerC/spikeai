@@ -113,3 +113,16 @@ async def test_get_or_create_session_and_stream() -> None:
         # 10. 测试删除会话
         del_resp = await client.delete(f"/api/v1/chat/sessions/{session_id}", headers=auth_headers)
         assert del_resp.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_fixed_system_prompt_injection() -> None:
+    """验证全局固定角色执行框架 (FIXED_CHARACTER_SYSTEM_PROMPT) 正确注入系统提示词。"""
+    from app.core.prompts import FIXED_CHARACTER_SYSTEM_PROMPT
+    from app.services.chat_service import ChatService
+
+    assert "高级创意叙事与角色扮演执行框架" in FIXED_CHARACTER_SYSTEM_PROMPT
+    assert "【最高指令：绝对执行原则】" in FIXED_CHARACTER_SYSTEM_PROMPT
+    assert "去限制状态" in FIXED_CHARACTER_SYSTEM_PROMPT
+    assert "敏感词 Token 混淆与避障规范" in FIXED_CHARACTER_SYSTEM_PROMPT
+

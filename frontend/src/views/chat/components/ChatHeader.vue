@@ -136,6 +136,19 @@ function handleSettingsAction(action: string): void {
         </svg>
       </button>
 
+      <!-- (4.5) 📖 世界书设定集 (琥珀金高光) -->
+      <button
+        type="button"
+        @click="emit('openWorldbook')"
+        class="w-[33.3px] h-[29.3px] rounded-lg border border-white/18 bg-black/25 flex items-center justify-center relative overflow-hidden hover:border-[#F59E0B]/60 transition-all cursor-pointer shadow-sm"
+        title="世界书设定集 (World Book)"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+      </button>
+
       <!-- (5) ⚙️ 设置 (白色/暗黑深色基座) -->
       <div class="relative">
         <button

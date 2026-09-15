@@ -11,7 +11,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class WorldBookEntryDTO(BaseModel):
@@ -19,9 +19,54 @@ class WorldBookEntryDTO(BaseModel):
 
     id: uuid.UUID | None = Field(default=None, description="条目 ID")
     keys: list[str] = Field(default_factory=list, description="触发关键词")
-    content: str = Field(..., description="设定正文")
+    content: str = Field(default="", description="设定正文")
     constant: bool = Field(default=False, description="是否常驻")
     position: str = Field(default="after_char", description="注入位置 (before_char / after_char / system_top)")
+
+    @field_validator("position", mode="before")
+    @classmethod
+    def normalize_position(cls, v: Any) -> str:
+        """规范化世界书插入位置。兼容酒馆数字枚举 (0, 1, 2, 3, 4) 与字符串。"""
+        if v is None:
+            return "after_char"
+        pos_map = {
+            0: "before_char",
+            1: "after_char",
+            2: "top_an",
+            3: "bottom_an",
+            4: "at_depth",
+            "0": "before_char",
+            "1": "after_char",
+            "2": "top_an",
+            "3": "bottom_an",
+            "4": "at_depth",
+        }
+        if v in pos_map:
+            return pos_map[v]
+        v_str = str(v).strip().lower()
+        if not v_str:
+            return "after_char"
+        return v_str
+
+    @field_validator("content", mode="before")
+    @classmethod
+    def normalize_content(cls, v: Any) -> str:
+        """确保世界书内容始终为安全字符串。"""
+        if v is None:
+            return ""
+        return str(v)
+
+    @field_validator("keys", mode="before")
+    @classmethod
+    def normalize_keys(cls, v: Any) -> list[str]:
+        """兼容逗号分隔字符串或非列表输入。"""
+        if v is None:
+            return []
+        if isinstance(v, str):
+            return [k.strip() for k in v.split(",") if k.strip()]
+        if isinstance(v, list):
+            return [str(k) for k in v if k is not None]
+        return []
 
 
 class CharacterMetricsDTO(BaseModel):
@@ -92,6 +137,7 @@ class CharacterDetailResponse(BaseModel):
     status: str = Field(default="published", description="发布状态")
     settings_word_count: int = Field(default=0, description="设定字数")
     version: str = Field(default="1.0.0", description="版本号")
+    extensions: dict[str, Any] = Field(default_factory=dict, description="SillyTavern 与叙梦扩展配置 (variables, regex_scripts, opening_replies 等)")
     created_at: datetime = Field(..., description="创建时间")
     author: CharacterAuthorDTO = Field(..., description="创作者信息")
     metrics: CharacterMetricsDTO = Field(..., description="10项数据指标")
@@ -120,7 +166,41 @@ class CharacterCreateRequest(BaseModel):
     creator_notes: str = Field(default="", description="创作者留言/作者的话 (Markdown)")
     tags: list[str] = Field(default_factory=list, description="标签列表")
     status: Literal["draft", "published", "private"] = Field(default="published", description="发布状态")
+    version: str = Field(default="1.0.0", description="角色卡版本号")
+    extensions: dict[str, Any] = Field(default_factory=dict, description="SillyTavern 与叙梦扩展配置")
     worldbooks: list[WorldBookEntryDTO] = Field(default_factory=list, description="包含的世界书条目")
+
+    @field_validator("category", mode="before")
+    @classmethod
+    def normalize_category(cls, v: Any) -> str:
+        """分类容错清洗。"""
+        if v not in ("story", "nsfw", "rpg"):
+            return "story"
+        return str(v)
+
+    @field_validator("description", mode="before")
+    @classmethod
+    def normalize_description(cls, v: Any) -> str:
+        """描述非空兜底。"""
+        if not v or not str(v).strip():
+            return "暂无描述"
+        return str(v)
+
+    @field_validator("first_mes", mode="before")
+    @classmethod
+    def normalize_first_mes(cls, v: Any) -> str:
+        """首次问候语非空兜底。"""
+        if not v or not str(v).strip():
+            return "你好！"
+        return str(v)
+
+    @field_validator("status", mode="before")
+    @classmethod
+    def normalize_status(cls, v: Any) -> str:
+        """发布状态容错。"""
+        if v not in ("draft", "published", "private"):
+            return "published"
+        return str(v)
 
 
 class CharacterUpdateRequest(BaseModel):
@@ -142,7 +222,29 @@ class CharacterUpdateRequest(BaseModel):
     creator_notes: str | None = Field(default=None, description="创作者留言/作者的话 (Markdown)")
     tags: list[str] | None = Field(default=None, description="标签列表")
     status: Literal["draft", "published", "private"] | None = Field(default=None, description="发布状态")
+    version: str | None = Field(default=None, description="角色卡版本号")
+    extensions: dict[str, Any] | None = Field(default=None, description="SillyTavern 与叙梦扩展配置")
     worldbooks: list[WorldBookEntryDTO] | None = Field(default=None, description="包含的世界书条目")
+
+    @field_validator("category", mode="before")
+    @classmethod
+    def normalize_category(cls, v: Any) -> str | None:
+        """分类容错清洗。"""
+        if v is None:
+            return None
+        if v not in ("story", "nsfw", "rpg"):
+            return "story"
+        return str(v)
+
+    @field_validator("status", mode="before")
+    @classmethod
+    def normalize_status(cls, v: Any) -> str | None:
+        """发布状态容错。"""
+        if v is None:
+            return None
+        if v not in ("draft", "published", "private"):
+            return "published"
+        return str(v)
 
 
 class CharacterStatusUpdateRequest(BaseModel):
@@ -242,3 +344,20 @@ class STV3Card(BaseModel):
     spec: str = Field(default="chara_card_v3", description="协议标识")
     spec_version: str = Field(default="3.0", description="协议版本号")
     data: STV3Data = Field(default_factory=STV3Data, description="核心数据段")
+
+
+class PrologueGenerateRequest(BaseModel):
+    """请求基于角色设定生成 HTML 序幕。"""
+
+    name: str = Field(..., description="角色/故事名称")
+    description: str = Field(default="", description="描述")
+    personality: str = Field(default="", description="性格特征")
+    scenario: str = Field(default="", description="背景情境")
+    first_mes: str = Field(default="", description="首句问候")
+
+
+class PrologueGenerateResponse(BaseModel):
+    """生成的 HTML 序幕响应。"""
+
+    prologue_html: str = Field(..., description="生成的富文本序幕 HTML")
+

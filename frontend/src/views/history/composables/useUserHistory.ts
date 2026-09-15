@@ -4,6 +4,8 @@
  * @packageDocumentation
  */
 
+import { type CharacterDetail, characterService } from "@/services/character";
+import { chatService } from "@/services/chat";
 import type {
   ArtistPromptItem,
   CollectionModEntry,
@@ -24,8 +26,6 @@ import type {
   UserHistoryCategory,
   UserHistoryItem,
 } from "@/views/history/types";
-import { characterService, type CharacterDetail } from "@/services/character";
-import { chatService } from "@/services/chat";
 import { computed, onMounted, ref } from "vue";
 
 export function useUserHistory() {
@@ -49,8 +49,8 @@ export function useUserHistory() {
         id: s.id,
         characterId: s.character_id,
         title: s.title,
-        avatar: s.banner_url || s.avatar,
-        avatarUrl: s.avatar,
+        avatar: s.avatar || s.banner_url || "",
+        avatarUrl: s.avatar || s.banner_url || "",
         remark: s.remark,
         category: "story" as const,
         isPinned: s.is_pinned,
@@ -93,7 +93,7 @@ export function useUserHistory() {
 
   async function toggleCharacterStatus(
     char: CharacterDetail,
-    newStatus: "published" | "draft"
+    newStatus: "published" | "draft",
   ): Promise<void> {
     try {
       const updated = await characterService.updateCharacterStatus(char.id, newStatus);
@@ -104,7 +104,7 @@ export function useUserHistory() {
       showToast(
         newStatus === "published"
           ? `角色《${char.name}》已成功上架到社区`
-          : `角色《${char.name}》已下架（设为草稿）`
+          : `角色《${char.name}》已下架（设为草稿）`,
       );
     } catch (err) {
       console.error("更新角色发布状态失败:", err);
@@ -818,7 +818,10 @@ export function useUserHistory() {
   async function saveRemark(remark: string): Promise<void> {
     if (!editingRemarkItem.value) return;
     try {
-      const saved = await chatService.updateSessionRemark(editingRemarkItem.value.id, remark.trim());
+      const saved = await chatService.updateSessionRemark(
+        editingRemarkItem.value.id,
+        remark.trim(),
+      );
       const target = historyList.value.find((h) => h.id === editingRemarkItem.value?.id);
       if (target) {
         target.remark = saved;

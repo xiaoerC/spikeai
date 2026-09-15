@@ -344,19 +344,19 @@ class ChatNarrativeState(Base):
         doc="关联会话 ID",
     )
     date_text: Mapped[str] = mapped_column(
-        String(64),
+        Text,
         default="",
         nullable=False,
         doc="当前剧情日期 (如 '2026-07-06（周一）')",
     )
     time_text: Mapped[str] = mapped_column(
-        String(32),
+        Text,
         default="",
         nullable=False,
         doc="当前剧情时间 (如 '15:20')",
     )
     location: Mapped[str] = mapped_column(
-        String(128),
+        Text,
         default="",
         nullable=False,
         doc="当前剧情所在地点",

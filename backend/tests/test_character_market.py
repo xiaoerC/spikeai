@@ -70,9 +70,10 @@ async def test_character_detail_and_interaction() -> None:
         assert "worldbooks" in detail
 
         # 3. 注册新用户用于互动
+        test_email = f"market_tester_{uuid.uuid4().hex[:6]}@naro.ai"
         reg_resp = await client.post(
             "/api/v1/auth/register",
-            json={"email": "market_tester@naro.ai", "password": "password123"},
+            json={"email": test_email, "password": "Password123!", "username": "MarketTester"},
         )
         token = reg_resp.json()["data"]["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
@@ -93,7 +94,7 @@ async def test_character_detail_and_interaction() -> None:
         assert comment_resp.status_code == 200
         comment_data = comment_resp.json()["data"]
         assert comment_data["content"] == "太棒了！这个角色的序幕和立绘非常惊艳！"
-        assert comment_data["username"] == "market_tester"
+        assert "market_tester" in comment_data["username"].lower()
 
         # 6. 获取评论列表
         comments_list_resp = await client.get(f"/api/v1/characters/{char_id}/comments")
@@ -204,3 +205,58 @@ async def test_character_create_full_flow() -> None:
         detail_resp = await client.get(f"/api/v1/characters/{char_id}")
         assert detail_resp.status_code == 200
         assert detail_resp.json()["data"]["name"] == "星穹列车长 · 帕姆"
+
+
+@pytest.mark.asyncio
+async def test_character_create_with_st_positions_and_normalization() -> None:
+    """测试酒馆标准整型 position (0, 1, 2...) 及缺省值的自动清洗与创建。"""
+    from app.schemas.character import WorldBookEntryDTO, CharacterCreateRequest
+
+    # 1. 验证 WorldBookEntryDTO 对整型与特殊 position 的清洗
+    entry0 = WorldBookEntryDTO(keys=["测试"], content="内容0", position=0)  # type: ignore[arg-type]
+    assert entry0.position == "before_char"
+
+    entry1 = WorldBookEntryDTO(keys=["测试"], content="内容1", position=1)  # type: ignore[arg-type]
+    assert entry1.position == "after_char"
+
+    entry2 = WorldBookEntryDTO(keys="关键词1,关键词2", content="内容2", position="2")  # type: ignore[arg-type]
+    assert entry2.position == "top_an"
+    assert entry2.keys == ["关键词1", "关键词2"]
+
+    # 2. 验证端到端 API 创建
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://testserver") as client:
+        reg_resp = await client.post(
+            "/api/v1/auth/register",
+            json={"email": f"st_tester_{uuid.uuid4().hex[:6]}@naro.ai", "password": "password123"},
+        )
+        token = reg_resp.json()["data"]["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        payload = {
+            "name": "火影之祸害 · 叙事测试卡",
+            "avatar_url": "https://example.com/avatar.png",
+            "category": "story",
+            "description": "测试整型 position 的世界书",
+            "first_mes": "欢迎来到木叶！",
+            "worldbooks": [
+                {
+                    "keys": ["写轮眼"],
+                    "content": "宇智波一族的血继限界",
+                    "position": 1,  # 酒馆导出的数字 1
+                },
+                {
+                    "keys": ["千手柱间"],
+                    "content": "初代火影",
+                    "position": 0,  # 酒馆导出的数字 0
+                },
+            ],
+        }
+
+        resp = await client.post("/api/v1/characters", headers=headers, json=payload)
+        assert resp.status_code == 200
+        data = resp.json()["data"]
+        assert len(data["worldbooks"]) == 2
+        positions = [wb["position"] for wb in data["worldbooks"]]
+        assert "after_char" in positions
+        assert "before_char" in positions

@@ -1,19 +1,25 @@
 <script setup lang="ts">
 import AppToast from "@/components/common/AppToast.vue";
 import { useAppStore } from "@/stores/app";
+import { useUserStore } from "@/stores/user";
 import { checkIsMobileViewport, setupVisualViewportListener } from "@/utils/viewport";
 import ForgotPasswordModal from "@/views/login/components/ForgotPasswordModal.vue";
 import LoginModal from "@/views/login/components/LoginModal.vue";
 import RegisterModal from "@/views/login/components/RegisterModal.vue";
+import SetUsernameModal from "@/views/login/components/SetUsernameModal.vue";
 import { onMounted, onUnmounted } from "vue";
 import { RouterView } from "vue-router";
 
 const appStore = useAppStore();
+const userStore = useUserStore();
 
 let cleanupViewport: (() => void) | null = null;
 
 onMounted(() => {
   appStore.isMobile = checkIsMobileViewport();
+
+  // 初始化检查登录资料
+  userStore.fetchProfile();
 
   const handleResize = () => {
     appStore.isMobile = checkIsMobileViewport();
@@ -64,6 +70,9 @@ onUnmounted(() => {
         @update:open="(val: boolean) => { if (!val) appStore.closeAuthModal(); }"
         @switch-to-login="appStore.openLoginModal()"
       />
+
+      <!-- 首次登录强制设置用户名弹窗 (强阻断) -->
+      <SetUsernameModal :open="userStore.needsUsername" />
     </div>
   </div>
 </template>

@@ -63,6 +63,7 @@ class UserProfileResponse(BaseModel):
     id: uuid.UUID = Field(..., description="用户 UID")
     email: str = Field(..., description="用户邮箱")
     username: str = Field(..., description="显示昵称")
+    is_custom_username: bool = Field(default=False, description="是否已设置自定义用户名 (若为 False 则需在首次进入或登录时强制设置)")
     avatar_url: str = Field(default="", description="头像 URL")
     vip_level: int = Field(default=0, description="VIP 赞助等级")
     player_level: int = Field(default=1, description="玩家等级")
@@ -72,6 +73,13 @@ class UserProfileResponse(BaseModel):
     invite_code: str = Field(..., description="专属邀请码")
     badges: list[dict[str, Any]] = Field(default_factory=list, description="勋章列表")
     wallet: UserWalletResponse = Field(..., description="资产钱包")
+
+
+class UserProfileUpdateRequest(BaseModel):
+    """更新用户资料请求体。"""
+
+    username: str = Field(..., min_length=2, max_length=20, description="用户自定义昵称 (2~20字符)")
+    avatar_url: str | None = Field(default=None, description="自定义头像 URL (可选)")
 
 
 class DailyRewardResponse(BaseModel):

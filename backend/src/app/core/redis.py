@@ -33,6 +33,8 @@ def get_redis_pool() -> ConnectionPool:
             settings.REDIS_URL,
             decode_responses=True,
             max_connections=50,
+            socket_timeout=2.0,
+            socket_connect_timeout=2.0,
         )
     return _redis_pool
 

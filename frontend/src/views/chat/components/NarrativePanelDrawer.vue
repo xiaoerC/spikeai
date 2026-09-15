@@ -14,6 +14,7 @@
  * @packageDocumentation
  */
 
+import { type NarrativeStateDTO, chatService } from "@/services/chat";
 import {
   Backpack,
   BookOpen,
@@ -31,13 +32,21 @@ import {
   Users,
   X,
 } from "lucide-vue-next";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
 
 const props = defineProps<{
   open: boolean;
+  sessionId?: string;
+  narrativeState?: NarrativeStateDTO;
 }>();
 
-const emit = defineEmits<(e: "update:open", val: boolean) => void>();
+const emit = defineEmits<{
+  (e: "update:open", val: boolean): void;
+  (e: "save", payload: NarrativeStateDTO): void;
+}>();
 
 // 记忆增强状态
 const isMemoryEnhanced = ref(true);
@@ -51,361 +60,51 @@ const tabs = [
   { id: 5, name: "任务", icon: Scroll },
   { id: 6, name: "历史", icon: BookOpen },
 ];
-const activeTab = ref(6); // 默认打开历史 Tab 进行验证
+const activeTab = ref(1); // 默认打开状态 Tab
+
+// 时空背景数据 (Tab 1 顶部)
+const spatioTemporal = ref({
+  date: props.narrativeState?.date_text || "第一幕 · 初始篇",
+  time: props.narrativeState?.time_text || "清晨",
+  location: props.narrativeState?.location || "起始之境",
+  characters: props.narrativeState?.present_characters || [],
+});
 
 // 是否展开原始表格数据
 const isRawTablesExpanded = ref(true);
 
-// 玩家状态 Mock 数据 (Tab 1)
-const playerStates = ref([
-  {
-    id: 1,
-    type: "家境/环境",
-    name: "家中名声",
-    currentVal: 25,
-    maxVal: "100",
-    desc: "小圈子暗传 · 丽丽和萱萱在姐妹圈里将你作为‘需要训练的秒射处男’进行八卦和传播",
-  },
-  {
-    id: 2,
-    type: "家境/环境",
-    name: "家中凌乱度",
-    currentVal: 65,
-    maxVal: "100",
-    desc: "一片狼藉 · 丽丽和萱萱在沙发上对你进行粗暴训练，汗水、前列腺液洇湿了沙发和衣物，茶几上的外卖红油进一步弄脏了靠垫",
-  },
-  {
-    id: 3,
-    type: "社交计数",
-    name: "丽丽到来次数",
-    currentVal: 3,
-    maxVal: "-",
-    desc: "丽丽首次拜访",
-  },
-  {
-    id: 4,
-    type: "社交计数",
-    name: "萱萱到来次数",
-    currentVal: 2,
-    maxVal: "-",
-    desc: "萱萱首次拜访",
-  },
-  {
-    id: 5,
-    type: "社交计数",
-    name: "黄媛媛到来次数",
-    currentVal: 1,
-    maxVal: "-",
-    desc: "黄媛媛首次拜访",
-  },
-]);
+// 玩家状态数据 (Tab 1)
+const playerStates = ref<any[]>(props.narrativeState?.player_states || []);
 
-// 背包 Mock 数据 (Tab 2)
-const consumables = ref([
-  {
-    id: 1,
-    name: "精酿啤酒",
-    count: -2,
-    type: "饮品",
-    effect: "消暑、微醺",
-    source: "冰箱库存",
-    desc: "被丽丽和萱萱拿去饮用",
-  },
-]);
+// 背包数据 (Tab 2)
+const consumables = ref<any[]>(props.narrativeState?.consumables || []);
+const importantItems = ref<any[]>(props.narrativeState?.important_items || []);
 
-const importantItems = ref([
-  {
-    id: 1,
-    owner: "黄媛媛",
-    name: "粉色苹果手机",
-    desc: "最新款粉色苹果手机，最大内存，套有手机壳并贴膜",
-    importance: "徐暮云赠送，用于随时与母亲联系报平安，也是媛媛极其珍视的物品",
-  },
-]);
+// 技能数据 (Tab 3)
+const skills = ref<any[]>(props.narrativeState?.skills || []);
 
-// 技能 Mock 数据 (Tab 3)
-const skills = ref([
-  {
-    id: 1,
-    name: "极限控精",
-    type: "被动/房中术",
-    level: "LV.1",
-    proficiency: "15%",
-    proficiencyCurrent: 15,
-    proficiencyMax: 100,
-    cost: "体力",
-    cooldown: "无",
-    effect:
-      "在临近射精边缘时，通过深呼吸、绷紧大腿及转移注意力（如想二舅）来强行憋回，延长战斗时间",
-    source: "丽丽与萱萱的粗暴打骂训练",
-    status: "已掌握",
-    isEquipped: false,
-  },
-]);
+// 社交关系数据 (Tab 4)
+const socialCharacters = ref<any[]>(props.narrativeState?.social_relations || []);
 
-// 社交 Mock 数据 (Tab 4)
-const socialCharacters = ref([
-  {
-    id: 1,
-    name: "丽丽",
-    relationTag: "友好",
-    tagColor: "bg-[#EAB308]",
-    favorability: 60,
-    favorBarColor: "bg-[#EAB308]",
-    relation: "暧昧微信好友",
-    location: "客厅L型沙发",
-    attitude: "戏谑、背德挑逗、关切",
-    bodyFeature:
-      "20岁，粉发干枯，眼线粗黑，死亡芭比粉唇，右肩有发绿玫瑰纹身，胸D罩杯，脚后跟有水泡",
-    personality: "大大咧咧，混不吝，嘴硬，带点无赖",
-    job: "无固定职业（KTV/夜店/直播三头跑）",
-    hobby: "抽电子烟、唱歌",
-    favorite: "麻辣烫、舒服的沙发、精酿啤酒",
-    residence: "未知（本该去14楼，走错到15楼）",
-    otherInfo:
-      "自封大姐头，男友阿龙；家庭破碎，母亲改嫁赌鬼，15岁出来打拼做过学徒/前台，常被要钱，内心因家庭深感自卑",
-  },
-  {
-    id: 2,
-    name: "萱萱",
-    relationTag: "友好",
-    tagColor: "bg-[#EAB308]",
-    favorability: 62,
-    favorBarColor: "bg-[#EAB308]",
-    relation: "病态暧昧好友",
-    location: "客厅L型沙发",
-    attitude: "病态占有、背德挑逗、恶劣戏谑",
-    bodyFeature:
-      "18岁，黑低双马尾，齐刘海，灰粉色美瞳，重卧蚕，颈戴黑色皮质铃铛颈圈，身穿灰色oversize老爹衫",
-    personality: "病娇，伪萝莉，敏锐，占有欲强，有窥探欲",
-    job: "无业（偶尔做网店模特）",
-    hobby: "未知",
-    favorite: "粉红色网红气泡水、水果盒",
-    residence: "未知",
-    otherInfo:
-      "丽丽的发小，嫌弃男友；出身于高压控制欲极强的教师/公务员家庭，17岁离家出走，具有病态的占有欲和反叛倾向",
-  },
-  {
-    id: 3,
-    name: "黄媛媛",
-    relationTag: "挚友",
-    tagColor: "bg-[#22C55E]",
-    favorability: 90,
-    favorBarColor: "bg-[#22C55E]",
-    relation: "寄宿依赖",
-    location: "<user>家次卧",
-    attitude: "傲娇、依恋、极度依赖",
-    bodyFeature: "身高152cm，极细腰，胸C（童颜巨乳），黑色齐耳短发",
-    personality: "满口脏话，外表可爱但内心叛逆，警惕性高",
-    job: "九中初二三班学生",
-    hobby: "吃水果",
-    favorite: "粉色苹果手机、红油火锅",
-    residence: "<user>家次卧",
-    otherInfo: "16岁，父母离异；已被<user>送入9中初二三班复学；拥有一部粉色苹果手机",
-  },
-  {
-    id: 4,
-    name: "黄媛媛母亲",
-    relationTag: "亲密",
-    tagColor: "bg-[#22C55E]",
-    favorability: 80,
-    favorBarColor: "bg-[#22C55E]",
-    relation: "暧昧微信好友",
-    location: "与刘姓男友同居处",
-    attitude: "依恋、挑逗、感激",
-    bodyFeature:
-      "34岁左右，深栗色大波浪，浓妆，身穿酒红色紧身针织连衣裙、黑色细高跟，身材丰满有性张力",
-    personality: "软弱、市井、对女儿有病态的关切与愧疚",
-    job: "未知",
-    hobby: "未知",
-    favorite: "未知",
-    residence: "与刘姓男友同居处",
-    otherInfo:
-      "真名陈美兰；性格软弱，默认了同居男友对女儿的骚扰，但在关键时刻为了女儿安全同意其寄宿在<user>处",
-  },
-]);
+// 社交四宫格统计计算
+const intimateCount = computed(
+  () => socialCharacters.value.filter((c) => (c.favorability || 0) >= 80).length,
+);
+const friendlyCount = computed(
+  () =>
+    socialCharacters.value.filter((c) => (c.favorability || 0) >= 50 && (c.favorability || 0) < 80)
+      .length,
+);
+const hostileCount = computed(
+  () => socialCharacters.value.filter((c) => (c.favorability || 0) < 50).length,
+);
+const totalSocialCount = computed(() => socialCharacters.value.length);
 
-// 任务 Mock 数据 (Tab 5)
-const ongoingTasks = ref([
-  {
-    id: 1,
-    role: "<user>",
-    task: "把甄芬变成自己老婆",
-    typeTag: "普通",
-    statusTag: "进行中",
-    location: "苍星中学",
-    duration: "长期",
-  },
-]);
+// 任务数据 (Tab 5)
+const ongoingTasks = ref<any[]>(props.narrativeState?.tasks || []);
 
-// 历史 Tab 角色筛选选项 (9 项)
-const characterFilters = [
-  { id: "all", name: "全部", count: 33 },
-  { id: "lili", name: "丽丽", count: 1 },
-  { id: "lili_xuan", name: "丽丽、萱萱", count: 13 },
-  { id: "lili_huang", name: "丽丽、黄媛媛", count: 2 },
-  { id: "user_huang_lili", name: "<user>、黄媛媛、丽丽", count: 3 },
-  { id: "user_huang", name: "<user>、黄媛媛", count: 6 },
-  {
-    id: "user_huang_mother",
-    name: "<user>、黄媛媛、黄媛媛母亲",
-    count: 4,
-  },
-  { id: "huang_mother", name: "黄媛媛母亲", count: 3 },
-  { id: "user_mother", name: "<user>、黄媛媛母亲", count: 1 },
-];
-const activeFilter = ref("all");
-
-// 历史剧情事件时间轴按日期分组 Mock 数据 (Tab 6 - 严格 1:1 Figma 94:4096)
-const historyDateGroups = ref([
-  {
-    id: "d1",
-    dateText: "2026-07-06（周一）",
-    eventCount: "7 个事件",
-    events: [
-      {
-        id: 101,
-        characters: "丽丽、萱萱",
-        location: "客厅L型沙发",
-        mood: "背德、痛苦、极度亢奋",
-        desc: "两女压制了<user>的反抗，解释因各自有男友不能真做，且要求<user>必须为黄媛媛保留第一次；随后在沙发上用手脚进行粗暴套弄，并在其临近射精时强行憋回，对其展开耐力训练。",
-      },
-      {
-        id: 102,
-        characters: "丽丽、萱萱",
-        location: "客厅L型沙发",
-        mood: "羞愤、亢奋、荒诞",
-        desc: "【补记】两女为了‘感谢’<user>，主动提出帮其训练忍耐力，让其坐在沙发上用手脚进行粗暴套弄，并在射精边缘强行憋回，开启极限控精训练。",
-      },
-      {
-        id: 103,
-        characters: "丽丽、萱萱",
-        location: "客厅L型沙发",
-        mood: "背德、亢奋、荒诞",
-        desc: "三人转移到沙发，两女一左一右躺靠在<user>身上，一边粗俗聊起各自与男友的性生活，一边动手将<user>撩拨至生理极限并放肆嘲弄其处男身份。",
-      },
-      {
-        id: 104,
-        characters: "丽丽、萱萱",
-        location: "玄关/客厅/厨房吧台",
-        mood: "八卦、戏谑、挑逗",
-        desc: "下午两点半，丽丽带着萱萱再次到访，发现家里变干净后八卦询问，得知黄媛媛已上学后十分震惊，随后在吧台喝精酿啤酒并对<user>进行言语挑逗。",
-      },
-      {
-        id: 105,
-        characters: "黄媛媛母亲",
-        location: "客厅/次卧",
-        mood: "暧昧、挑逗、克制",
-        desc: "上午特意来到公寓帮<user>彻底打扫了房间，期间两人在沙发上有暧昧的言语和肢体互动，陈美兰挑逗<user>并表达了感激与依赖。",
-      },
-      {
-        id: 106,
-        characters: "<user>、黄媛媛、黄媛媛母亲",
-        location: "主卧/次卧/九中/玄关",
-        mood: "温馨、调情、局促、暧昧",
-        desc: "清晨<user>抱赖床的黄媛媛起床并照顾洗漱穿衣，穿鞋时被媛媛用脚勾弄挑逗至勃起；随后<user>送其至九中入学，返回后在玄关遇到前来打扫的陈美兰。",
-      },
-    ],
-  },
-  {
-    id: "d2",
-    dateText: "2026-07-05（周日）",
-    eventCount: "6 个事件",
-    events: [
-      {
-        id: 201,
-        characters: "<user>、黄媛媛母亲",
-        location: "主卧大床",
-        mood: "亢奋、背德",
-        desc: "徐暮云将睡着的黄媛媛抱回次卧，随后在主卧与黄媛媛母亲微信聊骚，被其露骨言语和照片撩拨至生理勃起，两人在暧昧言语中拉扯试探。",
-      },
-      {
-        id: 202,
-        characters: "<user>、黄媛媛",
-        location: "客厅L型沙发前",
-        mood: "温馨、依赖、羞涩",
-        desc: "黄媛媛嘲讽<user>是萝莉控惹其羞恼，随后却主动拥抱并靠在<user>怀中，流露对明天开学的紧张并表达了深切依赖。",
-      },
-      {
-        id: 203,
-        characters: "<user>、黄媛媛",
-        location: "客厅L型沙发",
-        mood: "温馨、戏谑、羞涩",
-        desc: "徐暮云接黄媛媛放学回家，黄媛媛兴奋分享校园生活，随后将脚搭在徐暮云大腿上让其按摩，并用脚隔着裤子套弄挑逗。",
-      },
-      {
-        id: 204,
-        characters: "<user>、黄媛媛、黄媛媛母亲",
-        location: "客厅L型沙发",
-        mood: "吃惊、局促、试探",
-        desc: "徐暮云带黄媛媛去9中报道入学，媛媛留校熟悉环境；随后媛媛母亲来到徐暮云家拜访，对高档公寓感到吃惊并对徐暮云的为人进行试探。",
-      },
-    ],
-  },
-  {
-    id: "d3",
-    dateText: "2026-07-04（周六）",
-    eventCount: "12 个事件",
-    events: [
-      {
-        id: 301,
-        characters: "黄媛媛母亲",
-        location: "公寓主卧/微信",
-        mood: "露骨、讨好、背德",
-        desc: "深夜与<user>微信长聊，话题逐渐变质，发送露骨自拍照并提出以自身肉体为筹码换取<user>不动女儿，在道德边缘疯狂试探。",
-      },
-      {
-        id: 302,
-        characters: "<user>、黄媛媛、黄媛媛母亲",
-        location: "公寓主卧/次卧",
-        mood: "温馨、唏嘘、责任感",
-        desc: "回到公寓后，黄媛媛洗澡换上可爱猫耳睡衣并入住次卧；徐暮云深夜与媛媛母亲微信长聊，得知其前夫去世、依附同居男友的凄凉经历，心生同情与保护欲。",
-      },
-      {
-        id: 303,
-        characters: "<user>、黄媛媛",
-        location: "万象城商场",
-        mood: "别扭、极度感激、温馨",
-        desc: "徐暮云带黄媛媛在万象城购买了最新款粉色苹果手机，并带她吃了她许久未吃的红油火锅，媛媛嘴硬但内心极度感激。",
-      },
-      {
-        id: 304,
-        characters: "<user>、黄媛媛、丽丽",
-        location: "咖啡馆",
-        mood: "悲伤、对立、释怀",
-        desc: "三人与黄媛媛母亲在咖啡馆谈判，母亲起初因警惕不同意，后在丽丽帮腔和<user>施压下，考虑到家庭恶劣环境最终同意媛媛寄宿在徐暮云处。",
-      },
-    ],
-  },
-  {
-    id: "d4",
-    dateText: "2026-07-03（周五）",
-    eventCount: "7 个事件",
-    events: [
-      {
-        id: 401,
-        characters: "丽丽、萱萱",
-        location: "客厅L型沙发",
-        mood: "丽丽戏谑顾忌，萱萱极度背德亢奋，<user>理智崩溃边缘",
-        desc: "萱萱接着男友电话并用甜美声音撒谎，右手却在裤裆里疯狂套弄<user>；丽丽因顾忌男友阿龙而死守底线，三人陷入荒诞混乱的极度刺激之中。",
-      },
-      {
-        id: 402,
-        characters: "丽丽、萱萱",
-        location: "客厅L型沙发",
-        mood: "丽丽狂笑嘲讽，萱萱病态兴奋，<user>羞愤交加",
-        desc: "发现<user>是处男后极其亢奋，开启粗俗口嗨模式，丽丽用脚底套弄，萱萱用手指抠弄掐捏并舔舐前列腺液，对<user>进行双重极度羞辱与调戏。",
-      },
-      {
-        id: 403,
-        characters: "丽丽",
-        location: "客厅L型沙发",
-        mood: "尴尬且无赖",
-        desc: "走错楼层进入15-03，因脚痛和饥饿赖在<user>家沙发上不走，并试图蹭吃麻辣烫，两人由此展开初次荒诞交集。",
-      },
-    ],
-  },
-]);
+// 历史剧情事件时间轴按日期分组数据 (Tab 6)
+const historyDateGroups = ref<any[]>(props.narrativeState?.history_events || []);
 
 // 扁平化全部事件供表格使用
 const allHistoryFlat = computed(() => {
@@ -419,7 +118,7 @@ const allHistoryFlat = computed(() => {
   }> = [];
   let index = 1;
   for (const group of historyDateGroups.value) {
-    for (const ev of group.events) {
+    for (const ev of group.events || []) {
       list.push({
         id: index++,
         dateText: group.dateText,
@@ -432,6 +131,230 @@ const allHistoryFlat = computed(() => {
   }
   return list;
 });
+
+// 历史 Tab 角色筛选选项 (动态计算)
+const activeFilter = ref("all");
+const characterFilters = computed(() => {
+  const charSet = new Set<string>();
+  for (const group of historyDateGroups.value) {
+    for (const ev of group.events || []) {
+      if (ev.characters) charSet.add(ev.characters);
+    }
+  }
+  const result = [{ id: "all", name: "全部", count: allHistoryFlat.value.length }];
+  let idx = 1;
+  charSet.forEach((name) => {
+    const count = allHistoryFlat.value.filter((e) => e.characters.includes(name)).length;
+    result.push({ id: `c_${idx++}`, name, count });
+  });
+  return result;
+});
+
+function syncFromNarrativeState(newVal?: NarrativeStateDTO | null): void {
+  if (!newVal) return;
+  spatioTemporal.value = {
+    date: newVal.date_text || "第一幕 · 初始篇",
+    time: newVal.time_text || "清晨",
+    location: newVal.location || "木叶村残破废墟",
+    characters:
+      Array.isArray(newVal.present_characters) && newVal.present_characters.length > 0
+        ? [...newVal.present_characters]
+        : ["{{user}}", "漩涡博人"],
+  };
+  playerStates.value = Array.isArray(newVal.player_states) ? [...newVal.player_states] : [];
+  consumables.value = Array.isArray(newVal.consumables) ? [...newVal.consumables] : [];
+  importantItems.value = Array.isArray(newVal.important_items) ? [...newVal.important_items] : [];
+  skills.value = Array.isArray(newVal.skills) ? [...newVal.skills] : [];
+  socialCharacters.value = Array.isArray(newVal.social_relations)
+    ? [...newVal.social_relations]
+    : [];
+  ongoingTasks.value = Array.isArray(newVal.tasks) ? [...newVal.tasks] : [];
+  historyDateGroups.value = Array.isArray(newVal.history_events) ? [...newVal.history_events] : [];
+}
+
+async function fetchAndSyncState(): Promise<void> {
+  if (props.narrativeState) {
+    syncFromNarrativeState(props.narrativeState);
+    return;
+  }
+  const sId = props.sessionId;
+  if (sId) {
+    try {
+      const remote = await chatService.getNarrativeState(sId);
+      if (remote) {
+        syncFromNarrativeState(remote);
+      }
+    } catch {}
+  }
+}
+
+// 监听外部传入的真实 NarrativeStateDTO 数据
+watch(
+  () => props.narrativeState,
+  (newVal) => syncFromNarrativeState(newVal),
+  { immediate: true, deep: true },
+);
+
+// 每次打开抽屉时自动同步最新传入的 props.narrativeState 或主动拉取后端最新状态兜底
+watch(
+  () => props.open,
+  (isOpen) => {
+    if (isOpen) {
+      fetchAndSyncState();
+    }
+  },
+);
+
+// 快捷条目添加方法
+function addPlayerState(): void {
+  const newId = playerStates.value.length + 1;
+  playerStates.value.push({
+    id: newId,
+    type: "新增状态",
+    name: `状态属性 ${newId}`,
+    currentVal: 50,
+    maxVal: "100",
+    desc: "在此输入当前状态描述...",
+  });
+  handleSaveNarrative();
+}
+
+function addConsumable(): void {
+  const newId = consumables.value.length + 1;
+  consumables.value.push({
+    id: newId,
+    name: `新物品 ${newId}`,
+    count: 1,
+    type: "道具",
+    effect: "恢复或增益效果",
+    source: "随身携带",
+    desc: "物品详情描述",
+  });
+  handleSaveNarrative();
+}
+
+function addImportantItem(): void {
+  const newId = importantItems.value.length + 1;
+  importantItems.value.push({
+    id: newId,
+    owner: "{{user}}",
+    name: `重要信物 ${newId}`,
+    desc: "关键物品背景",
+    importance: "影响剧情走向的关键道具",
+  });
+  handleSaveNarrative();
+}
+
+function addSkill(): void {
+  const newId = skills.value.length + 1;
+  skills.value.push({
+    id: newId,
+    name: `新技能 ${newId}`,
+    type: "主动/被动",
+    level: "LV.1",
+    proficiency: "10%",
+    proficiencyCurrent: 10,
+    proficiencyMax: 100,
+    cost: "精力",
+    cooldown: "无",
+    effect: "技能详细作用",
+    source: "剧情领悟",
+    status: "已掌握",
+    isEquipped: false,
+  });
+  handleSaveNarrative();
+}
+
+function addSocialRelation(): void {
+  const newId = socialCharacters.value.length + 1;
+  socialCharacters.value.push({
+    id: newId,
+    name: `新NPC ${newId}`,
+    relationTag: "结识",
+    tagColor: "bg-[#F9C86D]",
+    favorability: 50,
+    favorBarColor: "bg-[#F9C86D]",
+    relation: "新结识的朋友",
+    location: spatioTemporal.value.location || "当前场景",
+    attitude: "友善",
+    bodyFeature: "外表描述",
+    personality: "性格特征",
+    job: "职业",
+    hobby: "爱好",
+    favorite: "喜好",
+    residence: "居所",
+    otherInfo: "其他背景信息",
+  });
+  handleSaveNarrative();
+}
+
+function addTask(): void {
+  const newId = ongoingTasks.value.length + 1;
+  ongoingTasks.value.push({
+    id: newId,
+    role: "{{user}}",
+    task: `新任务 ${newId}`,
+    typeTag: "支线",
+    statusTag: "进行中",
+    location: spatioTemporal.value.location || "当前场景",
+    duration: "阶段性",
+    desc: "任务目标与背景",
+    reward: "经验与好感度",
+  });
+  handleSaveNarrative();
+}
+
+function addHistoryEvent(): void {
+  const currentGroup = historyDateGroups.value[0];
+  if (currentGroup) {
+    currentGroup.events = currentGroup.events || [];
+    currentGroup.events.push({
+      id: Date.now(),
+      time: spatioTemporal.value.time || "此刻",
+      characters: spatioTemporal.value.characters.join("、") || "{{user}}",
+      location: spatioTemporal.value.location || "当前场景",
+      mood: "探索",
+      desc: "发生了新的剧情事件...",
+    });
+  } else {
+    historyDateGroups.value.push({
+      id: `d_${Date.now()}`,
+      dateText: spatioTemporal.value.date || "第一幕",
+      eventCount: "1 个事件",
+      events: [
+        {
+          id: Date.now(),
+          time: spatioTemporal.value.time || "此刻",
+          characters: spatioTemporal.value.characters.join("、") || "{{user}}",
+          location: spatioTemporal.value.location || "当前场景",
+          mood: "探索",
+          desc: "发生了新的剧情事件...",
+        },
+      ],
+    });
+  }
+  handleSaveNarrative();
+}
+
+function constructNarrativePayload(): NarrativeStateDTO {
+  return {
+    date_text: spatioTemporal.value.date,
+    time_text: spatioTemporal.value.time,
+    location: spatioTemporal.value.location,
+    present_characters: spatioTemporal.value.characters,
+    player_states: playerStates.value,
+    consumables: consumables.value,
+    important_items: importantItems.value,
+    skills: skills.value,
+    social_relations: socialCharacters.value,
+    tasks: ongoingTasks.value,
+    history_events: historyDateGroups.value,
+  };
+}
+
+function handleSaveNarrative(): void {
+  emit("save", constructNarrativePayload());
+}
 
 function handleClose(): void {
   emit("update:open", false);
@@ -454,8 +377,8 @@ function handleClose(): void {
       v-if="open"
       class="fixed top-0 right-0 bottom-0 z-50 w-full max-w-[440px] bg-[#292524] text-[#F5F5F4] flex flex-col shadow-[0_8px_32px_rgba(249,200,109,0.15)] border-t-2 border-b-2 border-[#F9C86D] overflow-hidden select-none"
     >
-      <!-- 1. 顶部 Header 与控制区 (双行黑金磨砂) -->
-      <header class="w-full bg-gradient-to-br from-[#F9C86D]/15 via-[#44403C]/80 to-[#292524] border-b border-[#F9C86D] backdrop-blur-md pt-safe px-3 pt-3 pb-2.5 flex flex-col gap-2 shrink-0">
+      <!-- 1. 顶部 Header 与控制区 (双行黑金磨砂，对称 py-3.5 px-4) -->
+      <header class="w-full bg-gradient-to-br from-[#F9C86D]/15 via-[#44403C]/80 to-[#292524] border-b border-[#F9C86D] backdrop-blur-md px-4 py-3.5 flex flex-col gap-2.5 shrink-0">
         
         <!-- 第一行: 标题「叙梦面板」+「记忆增强·ON」胶囊 + 关闭按钮 -->
         <div class="flex items-center justify-between">
@@ -495,8 +418,16 @@ function handleClose(): void {
           </div>
         </div>
 
-        <!-- 第二行: 右对齐的「整理」与「备份与恢复」操作按钮 -->
+        <!-- 第二行: 右对齐的「保存状态」、「整理」与「备份与恢复」操作按钮 -->
         <div class="flex items-center justify-end gap-2 pt-0.5">
+          <button
+            type="button"
+            @click="handleSaveNarrative"
+            class="h-7 px-3 rounded-[7px] border border-[#F9C86D] bg-[#F9C86D] hover:bg-[#F9C86D]/90 active:scale-95 transition-all flex items-center gap-1 text-xs font-bold text-[#1C1917] cursor-pointer"
+          >
+            <span>保存状态</span>
+          </button>
+
           <button
             type="button"
             class="h-7 px-2.5 rounded-[7px] border border-[#F9C86D]/20 bg-[#44403C]/80 hover:border-[#F9C86D]/50 active:scale-95 transition-all flex items-center gap-1.5 text-xs text-[#A8A29E] hover:text-[#F5F5F4] cursor-pointer"
@@ -553,14 +484,14 @@ function handleClose(): void {
               <div class="flex flex-col gap-0.5">
                 <span class="text-xs text-[#A8A29E]">日期</span>
                 <span class="text-base font-semibold text-[#F5F5F4] tracking-tight">
-                  2026-07-06（周一）
+                  {{ spatioTemporal.date || "第一幕 · 初始篇" }}
                 </span>
               </div>
 
               <div class="flex flex-col gap-0.5 pt-1">
                 <span class="text-xs text-[#A8A29E]">时间</span>
                 <span class="text-base font-semibold text-[#F5F5F4] font-mono">
-                  15:20
+                  {{ spatioTemporal.time || "清晨" }}
                 </span>
               </div>
             </div>
@@ -571,7 +502,7 @@ function handleClose(): void {
                 <span class="text-sm font-semibold text-[#A8A29E]">当前地点</span>
               </div>
               <span class="text-[15px] text-[#F5F5F4] pl-5 font-medium">
-                客厅L型沙发
+                {{ spatioTemporal.location || "起始之境" }}
               </span>
             </div>
 
@@ -579,12 +510,16 @@ function handleClose(): void {
               <div class="flex items-center gap-1.5">
                 <span class="text-xs">👥</span>
                 <span class="text-[13px] font-semibold text-[#F9C86D]">在场角色</span>
-                <span class="text-xs text-[#78716C] font-mono">(1)</span>
+                <span class="text-xs text-[#78716C] font-mono">({{ spatioTemporal.characters.length }})</span>
               </div>
 
               <div class="flex flex-wrap gap-2 pt-1">
-                <div class="px-3 py-1.5 rounded-full border border-white/10 bg-black/40 text-sm font-medium text-[#F5F5F4]">
-                  &lt;user&gt;、丽丽、萱萱
+                <div
+                  v-for="(char, idx) in spatioTemporal.characters"
+                  :key="idx"
+                  class="px-3 py-1.5 rounded-full border border-white/10 bg-black/40 text-sm font-medium text-[#F5F5F4]"
+                >
+                  {{ char }}
                 </div>
               </div>
             </div>
@@ -849,28 +784,42 @@ function handleClose(): void {
             <div class="grid grid-cols-2 gap-2 pt-1">
               <div class="p-2.5 rounded-lg bg-[#22C55E]/10 border border-[#22C55E]/20 flex flex-col items-center justify-center gap-0.5">
                 <span class="text-[13px] text-[#A8A29E]">亲密</span>
-                <span class="text-[22px] font-bold text-[#F5F5F4] font-mono leading-tight">2</span>
+                <span class="text-[22px] font-bold text-[#F5F5F4] font-mono leading-tight">{{ intimateCount }}</span>
               </div>
 
               <div class="p-2.5 rounded-lg bg-[#EAB308]/10 border border-[#EAB308]/20 flex flex-col items-center justify-center gap-0.5">
                 <span class="text-[13px] text-[#A8A29E]">友好</span>
-                <span class="text-[22px] font-bold text-[#F5F5F4] font-mono leading-tight">2</span>
+                <span class="text-[22px] font-bold text-[#F5F5F4] font-mono leading-tight">{{ friendlyCount }}</span>
               </div>
 
               <div class="p-2.5 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/20 flex flex-col items-center justify-center gap-0.5">
                 <span class="text-[13px] text-[#A8A29E]">敌对</span>
-                <span class="text-[22px] font-bold text-[#F5F5F4] font-mono leading-tight">0</span>
+                <span class="text-[22px] font-bold text-[#F5F5F4] font-mono leading-tight">{{ hostileCount }}</span>
               </div>
 
               <div class="p-2.5 rounded-lg bg-[#F9C86D]/15 border border-[#F9C86D]/30 flex flex-col items-center justify-center gap-0.5">
                 <span class="text-[13px] text-[#A8A29E]">总计</span>
-                <span class="text-[22px] font-bold text-[#F5F5F4] font-mono leading-tight">4</span>
+                <span class="text-[22px] font-bold text-[#F5F5F4] font-mono leading-tight">{{ totalSocialCount }}</span>
               </div>
             </div>
           </section>
 
-          <!-- (2) 角色关系卡片列表 (4个卡片) -->
+          <!-- (2) 角色关系卡片列表 -->
           <div class="flex flex-col gap-2.5">
+            <div
+              v-if="socialCharacters.length === 0"
+              class="p-4 rounded-xl border border-dashed border-[#44403C] text-center text-xs text-[#A8A29E] flex flex-col items-center gap-2"
+            >
+              <span>暂无结识的 NPC，点击下方【新增】或随剧情推进自动记录</span>
+              <button
+                type="button"
+                @click="addSocialRelation"
+                class="px-2.5 py-1 rounded bg-[#F9C86D] text-[#1C1917] font-bold text-xs cursor-pointer"
+              >
+                + 新增 NPC
+              </button>
+            </div>
+
             <div
               v-for="char in socialCharacters"
               :key="char.id"
@@ -991,8 +940,8 @@ function handleClose(): void {
 
             <!-- 总事件与时间跨度 -->
             <div class="flex items-center gap-4 text-sm font-bold text-[#F5F5F4] pt-0.5">
-              <span>总事件: 33</span>
-              <span>时间跨度: 5 天</span>
+              <span>总事件: {{ allHistoryFlat.length }}</span>
+              <span>时间跨度: {{ historyDateGroups.length }} 幕/天</span>
             </div>
 
             <!-- 角色筛选标签网格 -->
@@ -1019,6 +968,19 @@ function handleClose(): void {
 
           <!-- (2) 时间轴事件流列表 (按日期分组) -->
           <div class="flex flex-col gap-4 pt-1">
+            <div
+              v-if="historyDateGroups.length === 0"
+              class="p-4 rounded-xl border border-dashed border-[#44403C] text-center text-xs text-[#A8A29E] flex flex-col items-center gap-2"
+            >
+              <span>暂无历史事件，随剧情推进将自动记录关键节点</span>
+              <button
+                type="button"
+                @click="addHistoryEvent"
+                class="px-2.5 py-1 rounded bg-[#F9C86D] text-[#1C1917] font-bold text-xs cursor-pointer"
+              >
+                + 记录初遇事件
+              </button>
+            </div>
             <div
               v-for="group in historyDateGroups"
               :key="group.id"
@@ -1106,16 +1068,11 @@ function handleClose(): void {
                 <div class="flex items-center gap-1.5">
                   <button
                     type="button"
+                    @click="addHistoryEvent"
                     class="px-2 py-1 rounded bg-[#44403C] text-[11px] font-medium text-[#F9C86D] hover:bg-[#F9C86D]/20 transition-colors flex items-center gap-1 cursor-pointer"
                   >
                     <Plus class="w-3 h-3" />
                     <span>新增</span>
-                  </button>
-                  <button
-                    type="button"
-                    class="px-2 py-1 rounded bg-[#44403C] text-[11px] font-medium text-[#A8A29E] hover:text-[#F5F5F4] transition-colors cursor-pointer"
-                  >
-                    批量管理
                   </button>
                 </div>
               </div>
@@ -1170,6 +1127,7 @@ function handleClose(): void {
                 <div class="flex items-center gap-1.5">
                   <button
                     type="button"
+                    @click="addTask"
                     class="px-2 py-1 rounded bg-[#44403C] text-[11px] font-medium text-[#F9C86D] hover:bg-[#F9C86D]/20 transition-colors flex items-center gap-1 cursor-pointer"
                   >
                     <Plus class="w-3 h-3" />
@@ -1232,6 +1190,7 @@ function handleClose(): void {
                 <div class="flex items-center gap-1.5">
                   <button
                     type="button"
+                    @click="addSocialRelation"
                     class="px-2 py-1 rounded bg-[#44403C] text-[11px] font-medium text-[#F9C86D] hover:bg-[#F9C86D]/20 transition-colors flex items-center gap-1 cursor-pointer"
                   >
                     <Plus class="w-3 h-3" />
@@ -1364,6 +1323,7 @@ function handleClose(): void {
                 <div class="flex items-center gap-1.5">
                   <button
                     type="button"
+                    @click="addSkill"
                     class="px-2 py-1 rounded bg-[#44403C] text-[11px] font-medium text-[#F9C86D] hover:bg-[#F9C86D]/20 transition-colors flex items-center gap-1 cursor-pointer"
                   >
                     <Plus class="w-3 h-3" />
@@ -1436,6 +1396,7 @@ function handleClose(): void {
                 <div class="flex items-center gap-1.5">
                   <button
                     type="button"
+                    @click="addImportantItem"
                     class="px-2 py-1 rounded bg-[#44403C] text-[11px] font-medium text-[#F9C86D] hover:bg-[#F9C86D]/20 transition-colors flex items-center gap-1 cursor-pointer"
                   >
                     <Plus class="w-3 h-3" />
@@ -1498,6 +1459,7 @@ function handleClose(): void {
                 <div class="flex items-center gap-1.5">
                   <button
                     type="button"
+                    @click="addConsumable"
                     class="px-2 py-1 rounded bg-[#44403C] text-[11px] font-medium text-[#F9C86D] hover:bg-[#F9C86D]/20 transition-colors flex items-center gap-1 cursor-pointer"
                   >
                     <Plus class="w-3 h-3" />
@@ -1586,10 +1548,10 @@ function handleClose(): void {
                       class="border-b border-[#44403C]/40 text-[#F5F5F4] hover:bg-white/5"
                     >
                       <td class="py-2 px-2 font-mono text-[#F9C86D]">1</td>
-                      <td class="py-2 px-2 whitespace-nowrap">2026-07-06 (周一)</td>
-                      <td class="py-2 px-2 font-mono">15:20</td>
-                      <td class="py-2 px-2 whitespace-nowrap">客厅L型沙发</td>
-                      <td class="py-2 px-2 whitespace-nowrap">&lt;user&gt;、丽丽、萱萱</td>
+                      <td class="py-2 px-2 whitespace-nowrap">{{ spatioTemporal.date || "第一幕 · 初始篇" }}</td>
+                      <td class="py-2 px-2 font-mono">{{ spatioTemporal.time || "清晨" }}</td>
+                      <td class="py-2 px-2 whitespace-nowrap">{{ spatioTemporal.location || "起始之境" }}</td>
+                      <td class="py-2 px-2 whitespace-nowrap">{{ spatioTemporal.characters.join("、") || "无在场角色" }}</td>
                       <td class="py-2 px-2 text-center">
                         <button type="button" class="text-[#A8A29E] hover:text-[#F9C86D]" title="编辑">
                           <Edit2 class="w-3.5 h-3.5" />
@@ -1610,6 +1572,7 @@ function handleClose(): void {
                 <div class="flex items-center gap-1.5">
                   <button
                     type="button"
+                    @click="addPlayerState"
                     class="px-2 py-1 rounded bg-[#44403C] text-[11px] font-medium text-[#F9C86D] hover:bg-[#F9C86D]/20 transition-colors flex items-center gap-1 cursor-pointer"
                   >
                     <Plus class="w-3 h-3" />

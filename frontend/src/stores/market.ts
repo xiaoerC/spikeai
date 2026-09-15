@@ -4,7 +4,7 @@
  * @packageDocumentation
  */
 
-import { characterService, type CharacterListItem } from "@/services/character";
+import { type CharacterListItem, characterService } from "@/services/character";
 import type { CardMode, MarketCard, SortType, TimeSpan } from "@/types";
 import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
@@ -59,7 +59,14 @@ export const useMarketStore = defineStore("market", () => {
     try {
       const res = await characterService.getCharacters({
         mode: mode.value,
-        sort: sortBy.value === "heat" ? "heat" : sortBy.value === "trend" ? "trend" : sortBy.value === "recommend" ? "recommend" : "favorite",
+        sort:
+          sortBy.value === "heat"
+            ? "heat"
+            : sortBy.value === "trend"
+              ? "trend"
+              : sortBy.value === "recommend"
+                ? "recommend"
+                : "favorite",
         tag: selectedTag.value || undefined,
         keyword: searchKeyword.value || undefined,
         page: page.value,

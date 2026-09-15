@@ -5,9 +5,11 @@
  * @packageDocumentation
  */
 
+import { type CardParseResult, parseCharacterCardFile } from "@/utils/cardParser";
 import { ref } from "vue";
 
 const emit = defineEmits<{
+  (e: "import-card", result: CardParseResult): void;
   (e: "import-file", jsonStr: string): void;
   (e: "save-form"): void;
   (e: "clear-form"): void;
@@ -21,19 +23,18 @@ function triggerFileInput(): void {
   fileInputRef.value?.click();
 }
 
-function handleFileChange(event: Event): void {
+async function handleFileChange(event: Event): Promise<void> {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0];
   if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const text = e.target?.result as string;
-    if (text) {
-      emit("import-file", text);
-    }
-  };
-  reader.readAsText(file);
+  const result = await parseCharacterCardFile(file);
+  emit("import-card", result);
+
+  if (result.success && result.jsonData) {
+    emit("import-file", JSON.stringify(result.jsonData));
+  }
+
   // 清空 input 避免重复选择同一文件不触发 change
   target.value = "";
 }
@@ -41,11 +42,11 @@ function handleFileChange(event: Event): void {
 
 <template>
   <div class="w-full p-3 flex flex-col gap-4">
-    <!-- 隐藏的文件上传 input -->
+    <!-- 隐藏的文件上传 input (支持 .json, .png 及常规图片辅助识别) -->
     <input
       ref="fileInputRef"
       type="file"
-      accept=".json,.png"
+      accept=".json,.png,.jpg,.jpeg,.webp"
       class="hidden"
       @change="handleFileChange"
     />

@@ -16,6 +16,7 @@
     "@vue-flow/core": "^1.45.0",
     "@vueuse/core": "^12.8.2",
     "axios": "^1.8.2",
+    "dompurify": "^3.4.15",
     "eventsource-parser": "^3.0.0",
     "lucide-vue-next": "^0.479.0",
     "pinia": "^3.0.1",
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "@types/dompurify": "^3.2.0",
     "@types/node": "^22.13.10",
     "@unocss/preset-attributify": "^66.0.0",
     "@unocss/preset-icons": "^66.0.0",

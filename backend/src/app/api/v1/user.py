@@ -23,6 +23,7 @@ from app.schemas.user import (
     DailyRewardResponse,
     InviteInfoResponse,
     UserProfileResponse,
+    UserProfileUpdateRequest,
     WalletTransactionResponse,
 )
 from app.services.auth_service import AuthService
@@ -44,6 +45,27 @@ async def get_profile(
     """获取用户个人资料。"""
     dto = AuthService.to_profile_response(current_user)
     return ApiResponse(code=0, message="success", data=dto)
+
+
+@router.put(
+    "/profile",
+    response_model=ApiResponse[UserProfileResponse],
+    summary="更新当前登录用户资料与昵称",
+    description="支持设置/修改用户显示昵称 (2~20字符) 与头像，设置后将 is_custom_username 设为 True。",
+)
+async def update_profile(
+    payload: UserProfileUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_async_db),
+) -> ApiResponse[UserProfileResponse]:
+    """更新用户昵称或资料。"""
+    updated = await AuthService.update_profile(
+        db=db,
+        user_id=current_user.id,
+        req=payload,
+    )
+    return ApiResponse(code=0, message="资料更新成功", show_message=True, data=updated)
+
 
 
 @router.post(

@@ -1,0 +1,35 @@
+﻿/**
+ * SpikeAI Admin 纯 SCSS 预编译变量
+ * 注意：本文件通过 vite.config.ts 的 additionalData 注入给每一个组件，
+ * 严禁在此文件编写任何 CSS 规则或 :root 选择器，以防止样式被重复打包膨胀。
+ */
+
+// 基础品牌色与语义辅助色
+$blue: #324157;
+$light-blue: #3a71a8;
+$red: #c03639;
+$pink: #e65d6e;
+$green: #30b08f;
+$tiffany: #4ab7bd;
+$yellow: #fec171;
+$panGreen: #30b08f;
+
+// 布局与侧边栏尺寸
+$sideBarWidth: 230px;
+$sideBarCollapseWidth: 60px;
+$headerHeight: 50px;
+$tagsViewHeight: 40px;
+
+// 侧边栏配色
+$menuText: #bfcbd9;
+$menuActiveText: #409eff;
+$subMenuActiveText: #f4f4f5;
+$menuBg: #304156;
+$menuHover: #263445;
+$subMenuBg: #1f2d3d;
+$subMenuHover: #001528;
+
+// 全局主色与边框预设
+$primaryColor: var(--el-color-primary);
+$borderColor: var(--el-border-color-lighter);
+$colorWhite: var(--el-color-white);

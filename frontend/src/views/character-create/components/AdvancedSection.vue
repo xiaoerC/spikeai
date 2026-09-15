@@ -20,7 +20,7 @@ const props = withDefaults(
   }>(),
   {
     worldbookEntries: () => [],
-  }
+  },
 );
 
 const emit = defineEmits<{

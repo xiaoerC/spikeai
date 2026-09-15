@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import (
     BigInteger,
+    Boolean,
     CheckConstraint,
     DateTime,
     ForeignKey,
@@ -148,6 +149,13 @@ class UserProfile(Base):
         String(64),
         nullable=False,
         doc="用户显示昵称",
+    )
+    is_custom_username: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        server_default="false",
+        nullable=False,
+        doc="是否已由用户显式设置自定义昵称 (首次登录若为 False 需强制填写)",
     )
     avatar_url: Mapped[str] = mapped_column(
         Text,

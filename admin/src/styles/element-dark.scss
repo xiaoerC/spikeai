@@ -1,0 +1,92 @@
+/**
+ * SpikeAI Admin 全局暗黑模式适配
+ * 挂载于 html.dark 根节点，协同 Element Plus 官方 dark/css-vars.css
+ */
+
+html.dark {
+  body {
+    background-color: var(--el-bg-color-page);
+    color: var(--el-text-color-primary);
+  }
+
+  /* 侧边栏暗黑微拟物 */
+  #app {
+    .sidebar-container {
+      border-right: 1px solid var(--sidebar-border-color);
+      background-color: var(--sidebar-bg-color) !important;
+
+      & .el-menu .el-sub-menu > .el-sub-menu__title,
+      & .el-sub-menu .el-menu-item {
+        background-color: transparent !important;
+
+        &:hover {
+          background-color: var(--sidebar-hover-bg-color) !important;
+        }
+
+        &.is-active {
+          background-color: var(--sidebar-active-bg-color) !important;
+          color: var(--sidebar-active-text-color) !important;
+        }
+      }
+
+      .el-sub-menu__title:hover {
+        background-color: var(--sidebar-hover-bg-color) !important;
+      }
+    }
+  }
+
+  .sidebar-logo-container {
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--sidebar-border-color);
+    background: transparent;
+  }
+
+  .footer-layout {
+    border-top: 1px solid var(--sidebar-border-color);
+    background: transparent;
+    color: var(--el-text-color-secondary);
+  }
+
+  /* 顶栏与标签栏 */
+  .m-layout-header {
+    color: var(--header-text-color) !important;
+
+    .header-inner {
+      border-bottom: 1px solid var(--header-border-color);
+      background-color: var(--header-bg-color) !important;
+
+      .header-icon {
+        color: var(--header-text-color) !important;
+
+        &:hover {
+          color: var(--el-color-primary) !important;
+        }
+      }
+    }
+
+    .m-tags-view {
+      box-sizing: border-box;
+      border-bottom: 1px solid var(--header-border-color);
+      background-color: var(--tags-view-bg-color) !important;
+
+      .el-tabs--card > .el-tabs__header {
+        border-bottom: none !important;
+      }
+    }
+  }
+
+  /* 表格表头高对比度 */
+  .el-table__header th {
+    background-color: var(--el-fill-color-light) !important;
+    color: var(--el-text-color-primary) !important;
+    font-weight: 600;
+  }
+
+  .el-drawer__header span {
+    color: var(--el-text-color-primary) !important;
+  }
+
+  .theme-item {
+    color: var(--el-text-color-primary) !important;
+  }
+}

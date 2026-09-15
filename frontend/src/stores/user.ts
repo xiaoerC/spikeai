@@ -4,7 +4,7 @@
  * @packageDocumentation
  */
 
-import { authService, type UserProfileData } from "@/services/auth";
+import { type UserProfileData, authService } from "@/services/auth";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 
@@ -17,6 +17,12 @@ export const useUserStore = defineStore("user", () => {
   const isLoggedIn = computed(() => !!token.value);
   const starCoins = computed(() => profile.value?.wallet.star_coins ?? 0);
   const moonGems = computed(() => profile.value?.wallet.moon_gems ?? 0);
+
+  /** 判定是否需要首次强制设置用户名 */
+  const needsUsername = computed(() => {
+    if (!isLoggedIn.value || !profile.value) return false;
+    return !profile.value.username || profile.value.is_custom_username === false;
+  });
 
   /** 登录 */
   async function login(email: string, password: string): Promise<boolean> {
@@ -83,7 +89,10 @@ export const useUserStore = defineStore("user", () => {
         if (profile.value) {
           profile.value.wallet.star_coins = res.data.new_balance;
         }
-        return { success: true, message: res.data.message || `签到成功，获得 ${res.data.reward_star_coins} 星元！` };
+        return {
+          success: true,
+          message: res.data.message || `签到成功，获得 ${res.data.reward_star_coins} 星元！`,
+        };
       }
       return { success: false, message: res.message || "签到失败" };
     } catch (err: any) {
@@ -91,6 +100,26 @@ export const useUserStore = defineStore("user", () => {
         success: false,
         message: err.response?.data?.detail || err.message || "今日已完成签到",
       };
+    }
+  }
+
+  /** 更新用户资料（昵称、头像） */
+  async function updateProfile(payload: { username: string; avatar_url?: string }): Promise<boolean> {
+    isLoading.value = true;
+    errorMessage.value = null;
+    try {
+      const res = await authService.updateProfile(payload);
+      if (res.code === 0 && res.data) {
+        profile.value = res.data;
+        return true;
+      }
+      errorMessage.value = res.message || "更新资料失败";
+      return false;
+    } catch (err: any) {
+      errorMessage.value = err.response?.data?.detail || err.message || "更新资料异常";
+      return false;
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -119,11 +148,13 @@ export const useUserStore = defineStore("user", () => {
     isLoading,
     errorMessage,
     isLoggedIn,
+    needsUsername,
     starCoins,
     moonGems,
     login,
     register,
     fetchProfile,
+    updateProfile,
     claimDailyReward,
     logout,
     resetState,

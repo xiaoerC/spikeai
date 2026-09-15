@@ -15,7 +15,7 @@ const props = withDefaults(
   }>(),
   {
     comments: () => [],
-  }
+  },
 );
 
 const commentText = ref("");

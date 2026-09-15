@@ -29,6 +29,8 @@ from app.schemas.character import (
     CharacterDetailResponse,
     CharacterFilterParams,
     CharacterListItemResponse,
+    PrologueGenerateRequest,
+    PrologueGenerateResponse,
     RewardRequest,
     CharacterStatusUpdateRequest,
 )
@@ -125,6 +127,24 @@ async def create_character(
         message="角色卡发布成功！",
         show_message=True,
         data=detail,
+    )
+
+
+@router.post(
+    "/generate-prologue",
+    response_model=ApiResponse[PrologueGenerateResponse],
+    summary="AI 智能生成角色序幕 HTML",
+    description="基于创作者填写的角色名、设定背景与问候语，调用大模型生成黑金暗黑玻璃拟物风格的序幕 HTML 片段。",
+)
+async def generate_prologue(
+    payload: PrologueGenerateRequest,
+) -> ApiResponse[PrologueGenerateResponse]:
+    """生成序幕富文本 HTML。"""
+    html = await CharacterService.generate_prologue(payload)
+    return ApiResponse(
+        code=0,
+        message="序幕生成成功！",
+        data=PrologueGenerateResponse(prologue_html=html),
     )
 
 

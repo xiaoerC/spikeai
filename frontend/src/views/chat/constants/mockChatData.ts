@@ -38,69 +38,6 @@ export interface AiModelItem {
   isFavorite: boolean;
 }
 
-export const MOCK_AI_MODELS: AiModelItem[] = [
-  {
-    id: "mimo-v2.5",
-    name: "mimo-v2.5 (小米旗舰)",
-    health: 99,
-    billingType: "fixed",
-    starCost: 1,
-    moonCost: 1,
-    cost: 1,
-    freeCountText: "★ 1 / 次",
-    isStreaming: true,
-    isFavorite: true,
-  },
-  {
-    id: "LongCat-2.0",
-    name: "LongCat-2.0 (长猫深度推理)",
-    health: 95,
-    billingType: "fixed",
-    starCost: 1,
-    moonCost: 1,
-    cost: 1,
-    freeCountText: "★ 1 / 次",
-    isStreaming: true,
-    isFavorite: false,
-  },
-  {
-    id: "glm-5.2-o1",
-    name: "glm-5.2-o1",
-    health: 97,
-    billingType: "fixed",
-    starCost: 30,
-    moonCost: 30,
-    cost: 30,
-    freeCountText: "★ 30 / 🌙 30",
-    isStreaming: true,
-    isFavorite: false,
-  },
-  {
-    id: "ds4f-官",
-    name: "ds4f-官",
-    health: 97,
-    billingType: "metered",
-    inputRate: "入×0.6000",
-    outputRate: "出×1.2000/千token",
-    cost: 15,
-    freeCountText: "按量计费",
-    isStreaming: true,
-    isFavorite: false,
-  },
-  {
-    id: "gemini-flash-3",
-    name: "快速双子星3（关流式）",
-    health: 99,
-    billingType: "fixed",
-    starCost: 15,
-    moonCost: 15,
-    cost: 15,
-    freeCountText: "会员免费(30/30)",
-    isStreaming: false,
-    isFavorite: false,
-  },
-];
-
 export const INITIAL_CHAT_MESSAGES: ChatMessage[] = [
   {
     id: "msg-1",

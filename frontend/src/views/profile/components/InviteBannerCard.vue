@@ -34,7 +34,8 @@ function handleCopyInvite(): void {
 }
 
 function handleCopyInviteLink(): void {
-  const url = props.inviteData.invite_url || `https://naro.ai/login?invite=${props.inviteData.invite_code}`;
+  const url =
+    props.inviteData.invite_url || `https://naro.ai/login?invite=${props.inviteData.invite_code}`;
   navigator.clipboard.writeText(url);
   success("专属邀请链接已复制");
 }

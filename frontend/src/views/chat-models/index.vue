@@ -8,26 +8,103 @@
  * @packageDocumentation
  */
 
-import {
-  MOCK_MODEL_FAMILIES,
-  type ModelChannelItem,
-  type ModelFamilyItem,
+import { chatService } from "@/services/chat";
+import type {
+  ModelChannelItem,
+  ModelFamilyItem,
 } from "@/views/chat-models/constants/mockModelFamilies";
 import { ChevronDown, ChevronLeft, ChevronRight, Moon, Search, Star } from "lucide-vue-next";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 
+// 加载状态
+const isLoading = ref(true);
 // 搜索关键词
 const searchKeyword = ref("");
 // 当前分类选中 Filter ("all" | "normal" | "advanced" | "infinite")
 const currentCategory = ref<"all" | "normal" | "advanced" | "infinite">("all");
-// 展开的手风琴家族 ID 集合（默认展开 GPT）
-const expandedFamilyIds = ref<Set<string>>(new Set(["gpt"]));
+// 展开的手风琴家族 ID 集合（默认展开所有上架家族）
+const expandedFamilyIds = ref<Set<string>>(new Set());
 
-// 本地模型家族数据（支持收藏响应）
-const families = ref<ModelFamilyItem[]>([...MOCK_MODEL_FAMILIES]);
+// 真实模型家族数据 (初始化为空，绝不使用假 mock 数据)
+const families = ref<ModelFamilyItem[]>([]);
+
+// 动态计算全部真实渠道总数
+const totalChannelsCount = computed(() =>
+  families.value.reduce((acc, f) => acc + f.models.length, 0),
+);
+
+// 动态计算普通渠道数 (normal)
+const normalChannelsCount = computed(
+  () => families.value.flatMap((f) => f.models).filter((m) => m.category === "normal").length,
+);
+
+// 动态计算高级渠道数 (advanced)
+const advancedChannelsCount = computed(
+  () => families.value.flatMap((f) => f.models).filter((m) => m.category === "advanced").length,
+);
+
+// 动态计算无限渠道数 (infinite)
+const infiniteChannelsCount = computed(
+  () => families.value.flatMap((f) => f.models).filter((m) => m.category === "infinite").length,
+);
+
+onMounted(async () => {
+  isLoading.value = true;
+  try {
+    const list = await chatService.getAvailableModels();
+    if (list && list.length > 0) {
+      const familyMap = new Map<string, ModelChannelItem[]>();
+      for (const m of list) {
+        const fid = m.familyId || "other";
+        if (!familyMap.has(fid)) {
+          familyMap.set(fid, []);
+        }
+        familyMap.get(fid)?.push({
+          id: m.id,
+          name: m.name,
+          familyId: fid,
+          category: m.category,
+          health: m.health || 99,
+          starCost: m.starCost ?? m.cost ?? 1,
+          moonCost: m.moonCost ?? m.cost ?? 1,
+          isFavorite: m.isFavorite ?? false,
+        });
+      }
+
+      const dynamicFamilies: ModelFamilyItem[] = [];
+      for (const [fid, mList] of familyMap.entries()) {
+        let fName = fid.toUpperCase();
+        if (fid === "deepseek") fName = "DeepSeek 深度求索";
+        else if (fid === "gpt") fName = "OpenAI / GPT";
+        else if (fid === "claude") fName = "Anthropic Claude";
+        else if (fid === "gemini") fName = "Google Gemini";
+        else if (fid === "qwen") fName = "通义千问 Qwen";
+        else if (fid === "other") fName = "其他渠道模型";
+
+        dynamicFamilies.push({
+          id: fid,
+          name: fName,
+          channelCount: mList.length,
+          indicatorColor: "#EAB308",
+          models: mList,
+        });
+      }
+
+      families.value = dynamicFamilies;
+      expandedFamilyIds.value = new Set(dynamicFamilies.map((f) => f.id));
+    } else {
+      families.value = [];
+    }
+  } catch (e) {
+    console.warn("加载真实可用模型列表失败:", e);
+    families.value = [];
+  } finally {
+    isLoading.value = false;
+  }
+});
 
 /**
  * 切换手风琴展开/折叠
@@ -51,21 +128,63 @@ function handleToggleFavorite(model: ModelChannelItem, event: Event): void {
 /**
  * 选择具体模型并返回
  */
-function handleSelectModel(_model: ModelChannelItem): void {
+function handleSelectModel(model: ModelChannelItem): void {
+  try {
+    localStorage.setItem(
+      "naro_selected_model",
+      JSON.stringify({
+        id: model.id,
+        name: model.name,
+        health: model.health,
+        billingType: "fixed",
+        starCost: model.starCost,
+        moonCost: model.moonCost,
+        cost: model.starCost,
+        freeCountText: `★ ${model.starCost} / 次`,
+        isStreaming: true,
+        isFavorite: model.isFavorite,
+      }),
+    );
+  } catch (e) {
+    console.warn("存储选中模型失败:", e);
+  }
   router.back();
 }
 
 /**
- * 过滤后的模型家族列表
+ * 过滤后的模型家族列表 (同时支持搜索关键词与分类筛选)
  */
 const filteredFamilies = computed(() => {
   const kw = searchKeyword.value.trim().toLowerCase();
-  return families.value.filter((f) => {
-    if (!kw) return true;
-    const matchFamilyName = f.name.toLowerCase().includes(kw);
-    const matchModelName = f.models.some((m) => m.name.toLowerCase().includes(kw));
-    return matchFamilyName || matchModelName;
-  });
+  const cat = currentCategory.value;
+
+  const result: ModelFamilyItem[] = [];
+
+  for (const f of families.value) {
+    const matchedModels = f.models.filter((m) => {
+      // 1. 分类匹配
+      if (cat !== "all" && m.category !== cat) {
+        return false;
+      }
+      // 2. 搜索关键词匹配 (模型名、ID 或家族名)
+      if (!kw) return true;
+      return (
+        m.name.toLowerCase().includes(kw) ||
+        m.id.toLowerCase().includes(kw) ||
+        f.name.toLowerCase().includes(kw)
+      );
+    });
+
+    if (matchedModels.length > 0) {
+      result.push({
+        ...f,
+        channelCount: matchedModels.length,
+        models: matchedModels,
+      });
+    }
+  }
+
+  return result;
 });
 </script>
 
@@ -112,7 +231,7 @@ const filteredFamilies = computed(() => {
           <input
             v-model="searchKeyword"
             type="text"
-            placeholder="搜索 78 个渠道"
+            :placeholder="`搜索 ${totalChannelsCount} 个渠道`"
             class="w-full bg-transparent text-xs text-[#F5F5F4] placeholder-[#78716C] outline-none"
           />
         </div>
@@ -120,7 +239,7 @@ const filteredFamilies = computed(() => {
 
       <!-- 第三行: 分类筛选 Tab 药丸组 (全部 / 普通 / 高级 / 无限) -->
       <div class="px-4 pb-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
-        <!-- 全部 78 -->
+        <!-- 全部 -->
         <button
           type="button"
           @click="currentCategory = 'all'"
@@ -131,10 +250,10 @@ const filteredFamilies = computed(() => {
               : 'bg-[#44403C]/80 text-[#A8A29E] hover:text-white'
           ]"
         >
-          全部 78
+          全部 {{ totalChannelsCount }}
         </button>
 
-        <!-- 普通 12 (带蓝色圆点) -->
+        <!-- 普通 (带蓝色圆点) -->
         <button
           type="button"
           @click="currentCategory = 'normal'"
@@ -146,10 +265,10 @@ const filteredFamilies = computed(() => {
           ]"
         >
           <span class="w-2 h-2 rounded-full bg-[#3B82F6]" />
-          <span>普通 12</span>
+          <span>普通 {{ normalChannelsCount }}</span>
         </button>
 
-        <!-- 高级 63 (带金色圆点) -->
+        <!-- 高级 (带金色圆点) -->
         <button
           type="button"
           @click="currentCategory = 'advanced'"
@@ -161,10 +280,10 @@ const filteredFamilies = computed(() => {
           ]"
         >
           <span class="w-2 h-2 rounded-full bg-[#EAB308]" />
-          <span>高级 63</span>
+          <span>高级 {{ advancedChannelsCount }}</span>
         </button>
 
-        <!-- 无限 3 (带绿色圆点) -->
+        <!-- 无限 (带绿色圆点) -->
         <button
           type="button"
           @click="currentCategory = 'infinite'"
@@ -176,7 +295,7 @@ const filteredFamilies = computed(() => {
           ]"
         >
           <span class="w-2 h-2 rounded-full bg-[#22C55E]" />
-          <span>无限 3</span>
+          <span>无限 {{ infiniteChannelsCount }}</span>
         </button>
       </div>
 
@@ -184,6 +303,33 @@ const filteredFamilies = computed(() => {
 
     <!-- 2. 模型家族手风琴列表 -->
     <main class="flex-1 w-full flex flex-col pb-12 overflow-y-auto">
+      <!-- 加载中骨架动画 -->
+      <div v-if="isLoading" class="flex flex-col items-center justify-center py-24 gap-3 text-[#A8A29E]">
+        <div class="w-6 h-6 border-2 border-[#F9C86D] border-t-transparent rounded-full animate-spin" />
+        <span class="text-xs">正在连接并拉取可用大模型...</span>
+      </div>
+
+      <!-- 空状态 -->
+      <div
+        v-else-if="filteredFamilies.length === 0"
+        class="flex flex-col items-center justify-center py-24 px-6 gap-3 text-center"
+      >
+        <span class="text-3xl">📦</span>
+        <span class="text-xs text-[#A8A29E]">
+          {{ totalChannelsCount === 0 ? '管理后台暂未上架任何可用大模型' : '未找到匹配当前分类或关键词的模型渠道' }}
+        </span>
+        <button
+          v-if="currentCategory !== 'all' || searchKeyword"
+          type="button"
+          @click="currentCategory = 'all'; searchKeyword = ''"
+          class="mt-2 px-3.5 py-1.5 rounded-full text-xs text-[#F9C86D] border border-[#F9C86D]/30 hover:bg-[#F9C86D]/10 transition-colors cursor-pointer"
+        >
+          重置筛选条件
+        </button>
+      </div>
+
+      <!-- 真实家族卡片列表 -->
+      <template v-else>
       <div
         v-for="family in filteredFamilies"
         :key="family.id"
@@ -286,6 +432,7 @@ const filteredFamilies = computed(() => {
         </div>
 
       </div>
+      </template>
     </main>
 
   </div>

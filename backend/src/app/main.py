@@ -4,9 +4,10 @@
 
 Usage:
     启动服务:
-    $ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    $ uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
 """
 
+import asyncio
 import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
@@ -38,14 +39,26 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """
     logger.info("SpikeAI 异步后端服务正在启动 (Env: %s)...", settings.APP_ENV)
     try:
-        from app.core.database import AsyncSessionLocal
+        from app.core.database import AsyncSessionLocal, Base
         from app.services.character_service import CharacterService
+        import app.models  # 加载所有 ORM 模型
+
+        async with async_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("数据库表结构自愈检查完成 (world_books 等已就绪)")
 
         async with AsyncSessionLocal() as db:
-            await CharacterService.ensure_seed_characters(db)
-            await CharacterService.prewarm_market_cache(db)
+            try:
+                await asyncio.wait_for(CharacterService.ensure_seed_characters(db), timeout=5.0)
+            except Exception as e:
+                logger.warning("种子角色检查跳过或超时: %s", e)
+            try:
+                if hasattr(CharacterService, "prewarm_market_cache"):
+                    await asyncio.wait_for(getattr(CharacterService, "prewarm_market_cache")(db), timeout=2.0)
+            except Exception as e:
+                logger.warning("市场列表缓存预热跳过或超时: %s", e)
     except Exception as e:
-        logger.warning("服务启动时种子注入与预热检查跳过: %s", e)
+        logger.warning("服务启动时初始化检查异常: %s", e)
     yield
     logger.info("SpikeAI 异步后端服务正在停止，正在释放连接池资源...")
     await close_redis_connection()

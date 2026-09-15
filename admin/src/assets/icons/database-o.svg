@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <clipPath id="clip-database-o">
+      <rect width="1024" height="1024"/>
+    </clipPath>
+  </defs>
+  <g id="database-o" clip-path="url(#clip-database-o)">
+    <path id="形状" d="M32,896A31.947,31.947,0,0,1,0,864V32A31.95,31.95,0,0,1,32,0H672a31.946,31.946,0,0,1,32,32V864a31.948,31.948,0,0,1-32,32Zm40-72H632V616H72Zm0-272H632V344H72Zm0-272H632V72H72Zm72,440a40,40,0,1,1,40,40A40,40,0,0,1,144,720Zm0-272a40,40,0,1,1,40,40A40,40,0,0,1,144,448Zm0-272a40,40,0,1,1,40,40A40,40,0,0,1,144,176Z" transform="translate(160 64)"/>
+  </g>
+</svg>

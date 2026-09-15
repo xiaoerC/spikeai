@@ -21,9 +21,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits<{
-  (e: "changePage", page: number): void;
-}>();
+const emit = defineEmits<(e: "changePage", page: number) => void>();
 
 const activeFilter = ref<"all" | "income" | "expense">("all");
 

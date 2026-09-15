@@ -9,6 +9,7 @@ Usage:
 
 import json
 import logging
+import re
 import uuid
 from datetime import datetime, timezone
 
@@ -16,6 +17,7 @@ from sqlalchemy import String, Text, cast, desc, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import contains_eager, joinedload, selectinload
 
+from app.config import get_settings
 from app.core.cache import local_cache
 from app.core.exceptions import (
     AppException,
@@ -40,6 +42,7 @@ from app.schemas.character import (
     CharacterListItemResponse,
     CharacterMetricsDTO,
     CharacterUpdateRequest,
+    PrologueGenerateRequest,
     WorldBookEntryDTO,
 )
 from app.schemas.common import PaginatedResponse
@@ -61,16 +64,18 @@ class CharacterService:
         if cached_local is not None:
             return cached_local
 
-        # 尝试从 Redis 读取二级缓存
-        try:
-            redis = get_redis_client()
-            cached_data = await redis.get(cache_key)
-            if cached_data:
-                res_obj = PaginatedResponse[CharacterListItemResponse].model_validate_json(cached_data)
-                local_cache.set(cache_key, res_obj, ttl=30)
-                return res_obj
-        except Exception as e:
-            logger.debug("Redis 读取缓存跳过: %s", e)
+        # 尝试从 Redis 读取二级缓存 (测试环境直接穿透)
+        settings = get_settings()
+        if settings.APP_ENV != "test" and getattr(settings, "ENV", "") != "test":
+            try:
+                redis = get_redis_client()
+                cached_data = await redis.get(cache_key)
+                if cached_data:
+                    res_obj = PaginatedResponse[CharacterListItemResponse].model_validate_json(cached_data)
+                    local_cache.set(cache_key, res_obj, ttl=30)
+                    return res_obj
+            except Exception as e:
+                logger.debug("Redis 读取缓存跳过: %s", e)
 
         # 2. 构建主查询与条件过滤
         stmt = (
@@ -200,11 +205,12 @@ class CharacterService:
         )
 
         local_cache.set(cache_key, response_obj, ttl=30)
-        try:
-            redis = get_redis_client()
-            await redis.set(cache_key, response_obj.model_dump_json(), ex=30)
-        except Exception:
-            pass
+        if settings.APP_ENV != "test" and getattr(settings, "ENV", "") != "test":
+            try:
+                redis = get_redis_client()
+                await redis.set(cache_key, response_obj.model_dump_json(), ex=30)
+            except Exception:
+                pass
 
         return response_obj
 
@@ -284,6 +290,7 @@ class CharacterService:
             status=char.status,
             settings_word_count=char.settings_word_count or len(char.description) + len(char.personality) + len(char.scenario),
             version=char.version,
+            extensions=getattr(char, "extensions", None) or {},
             created_at=char.created_at,
             author=author_dto,
             metrics=metrics_dto,
@@ -292,6 +299,39 @@ class CharacterService:
             is_favorited=is_favorited,
             user_rating=user_rating,
         )
+
+    @classmethod
+    async def _resolve_image_url(cls, image_url: str | None, folder: str = "avatars") -> str | None:
+        """若 image_url 是 base64 data URI，解码并保存为静态文件，返回安全简短的 URL。"""
+        if not image_url or not isinstance(image_url, str):
+            return image_url
+        if image_url.startswith("data:image/"):
+            try:
+                import base64
+                from app.services.storage_service import storage_service
+
+                header, base64_data = image_url.split(";base64,", 1)
+                mime_type = header.replace("data:", "").strip()
+                ext = ".png"
+                if "jpeg" in mime_type or "jpg" in mime_type:
+                    ext = ".jpg"
+                elif "webp" in mime_type:
+                    ext = ".webp"
+                elif "gif" in mime_type:
+                    ext = ".gif"
+                file_bytes = base64.b64decode(base64_data)
+                url = await storage_service.upload_image(
+                    file_bytes=file_bytes,
+                    original_filename=f"imported_{uuid.uuid4().hex[:8]}{ext}",
+                    folder=folder,
+                    content_type=mime_type,
+                )
+                logger.info("Base64 图片已成功自动转存至对象存储: %s (原体积: %d 字节)", url, len(image_url))
+                return url
+            except Exception as e:
+                logger.warning("解析并持久化 base64 图片失败: %s", e)
+                return image_url
+        return image_url
 
     @classmethod
     async def create_character(
@@ -308,12 +348,15 @@ class CharacterService:
             + sum(len(w.content) for w in req.worldbooks)
         )
 
+        resolved_avatar_url = await cls._resolve_image_url(req.avatar_url, folder="avatars") or req.avatar_url
+        resolved_banner_url = await cls._resolve_image_url(req.banner_url, folder="banners") or req.banner_url
+
         char = Character(
             id=char_id,
             author_id=user_id,
             name=req.name,
-            avatar_url=req.avatar_url,
-            banner_url=req.banner_url,
+            avatar_url=resolved_avatar_url,
+            banner_url=resolved_banner_url,
             category=req.category,
             description=req.description,
             personality=req.personality,
@@ -328,7 +371,8 @@ class CharacterService:
             tags=req.tags,
             status=req.status,
             settings_word_count=word_count,
-            version="1.0.0",
+            version=req.version or "1.0.0",
+            extensions=req.extensions or {},
         )
         db.add(char)
 
@@ -532,8 +576,10 @@ class CharacterService:
         )
 
         char.name = req.name
-        char.avatar_url = req.avatar_url
-        char.banner_url = req.banner_url
+        if req.avatar_url:
+            char.avatar_url = await cls._resolve_image_url(req.avatar_url, folder="avatars") or req.avatar_url
+        if req.banner_url:
+            char.banner_url = await cls._resolve_image_url(req.banner_url, folder="banners") or req.banner_url
         char.category = req.category
         char.description = req.description
         char.personality = req.personality
@@ -547,7 +593,10 @@ class CharacterService:
         char.creator_notes = req.creator_notes
         char.tags = req.tags
         char.status = req.status
+        char.version = req.version or char.version
         char.settings_word_count = word_count
+        if req.extensions is not None:
+            char.extensions = req.extensions
 
         # 更新世界书条目：删除旧条目并写入新条目
         for wb in list(char.worldbooks):
@@ -566,6 +615,58 @@ class CharacterService:
         await db.commit()
         await cls._clear_market_cache()
         return await cls.get_character_detail(db, character_id, current_user_id=user_id)
+
+    @classmethod
+    async def generate_prologue(cls, req: PrologueGenerateRequest) -> str:
+        """基于角色设定智能调用大模型生成带有黑金奢华暗黑玻璃拟物风格的序幕 HTML。"""
+        prompt = (
+            f"你是一位顶尖的叙事游戏设计与视觉排版大师。请根据以下角色设定，为该角色创作一段精炼、富有电影感和沉浸感的开场【序幕 (Prologue)】HTML 片段。\n\n"
+            f"【角色名称】: {req.name}\n"
+            f"【角色人设描述】: {req.description or '未提供'}\n"
+            f"【性格特征】: {req.personality or '未提供'}\n"
+            f"【场景与背景】: {req.scenario or '未提供'}\n"
+            f"【第一句问候】: {req.first_mes or '未提供'}\n\n"
+            "【排版规范】:\n"
+            "1. 仅输出一个外层 <div> 容器，不要任何 markdown 标记、绝对不要包含 ```html 等反引号代码块标签，直接输出纯 HTML 代码。\n"
+            "2. 使用 Tailwind / UnoCSS 原子类构建黑金奢华暗黑玻璃拟物风格（例如 `p-4 rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-950/40 via-black/80 to-stone-950/90 text-amber-100/90 shadow-2xl` 等）。\n"
+            "3. 包含优雅的标题（如 `✦ 命运的交错 ✦`）和 2~3 段富有意境的故事背景叙述与氛围铺垫，字数在 100~200 字左右。\n"
+            "4. 绝不包含任何多余的解释说明。"
+        )
+        messages = [
+            {"role": "system", "content": "你是一位专注于叙事沉浸式排版的 AI 助手，只输出干净纯净的 HTML 代码，无任何解释。"},
+            {"role": "user", "content": prompt},
+        ]
+
+        try:
+            from app.services.llm_gateway import llm_gateway
+
+            content_chunks: list[str] = []
+            async for event_type, chunk in llm_gateway.stream_chat(
+                messages, model="default", temperature=0.7, max_tokens=1000
+            ):
+                if event_type == "content":
+                    content_chunks.append(chunk)
+            generated = "".join(content_chunks).strip()
+            if generated.startswith("```"):
+                generated = re.sub(r"^```(?:html)?\s*", "", generated)
+                generated = re.sub(r"\s*```$", "", generated)
+            if generated and "<div" in generated:
+                return generated
+        except Exception as e:
+            logger.warning("LLM 生成序幕失败，降级使用动态模板: %s", e)
+
+        # 优雅暗黑黑金降级模板
+        return (
+            f'<div class="p-4 bg-gradient-to-br from-amber-950/40 via-black/75 to-stone-950/90 rounded-xl border border-amber-500/30 text-amber-100 font-serif shadow-2xl space-y-2">\n'
+            f'  <div class="flex items-center gap-2 mb-2">\n'
+            f'    <span class="text-[#F9C86D]">✦</span>\n'
+            f'    <h3 class="text-base font-bold text-[#F9C86D] tracking-wider">《{req.name}》· 命运序曲</h3>\n'
+            f'  </div>\n'
+            f'  <p class="text-xs leading-relaxed text-stone-300 font-sans">\n'
+            f'    {req.scenario or "夜幕低垂，命运的齿轮在此刻悄然转动。虚空与现世的交界处，宿命的羁绊正在觉醒……"}\n'
+            f'  </p>\n'
+            f'</div>'
+        )
 
     @classmethod
     async def toggle_like(

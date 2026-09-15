@@ -5,11 +5,7 @@
  */
 
 import { useToast } from "@/composables/useToast";
-import {
-  authService,
-  type InviteInfoData,
-  type WalletTransactionItem,
-} from "@/services/auth";
+import { type InviteInfoData, type WalletTransactionItem, authService } from "@/services/auth";
 import { useUserStore } from "@/stores/user";
 import { computed, onMounted, reactive, readonly, ref } from "vue";
 
@@ -46,11 +42,7 @@ export function useUserProfile() {
 
   async function loadInitialData(): Promise<void> {
     if (userStore.isLoggedIn) {
-      await Promise.all([
-        userStore.fetchProfile(),
-        fetchInviteInfo(),
-        fetchTransactions(1),
-      ]);
+      await Promise.all([userStore.fetchProfile(), fetchInviteInfo(), fetchTransactions(1)]);
     }
   }
 

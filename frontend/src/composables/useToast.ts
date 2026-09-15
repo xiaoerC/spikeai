@@ -55,9 +55,11 @@ export function useToast() {
     toasts: state.toasts,
     showToast,
     removeToast,
-    success: (message: string, duration?: number) => showToast({ type: "success", message, duration }),
+    success: (message: string, duration?: number) =>
+      showToast({ type: "success", message, duration }),
     error: (message: string, duration?: number) => showToast({ type: "error", message, duration }),
     info: (message: string, duration?: number) => showToast({ type: "info", message, duration }),
-    warning: (message: string, duration?: number) => showToast({ type: "warning", message, duration }),
+    warning: (message: string, duration?: number) =>
+      showToast({ type: "warning", message, duration }),
   };
 }

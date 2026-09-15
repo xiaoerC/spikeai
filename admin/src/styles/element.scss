@@ -1,0 +1,11 @@
+﻿/**
+ * SpikeAI Admin Element Plus 局部细节调优
+ */
+
+.el-table {
+  .el-table__header th {
+    background-color: var(--el-fill-color-light);
+    color: var(--el-text-color-primary);
+    font-weight: 600;
+  }
+}

@@ -14,11 +14,14 @@ from app.main import app as fastapi_app
 get_settings().APP_ENV = "test"
 
 # 导入所有 ORM 模型以确保 Base.metadata 注册完全
+import app.models.admin  # noqa: F401
 import app.models.character  # noqa: F401
 import app.models.chat  # noqa: F401
+import app.models.llm  # noqa: F401
 import app.models.mod  # noqa: F401
 import app.models.ops  # noqa: F401
 import app.models.user  # noqa: F401
+
 
 # 全局共享测试用 SQLite 内存引擎
 test_async_engine = create_async_engine(

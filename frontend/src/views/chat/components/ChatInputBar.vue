@@ -24,10 +24,18 @@ import ChatMoreActionPanel from "@/views/chat/components/ChatMoreActionPanel.vue
 import { Square } from "lucide-vue-next";
 import { nextTick, ref } from "vue";
 
-const props = defineProps<{
-  disabled?: boolean;
-  isGenerating?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    disabled?: boolean;
+    isGenerating?: boolean;
+    openingReplies?: readonly string[];
+  }>(),
+  {
+    disabled: false,
+    isGenerating: false,
+    openingReplies: () => [],
+  },
+);
 
 const emit = defineEmits<{
   (e: "send", text: string): void;
@@ -105,6 +113,23 @@ defineExpose({
 <template>
   <div class="w-full z-30 select-none bg-transparent flex flex-col gap-2 relative">
     
+    <!-- 快捷回复引导气泡 (来自角色配置 opening_replies) -->
+    <div
+      v-if="openingReplies && openingReplies.length > 0"
+      class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 px-0.5"
+    >
+      <button
+        v-for="(reply, idx) in openingReplies"
+        :key="idx"
+        type="button"
+        @click="appendPrompt(reply)"
+        class="shrink-0 px-3 py-1 rounded-full text-xs bg-[#1C1917]/90 hover:bg-[#F9C86D]/15 border border-[#44403C]/80 hover:border-[#F9C86D]/60 text-white/85 hover:text-[#F9C86D] transition-all cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95"
+      >
+        <span class="text-[#F9C86D] text-[11px]">💬</span>
+        <span class="max-w-[180px] truncate">{{ reply }}</span>
+      </button>
+    </div>
+
     <!-- ==================== 1. 展开大输入框模式 (1:1 原型图 media_1787482360237.png) ==================== -->
     <div
       v-if="isExpanded"

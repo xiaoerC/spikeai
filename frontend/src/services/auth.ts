@@ -15,6 +15,7 @@ export interface UserProfileData {
   id: string;
   email: string;
   username: string;
+  is_custom_username?: boolean;
   avatar_url: string;
   vip_level: number;
   player_level: number;
@@ -73,7 +74,12 @@ export interface InviteInfoData {
 
 export const authService = {
   /** 用户注册 */
-  async register(payload: { email: string; password: string; code?: string; invite_code?: string }) {
+  async register(payload: {
+    email: string;
+    password: string;
+    code?: string;
+    invite_code?: string;
+  }) {
     const res = await api.post<ApiResponse<AuthSuccessData>>("/auth/register", {
       code: "888888",
       ...payload,
@@ -96,6 +102,12 @@ export const authService = {
   /** 获取当前登录用户完整资料 */
   async getProfile() {
     const res = await api.get<ApiResponse<UserProfileData>>("/user/profile");
+    return res.data;
+  },
+
+  /** 更新当前用户个人资料（昵称、头像） */
+  async updateProfile(payload: { username: string; avatar_url?: string }) {
+    const res = await api.put<ApiResponse<UserProfileData>>("/user/profile", payload);
     return res.data;
   },
 

@@ -23,6 +23,7 @@ from app.models.user import User, UserProfile, UserWallet
 from app.schemas.user import (
     UserLoginRequest,
     UserProfileResponse,
+    UserProfileUpdateRequest,
     UserRegisterRequest,
     UserWalletResponse,
 )
@@ -204,6 +205,7 @@ class AuthService:
             id=user.id,
             email=user.email,
             username=profile.username if profile else user.email.split("@")[0],
+            is_custom_username=bool(getattr(profile, "is_custom_username", False)) if profile else False,
             avatar_url=profile.avatar_url if profile else "",
             vip_level=profile.vip_level if profile else 0,
             player_level=profile.player_level if profile else 1,
@@ -217,3 +219,69 @@ class AuthService:
                 moon_gems=wallet.moon_gems if wallet else 0,
             ),
         )
+
+    @classmethod
+    async def update_profile(
+        cls,
+        db: AsyncSession,
+        user_id: uuid.UUID,
+        req: UserProfileUpdateRequest,
+    ) -> UserProfileResponse:
+        """更新当前用户的昵称或头像，并将 is_custom_username 标为已设置。
+
+        Args:
+            db: 异步数据库会话。
+            user_id: 当前登录用户 ID。
+            req: 资料更新请求体。
+
+        Returns:
+            UserProfileResponse: 更新后的用户资料 DTO。
+
+        Raises:
+            HTTPException: 用户不存在或昵称不合规。
+        """
+        trimmed_name = req.username.strip()
+        if len(trimmed_name) < 2 or len(trimmed_name) > 20:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="用户昵称长度必须在 2 到 20 个字符之间",
+            )
+
+        stmt = (
+            select(User)
+            .where(User.id == user_id)
+            .options(
+                selectinload(User.profile),
+                selectinload(User.wallet),
+            )
+        )
+        user = (await db.execute(stmt)).scalar_one_or_none()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="用户不存在",
+            )
+
+        profile = user.profile
+        if not profile:
+            profile = UserProfile(
+                user=user,
+                username=trimmed_name,
+                is_custom_username=True,
+                avatar_url=req.avatar_url.strip() if req.avatar_url else f"https://api.dicebear.com/7.x/bottts/svg?seed={trimmed_name}",
+            )
+            db.add(profile)
+        else:
+            profile.username = trimmed_name
+            profile.is_custom_username = True
+            if req.avatar_url is not None:
+                profile.avatar_url = req.avatar_url.strip()
+
+        await db.commit()
+
+        refreshed_user = await cls.get_user_by_id(db, user_id)
+        if not refreshed_user:
+            raise HTTPException(status_code=500, detail="用户资料更新异常")
+
+        return cls.to_profile_response(refreshed_user)
+

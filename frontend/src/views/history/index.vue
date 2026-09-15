@@ -8,6 +8,7 @@
  */
 
 import BottomTabBar from "@/components/navigation/BottomTabBar.vue";
+import type { CharacterDetail } from "@/services/character";
 import { useAppStore } from "@/stores/app";
 import ArtistEditModal from "@/views/history/components/ArtistEditModal.vue";
 import ArtistListSection from "@/views/history/components/ArtistListSection.vue";
@@ -40,7 +41,6 @@ import UserHistoryRemarkModal from "@/views/history/components/UserHistoryRemark
 import UserHistoryToolbar from "@/views/history/components/UserHistoryToolbar.vue";
 import { useUserHistory } from "@/views/history/composables/useUserHistory";
 import type { ModCollectionItem, UserHistoryItem } from "@/views/history/types";
-import type { CharacterDetail } from "@/services/character";
 import LoginModal from "@/views/login/components/LoginModal.vue";
 import { useRouter } from "vue-router";
 
@@ -155,7 +155,10 @@ const {
 } = useUserHistory();
 
 function handleSelectCard(item: UserHistoryItem) {
-  router.push(`/chat/${item.characterId}`);
+  router.push({
+    path: `/chat/${item.characterId}`,
+    query: { session_id: item.id },
+  });
 }
 
 function handleCreateCharacter() {

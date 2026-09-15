@@ -6,9 +6,9 @@
 
 import { useToast } from "@/composables/useToast";
 import {
-  characterService,
   type CharacterComment,
   type CharacterDetail,
+  characterService,
 } from "@/services/character";
 import { useAppStore } from "@/stores/app";
 import { useUserStore } from "@/stores/user";
@@ -276,7 +276,7 @@ export function useCharacterDetail(characterId?: string) {
     () => characterId,
     (newId) => {
       if (newId) loadDetail(newId);
-    }
+    },
   );
 
   return {

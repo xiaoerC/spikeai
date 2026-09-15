@@ -1,0 +1,87 @@
+/**
+ * SpikeAI Admin 全局 CSS 设计系统变量
+ * 本文件仅在 index.scss 中全局载入一次，严禁通过 additionalData 重复注入单组件
+ */
+
+:root {
+  /* 基础布局与容器 */
+  --dialog-bg: rgb(255 255 255 / 85%);
+  --nav-bg: rgb(255 255 255 / 65%);
+  --shadow-1: 0 4px 16px 0 rgb(0 0 0 / 5%);
+  --container-bg-color: var(--el-bg-color-overlay);
+  --table-header-background-color: var(--el-fill-color-light);
+  --table-row-hover-current-background-color: var(--el-fill-color-light);
+  --border-color: var(--el-border-color-lighter);
+  --hover-bg-color: var(--el-fill-color-light);
+  --header-bg-color: var(--el-color-primary);
+  --header-border-color: var(--el-border-color-lighter);
+  --item-bg-color: var(--el-fill-color-lighter);
+  --menu-item-bg: linear-gradient(310deg, rgb(233 236 239 / 55%), #edf0f2);
+  --el-scrollbar: #dcdfe6;
+  --el-scrollbar-thumb: #c0c4cc;
+  --el-bg-color-page: #f4f8fc;
+  --el-border-radius-small: 8px;
+
+  /* 侧边栏与顶栏设计系统规范 (Light 浅色模式) */
+  --sidebar-bg-color: #f8fafc;
+  --sidebar-border-color: #e2e8f0;
+  --sidebar-text-color: #475569;
+  --sidebar-hover-bg-color: #f1f5f9;
+  --sidebar-hover-text-color: #0f172a;
+  --sidebar-hover-icon-color: #2563eb;
+  --sidebar-hover-shadow: none;
+  --sidebar-active-bg-color: #eff6ff;
+  --sidebar-active-text-color: #2563eb;
+  --sidebar-sub-bg-color: #f1f5f9;
+  --sidebar-shadow: 1px 0 4px 0 rgb(0 0 0 / 3%);
+
+  --header-bg-color: #ffffff;
+  --header-border-color: #e2e8f0;
+  --header-text-color: #475569;
+  --tags-view-bg-color: #ffffff;
+  --tags-view-item-bg: #f8fafc;
+  --tags-view-item-border: #e2e8f0;
+  --tags-view-item-active-bg: #eff6ff;
+
+  /* 辅助弹层与微光阴影 */
+  --el-overlay-color-lighter: rgb(0 0 0 / 8%);
+  --el-box-shadow-light: 0 2px 12px 0 rgb(0 0 0 / 6%);
+}
+
+/* 暗黑模式自适应覆盖 */
+html.dark {
+  --dialog-bg: rgb(24 25 28 / 85%);
+  --nav-bg: rgb(20 21 24 / 70%);
+  --shadow-1: 0 4px 20px 0 rgb(0 0 0 / 40%);
+  --container-bg-color: var(--el-bg-color-overlay);
+  --table-header-background-color: var(--el-fill-color-light);
+  --table-row-hover-current-background-color: var(--el-fill-color-light);
+  --border-color: var(--el-border-color-lighter);
+  --hover-bg-color: var(--el-fill-color-light);
+  --header-bg-color: #18181b;
+  --header-border-color: #27272a;
+  --item-bg-color: var(--el-fill-color-darker);
+  --menu-item-bg: linear-gradient(310deg, rgb(30 32 38 / 55%), #15171c);
+  --el-scrollbar: #363637;
+  --el-scrollbar-thumb: #4c4d4f;
+  --el-bg-color-page: #0c0d10;
+
+  /* 侧边栏与顶栏设计系统规范 (Dark 暗黑模式) */
+  --sidebar-bg-color: #141519;
+  --sidebar-border-color: #27272a;
+  --sidebar-text-color: #94a3b8;
+  --sidebar-hover-bg-color: #1e2025;
+  --sidebar-hover-text-color: #f1f5f9;
+  --sidebar-hover-icon-color: #3b82f6;
+  --sidebar-hover-shadow: none;
+  --sidebar-active-bg-color: #1e293b;
+  --sidebar-active-text-color: #3b82f6;
+  --sidebar-sub-bg-color: #101114;
+  --sidebar-shadow: none;
+
+  --header-text-color: #cbd5e1;
+  --tags-view-bg-color: #18181b;
+  --tags-view-item-bg: #1e2025;
+  --tags-view-item-border: #27272a;
+  --tags-view-item-active-bg: #1e293b;
+}

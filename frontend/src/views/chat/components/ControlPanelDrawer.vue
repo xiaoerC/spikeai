@@ -8,20 +8,25 @@
  * @packageDocumentation
  */
 
-import { CheckCircle2, Plus, X } from "lucide-vue-next";
-import { reactive, ref } from "vue";
+import type { ControlPanelDTO } from "@/services/chat";
+import { useUserStore } from "@/stores/user";
+import { CheckCircle2, Plus, Trash2, Variable, X } from "lucide-vue-next";
+import { ref, watch } from "vue";
 
 const props = defineProps<{
   open: boolean;
+  controlPanel?: ControlPanelDTO;
 }>();
 
 const emit = defineEmits<{
   (e: "update:open", val: boolean): void;
-  (e: "save"): void;
+  (e: "save", payload: ControlPanelDTO): void;
 }>();
 
-// 1. 用户名设置
-const userName = ref("spikeTom");
+const userStore = useUserStore();
+
+// 1. 用户名设置 (默认读取当前登录用户真实昵称，支持针对本会话自定义修改)
+const userName = ref(userStore.profile?.username || "{{user}}");
 
 // 2. User 人设
 const userPersona = ref("");
@@ -29,12 +34,28 @@ const userPersona = ref("");
 // 3. 指令区
 const customPrompt = ref("");
 
-// 4. 38 个角色变量 (variable_1 ~ variable_38)
-const initialVars: Record<string, number> = {};
-for (let i = 1; i <= 38; i++) {
-  initialVars[`variable_${i}`] = 0;
+// 4. 角色变量列表 (动态 MVU 状态机变量)
+interface VarEditItem {
+  id: string;
+  key: string;
+  type: "number" | "string" | "boolean";
+  value: string;
 }
-const variables = reactive<Record<string, number>>(initialVars);
+
+const varList = ref<VarEditItem[]>([]);
+
+function handleAddVariable(): void {
+  varList.value.push({
+    id: `var-${Date.now()}`,
+    key: `var_${varList.value.length + 1}`,
+    type: "number",
+    value: "0",
+  });
+}
+
+function handleRemoveVariable(idx: number): void {
+  varList.value.splice(idx, 1);
+}
 
 // 5. 记忆区块列表
 interface MemoryBlock {
@@ -55,6 +76,52 @@ const replacementRules = ref<ReplacementRule[]>([]);
 const newReplaceFrom = ref("");
 const newReplaceTo = ref("");
 
+// 监听外部传入的真实 ControlPanelDTO 数据
+watch(
+  () => props.controlPanel,
+  (newVal) => {
+    if (!newVal) return;
+    const incoming = (newVal.user_name || "").trim();
+    userName.value = incoming && incoming !== "{{user}}"
+      ? incoming
+      : (userStore.profile?.username || "{{user}}");
+    userPersona.value = newVal.user_persona || "";
+    customPrompt.value = newVal.custom_prompt || "";
+
+    // 赋值动态角色变量
+    if (newVal.variables && typeof newVal.variables === "object") {
+      varList.value = Object.entries(newVal.variables).map(([k, v], idx) => ({
+        id: `var-${idx}-${k}`,
+        key: k,
+        type: typeof v === "number" ? "number" : typeof v === "boolean" ? "boolean" : "string",
+        value: String(v ?? ""),
+      }));
+    } else {
+      varList.value = [];
+    }
+
+    // 记忆区块
+    if (Array.isArray(newVal.memory_blocks)) {
+      memoryBlocks.value = newVal.memory_blocks.map((m: any, idx: number) => ({
+        id: m.id || `mem_${idx}_${Date.now()}`,
+        title: m.title || `记忆区块 ${idx + 1}`,
+        content: m.content || "",
+        enabled: m.enabled ?? true,
+      }));
+    }
+
+    // 文本替换
+    if (Array.isArray(newVal.text_replacements)) {
+      replacementRules.value = newVal.text_replacements.map((r: any, idx: number) => ({
+        id: r.id || `rep_${idx}_${Date.now()}`,
+        fromText: r.fromText || r.from || "",
+        toText: r.toText || r.to || "",
+      }));
+    }
+  },
+  { immediate: true, deep: true },
+);
+
 // 保存成功通知弹窗
 const showSuccessNotification = ref(false);
 
@@ -63,14 +130,53 @@ function handleClose(): void {
 }
 
 function handleResetUserName(): void {
-  userName.value = "spikeTom";
+  userName.value = userStore.profile?.username || "{{user}}";
+}
+
+function constructPayload(): ControlPanelDTO {
+  const vars: Record<string, any> = {};
+  for (const item of varList.value) {
+    const k = item.key.trim();
+    if (!k) continue;
+    if (item.type === "number") {
+      vars[k] = Number(item.value) || 0;
+    } else if (item.type === "boolean") {
+      vars[k] = item.value === "true";
+    } else {
+      vars[k] = item.value;
+    }
+  }
+  return {
+    user_name: userName.value,
+    user_persona: userPersona.value,
+    custom_prompt: customPrompt.value,
+    variables: vars,
+    memory_blocks: memoryBlocks.value.map((b) => ({
+      id: b.id,
+      title: b.title,
+      content: b.content,
+      enabled: b.enabled,
+    })),
+    text_replacements: replacementRules.value.map((r) => ({
+      id: r.id,
+      fromText: r.fromText,
+      toText: r.toText,
+    })),
+  };
 }
 
 function handleSaveUserName(): void {
+  emit("save", constructPayload());
   triggerSuccessNotice();
 }
 
 function handleSaveVariables(): void {
+  emit("save", constructPayload());
+  triggerSuccessNotice();
+}
+
+function handleSaveMemoryBlocks(): void {
+  emit("save", constructPayload());
   triggerSuccessNotice();
 }
 
@@ -81,7 +187,6 @@ function handleAddMemoryBlock(): void {
     content: "",
     enabled: true,
   });
-  triggerSuccessNotice();
 }
 
 function handleAddReplacement(): void {
@@ -96,6 +201,7 @@ function handleAddReplacement(): void {
 }
 
 function handleSaveAll(): void {
+  emit("save", constructPayload());
   triggerSuccessNotice();
 }
 
@@ -123,16 +229,16 @@ function triggerSuccessNotice(): void {
       v-if="open"
       class="fixed top-0 right-0 bottom-0 z-50 w-full max-w-[440px] bg-[#292524] text-[#F5F5F4] flex flex-col shadow-2xl overflow-hidden select-none"
     >
-      <!-- 1. 顶栏: 标题「主控面板」+ 关闭按钮 -->
-      <header class="px-4 py-3.5 flex items-center justify-between border-b border-[#44403C] bg-[#292524] shrink-0 pt-safe">
-        <h2 class="text-xl font-semibold text-[#F9C86D] tracking-tight">
+      <!-- 1. 顶栏: 标题「主控面板」+ 关闭按钮 (标准 h-14 56px 弹性完美垂直居中) -->
+      <header class="h-14 px-5 flex items-center justify-between border-b border-[#44403C] bg-[#292524] shrink-0">
+        <h2 class="text-lg font-bold text-[#F9C86D] tracking-tight leading-none">
           主控面板
         </h2>
 
         <button
           type="button"
           @click="handleClose"
-          class="w-10 h-10 rounded-full flex items-center justify-center text-[#A8A29E] hover:text-[#F5F5F4] hover:bg-white/5 active:scale-95 transition-all cursor-pointer"
+          class="w-8 h-8 rounded-lg flex items-center justify-center text-[#A8A29E] hover:text-[#F5F5F4] hover:bg-white/5 active:scale-95 transition-all cursor-pointer"
           title="关闭"
         >
           <X class="w-5 h-5" />
@@ -206,37 +312,104 @@ function triggerSuccessNotice(): void {
           />
         </section>
 
-        <!-- (4) 角色变量 (38 个双列网格矩阵) -->
-        <section class="p-4 rounded-lg border border-[#44403C] bg-[#292524] flex flex-col">
-          <div class="flex items-center justify-between pb-3">
-            <h3 class="text-base font-semibold text-[#F9C86D]">
-              角色变量
-            </h3>
-            <button
-              type="button"
-              @click="handleSaveVariables"
-              class="px-4 py-1.5 rounded-lg bg-[#F9C86D] text-sm font-bold text-[#1C1917] hover:bg-[#F9C86D]/90 active:scale-95 transition-all cursor-pointer"
-            >
-              保存
-            </button>
+        <!-- (4) 角色变量 (动态 MVU 状态机变量) -->
+        <section class="p-4 rounded-lg border border-[#44403C] bg-[#292524] flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <Variable class="w-4 h-4 text-[#F9C86D]" />
+              <h3 class="text-base font-semibold text-[#F9C86D]">
+                角色变量 ({{ varList.length }})
+              </h3>
+            </div>
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                @click="handleAddVariable"
+                class="flex items-center gap-1 text-xs text-[#F9C86D] hover:underline cursor-pointer select-none font-medium px-2 py-1 rounded hover:bg-white/5 transition-all"
+              >
+                <Plus class="w-3.5 h-3.5" />
+                <span>添加变量</span>
+              </button>
+              <button
+                type="button"
+                @click="handleSaveVariables"
+                class="px-3.5 py-1.5 rounded-lg bg-[#F9C86D] text-xs font-bold text-[#1C1917] hover:bg-[#F9C86D]/90 active:scale-95 transition-all cursor-pointer"
+              >
+                保存
+              </button>
+            </div>
           </div>
 
-          <!-- 双列 38 个变量卡片 -->
-          <div class="grid grid-cols-2 gap-3 pt-1">
+          <p class="text-xs text-[#A8A29E]/70 leading-relaxed">
+            RPG 剧情动态变量矩阵（如好感度、HP、货币或状态开关），可随对话剧情推演自动增量更新。
+          </p>
+
+          <!-- 变量列表 -->
+          <div v-if="varList.length > 0" class="flex flex-col gap-2 pt-1">
             <div
-              v-for="i in 38"
-              :key="`variable_${i}`"
-              class="p-2.5 rounded-lg border border-[#44403C] bg-[#1C1917] flex flex-col gap-1.5"
+              v-for="(item, idx) in varList"
+              :key="item.id"
+              class="flex items-center gap-2 p-2 rounded-lg bg-[#1C1917] border border-[#44403C]"
             >
-              <span class="text-xs text-[#A8A29E] font-mono">
-                variable_{{ i }}
-              </span>
+              <!-- 变量名 -->
               <input
-                v-model.number="variables[`variable_${i}`]"
-                type="number"
-                class="w-full h-9 px-2 text-center rounded-md border border-[#534741]/40 bg-[#2A2520]/50 text-[#F4E8C1] text-sm font-mono outline-none focus:border-[#F9C86D]/60"
+                v-model="item.key"
+                type="text"
+                placeholder="变量名 (如 hp)"
+                class="flex-1 min-w-0 px-2.5 py-1.5 rounded bg-[#292524] border border-[#44403C] text-xs text-[#F4E8C1] font-mono outline-none focus:border-[#F9C86D]/60"
               />
+
+              <!-- 类型切换 -->
+              <select
+                v-model="item.type"
+                class="w-18 px-1.5 py-1.5 rounded bg-[#292524] border border-[#44403C] text-xs text-[#A8A29E] outline-none focus:border-[#F9C86D]/60 cursor-pointer"
+              >
+                <option value="number">数字</option>
+                <option value="string">文本</option>
+                <option value="boolean">布尔</option>
+              </select>
+
+              <!-- 数值输入 -->
+              <template v-if="item.type === 'boolean'">
+                <select
+                  v-model="item.value"
+                  class="w-24 px-1.5 py-1.5 rounded bg-[#292524] border border-[#44403C] text-xs text-[#F4E8C1] font-mono outline-none focus:border-[#F9C86D]/60 cursor-pointer"
+                >
+                  <option value="true">true</option>
+                  <option value="false">false</option>
+                </select>
+              </template>
+              <template v-else-if="item.type === 'number'">
+                <input
+                  v-model="item.value"
+                  type="number"
+                  placeholder="数值"
+                  class="w-24 px-2 py-1.5 rounded bg-[#292524] border border-[#44403C] text-xs text-[#F4E8C1] font-mono outline-none focus:border-[#F9C86D]/60"
+                />
+              </template>
+              <template v-else>
+                <input
+                  v-model="item.value"
+                  type="text"
+                  placeholder="文本值"
+                  class="w-24 px-2 py-1.5 rounded bg-[#292524] border border-[#44403C] text-xs text-[#F4E8C1] font-mono outline-none focus:border-[#F9C86D]/60"
+                />
+              </template>
+
+              <!-- 删除按钮 -->
+              <button
+                type="button"
+                @click="handleRemoveVariable(idx)"
+                class="text-[#78716C] hover:text-red-400 p-1 cursor-pointer transition-colors"
+                title="删除变量"
+              >
+                <Trash2 class="w-3.5 h-3.5" />
+              </button>
             </div>
+          </div>
+
+          <div v-else class="text-center py-3 text-xs text-[#78716C]">
+            暂无变量声明，点击上方“添加变量”创建角色剧情数值。
           </div>
         </section>
 
@@ -257,7 +430,7 @@ function triggerSuccessNotice(): void {
               </button>
               <button
                 type="button"
-                @click="triggerSuccessNotice"
+                @click="handleSaveMemoryBlocks"
                 class="px-3.5 py-1.5 rounded-lg bg-[#F9C86D] text-xs font-medium text-[#1C1917] hover:bg-[#F9C86D]/90 active:scale-95 transition-all cursor-pointer"
               >
                 保存

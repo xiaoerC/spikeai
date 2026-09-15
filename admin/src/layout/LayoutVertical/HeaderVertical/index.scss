@@ -1,0 +1,87 @@
+@use '@/styles/variables' as *;
+
+.mobile {
+  .m-layout-header {
+    left: 0 !important;
+    width: 100% !important;
+  }
+}
+
+.show-tag {
+  height: 90px;
+}
+
+.zb-no-fixed-header {
+  width: 100% !important;
+}
+
+.m-layout-header {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 100%;
+  transition: width 0.28s, background-color 0.28s;
+  background-color: var(--header-bg-color);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+
+  .header-inner {
+    display: flex;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 50px;
+    padding: 0 16px 0 12px;
+    border-bottom: 1px solid var(--header-border-color);
+    background-color: var(--header-bg-color);
+    transition: background-color 0.28s, border-color 0.28s;
+
+    :deep(.header-icon) {
+      color: var(--header-text-color);
+      transition: color 0.2s;
+
+      &:hover {
+        color: var(--el-color-primary) !important;
+      }
+    }
+  }
+}
+
+.fixed-header {
+  position: fixed;
+  z-index: 9;
+  top: 0;
+  right: 0;
+}
+
+.collapse {
+  width: calc(100% - 60px);
+}
+
+.no-collapse {
+  width: calc(100% - #{$sideBarWidth});
+}
+
+.el-dropdown {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.transverseMenu {
+  display: flex;
+
+  .el-menu {
+    overflow: hidden;
+  }
+
+  :deep(.el-menu-item) {
+    height: 100% !important;
+  }
+
+  .tool-bar-right {
+    display: flex;
+    flex-shrink: 0;
+    justify-content: flex-end;
+    min-width: 300px;
+  }
+}

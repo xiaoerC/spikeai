@@ -28,7 +28,7 @@ export const uploadService = {
    */
   async uploadImage(
     file: File,
-    folder: "avatars" | "banners" | "chat" | "cards" = "avatars"
+    folder: "avatars" | "banners" | "chat" | "cards" = "avatars",
   ): Promise<string> {
     const formData = new FormData();
     formData.append("file", file);

@@ -59,7 +59,10 @@ function addCustomTag(): void {
 }
 
 function removeTag(tag: string): void {
-  emit("update:tags", props.tags.filter((t) => t !== tag));
+  emit(
+    "update:tags",
+    props.tags.filter((t) => t !== tag),
+  );
 }
 
 function triggerAvatarUpload(): void {

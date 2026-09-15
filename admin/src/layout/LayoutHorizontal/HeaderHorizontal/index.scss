@@ -1,0 +1,38 @@
+@use '@/styles/variables' as *;
+
+.m-layout-header {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 100%;
+  transition: width 0.28s;
+  box-shadow: 0 1px 4px rgb(0 21 41 / 8%);
+
+  .header-inner {
+    display: flex;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 50px;
+    padding: 0 10px 0 0;
+    border-bottom: 1px solid #eee;
+    background-color: $menuBg;
+  }
+}
+
+.fixed-header {
+  position: fixed;
+  z-index: 9;
+  top: 0;
+  right: 0;
+}
+
+.menu-horizontal {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+
+  :deep(.el-menu-item) {
+    height: 100%;
+  }
+}

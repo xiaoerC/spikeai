@@ -12,7 +12,7 @@ export interface ApiResponse<T = any> {
 
 const api: AxiosInstance = axios.create({
   baseURL: "/api/v1",
-  timeout: 15000,
+  timeout: 60000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -58,7 +58,10 @@ api.interceptors.response.use(
       // 如果当前在需要登录权限的页面 (如个人中心)，自动回退至主页
       const currentPath = router.currentRoute.value?.path || "";
       const protectedPrefixes = ["/profile", "/creator"];
-      if (protectedPrefixes.some((p) => currentPath.startsWith(p)) || router.currentRoute.value?.meta?.requiresAuth) {
+      if (
+        protectedPrefixes.some((p) => currentPath.startsWith(p)) ||
+        router.currentRoute.value?.meta?.requiresAuth
+      ) {
         await router.push("/");
       }
     }

@@ -24,7 +24,7 @@ const props = withDefaults(
   }>(),
   {
     isSubmitting: false,
-  }
+  },
 );
 
 const emit = defineEmits<{
@@ -33,7 +33,7 @@ const emit = defineEmits<{
 }>();
 
 const { jsonPreviewString, downloadJsonFile, copyJsonToClipboard } = useCardExporter(
-  () => props.formData
+  () => props.formData,
 );
 
 const isJsonExpanded = ref<boolean>(false);

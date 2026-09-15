@@ -1,0 +1,424 @@
+/**
+ * vxetable.scss
+ * SpikeAI Admin 现代清爽企业级表格视觉规范 (Tailwind Slate / Modern SaaS 风格)
+ * 具备高通透表头、清晰字阶、细腻底部分割线与全自动深浅模式联动
+ */
+
+/* ==========================================================================
+   1. CSS Custom Properties 动态映射 (支持 Element Plus / Tailwind 规范)
+   ========================================================================== */
+:root,
+[data-vxe-ui-theme="light"] {
+  /* 基础排版与字体 */
+  --vxe-ui-font-family: inherit;
+  --vxe-ui-font-size: 13px;
+  --vxe-ui-font-color: #0f172a; /* Slate 900 清爽高对比度 */
+  --vxe-ui-font-primary-color: #2563eb; /* Blue 600 */
+  --vxe-ui-font-disabled-color: #94a3b8; /* Slate 400 */
+
+  /* 基础圆角 */
+  --vxe-ui-border-radius: 6px;
+
+  /* 语义状态色 */
+  --vxe-ui-status-success-color: #10b981;
+  --vxe-ui-status-info-color: #64748b;
+  --vxe-ui-status-warning-color: #f59e0b;
+  --vxe-ui-status-danger-color: #ef4444;
+
+  /* 表格核心色彩 (Tailwind Slate / Modern SaaS 体系) */
+  --vxe-ui-table-border-width: 1px;
+  --vxe-ui-table-header-background-color: #f1f5f9; /* Slate 100 结构清晰表头，质感沉稳托底 */
+  --vxe-ui-table-header-font-color: #64748b; /* Slate 500 柔和清晰中性字色 */
+  --vxe-ui-table-header-border-color: #eef1f6; /* 清透微淡的表头底部分割线 */
+  --vxe-ui-table-body-background-color: #f8fafc; /* Slate 50 微透柔和底色：比纯白深一点，比表头浅一点，自然衬托数据 */
+  --vxe-ui-table-border-color: #eef1f6; /* 清透微淡的每行横向分割线 (浅灰极细腻，高通透轻盈无负担) */
+  --vxe-ui-table-resizable-line-color: transparent;
+  --vxe-ui-table-resizable-drag-line-color: #2563eb;
+
+  /* 行交互与高亮状态 */
+  --vxe-ui-table-row-hover-background-color: #eef2f6; /* 极轻柔微光 Hover 高亮 */
+  --vxe-ui-table-row-striped-background-color: #f1f5f9;
+  --vxe-ui-table-row-hover-striped-background-color: #e2e8f0;
+
+  /* 选中高亮状态：清爽天蓝浅底 */
+  --vxe-ui-table-row-radio-checked-background-color: #eff6ff; /* Blue 50 */
+  --vxe-ui-table-row-hover-radio-checked-background-color: #dbeafe; /* Blue 100 */
+  --vxe-ui-table-row-checkbox-checked-background-color: #eff6ff;
+  --vxe-ui-table-row-hover-checkbox-checked-background-color: #dbeafe;
+  --vxe-ui-table-row-current-background-color: #eff6ff;
+  --vxe-ui-table-row-hover-current-background-color: #dbeafe;
+
+  /* 列悬浮状态 */
+  --vxe-ui-table-column-hover-background-color: #eef2f6;
+  --vxe-ui-table-column-current-background-color: #eff6ff;
+  --vxe-ui-table-column-hover-current-background-color: #dbeafe;
+
+  /* 尺寸与行高 */
+  --vxe-ui-table-row-height-default: 50px;
+  --vxe-ui-table-row-height-medium: 44px;
+  --vxe-ui-table-row-height-small: 40px;
+  --vxe-ui-table-row-height-mini: 36px;
+  --vxe-ui-table-column-padding-default: 6px 0;
+  --vxe-ui-table-column-padding-medium: 5px 0;
+  --vxe-ui-table-column-padding-small: 4px 0;
+  --vxe-ui-table-column-padding-mini: 2px 0;
+}
+
+/* 暗黑模式自适应覆盖 */
+[data-vxe-ui-theme="dark"],
+html.dark {
+  --vxe-ui-font-color: #f1f5f9; /* Slate 100 */
+  --vxe-ui-font-primary-color: #3b82f6;
+  --vxe-ui-font-disabled-color: #64748b;
+
+  --vxe-ui-table-border-width: 1px;
+  --vxe-ui-table-header-background-color: #18181b; /* Zinc 900 纯正深色底 */
+  --vxe-ui-table-header-font-color: #a1a1aa; /* Zinc 400 柔和暗黑字色 */
+  --vxe-ui-table-header-border-color: #27272a; /* Zinc 800 稳固清晰暗黑表头分割线 */
+  --vxe-ui-table-body-background-color: #121316;
+  --vxe-ui-table-border-color: #27272a; /* Zinc 800 直观清晰暗黑每行分割线 */
+
+  --vxe-ui-table-row-hover-background-color: #1e2025;
+  --vxe-ui-table-row-striped-background-color: #16171b;
+  --vxe-ui-table-row-hover-striped-background-color: #1e2025;
+
+  --vxe-ui-table-row-radio-checked-background-color: #1e293b;
+  --vxe-ui-table-row-hover-radio-checked-background-color: #243147;
+  --vxe-ui-table-row-checkbox-checked-background-color: #1e293b;
+  --vxe-ui-table-row-hover-checkbox-checked-background-color: #243147;
+  --vxe-ui-table-row-current-background-color: #1e293b;
+  --vxe-ui-table-row-hover-current-background-color: #243147;
+
+  --vxe-ui-table-column-hover-background-color: #1e2025;
+  --vxe-ui-table-column-current-background-color: #1e293b;
+  --vxe-ui-table-column-hover-current-background-color: #243147;
+}
+
+/* ==========================================================================
+   2. 核心结构类覆盖 (现代清爽细节打磨)
+   ========================================================================== */
+.vxe-table {
+  font-family: inherit;
+  color: var(--vxe-ui-font-color);
+  background-color: var(--vxe-ui-table-body-background-color);
+
+  /* 清除默认多余内外边距与外线 */
+  border: none !important;
+
+  /* 移除表底原生边框线，由外层圆角卡片自然收口，防止底部出现突兀重线 */
+  .vxe-table--border-line {
+    border: none !important;
+    display: none !important;
+  }
+
+  /* 空数据状态防塌陷：维持 240px 优雅呼吸高度与居中对齐 */
+  &.is--empty {
+    .vxe-table--body-wrapper {
+      min-height: 240px;
+    }
+
+    .vxe-table--empty-placeholder,
+    .vxe-table--empty-block {
+      min-height: 240px;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .vxe-table--empty-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+  }
+
+  /* 表头质感重塑：通透白底 + 13px 清晰排版 + 实体底部分割线 */
+  .vxe-table--header-wrapper {
+    background-color: var(--vxe-ui-table-header-background-color) !important;
+  }
+
+  .vxe-header--column {
+    background-color: var(--vxe-ui-table-header-background-color) !important;
+    color: var(--vxe-ui-table-header-font-color) !important;
+    font-weight: 500 !important;
+    font-size: 13px !important;
+    letter-spacing: 0.01em;
+    border-bottom: 1px solid var(--vxe-ui-table-header-border-color) !important;
+    padding: 8px 0;
+
+    .vxe-cell {
+      color: var(--vxe-ui-table-header-font-color) !important;
+      font-weight: 500 !important;
+      line-height: 22px;
+      display: flex;
+      align-items: center;
+    }
+
+    &.col--center .vxe-cell {
+      justify-content: center;
+      text-align: center;
+    }
+
+    &.col--right .vxe-cell {
+      justify-content: flex-end;
+      text-align: right;
+    }
+
+    &.col--left .vxe-cell {
+      justify-content: flex-start;
+      text-align: left;
+    }
+
+    /* 调整列宽句柄：平常隐形，悬浮时亮起精细主题蓝 */
+    .vxe-cell--col-resizable {
+      &::before {
+        background-color: transparent !important;
+        transition: background-color 0.15s ease;
+      }
+      &:hover::before {
+        background-color: var(--vxe-ui-font-primary-color) !important;
+      }
+    }
+  }
+
+  /* 表体单元格与文字排版 */
+  .vxe-body--column {
+    color: var(--vxe-ui-font-color);
+    font-size: 13px;
+    border-bottom: 1px solid var(--vxe-ui-table-border-color) !important;
+    padding: 6px 0;
+
+    .vxe-cell {
+      line-height: 24px;
+    }
+
+    &.col--center {
+      text-align: center;
+    }
+
+    &.col--right {
+      text-align: right;
+    }
+
+    &.col--left {
+      text-align: left;
+    }
+  }
+
+  /* 最后一行数据取消横向 border，由外层容器底平滑收尾，杜绝底部双重边框 */
+  .vxe-body--row:last-child {
+    .vxe-body--column {
+      border-bottom: none !important;
+      background-image: none !important;
+    }
+  }
+
+  /* 行悬浮与平滑过渡 */
+  .vxe-body--row {
+    background-color: var(--vxe-ui-table-body-background-color);
+    transition: background-color 0.15s ease;
+
+    &.row--hover {
+      background-color: var(--vxe-ui-table-row-hover-background-color) !important;
+    }
+
+    /* 斑马纹 */
+    &.row--stripe {
+      background-color: var(--vxe-ui-table-row-striped-background-color);
+
+      &.row--hover {
+        background-color: var(--vxe-ui-table-row-hover-background-color) !important;
+      }
+    }
+
+    /* 选中高亮状态 */
+    &.row--checked,
+    &.row--radio {
+      background-color: var(--vxe-ui-table-row-checkbox-checked-background-color) !important;
+
+      &.row--hover {
+        background-color: var(--vxe-ui-table-row-hover-checkbox-checked-background-color) !important;
+      }
+    }
+  }
+
+  /* 固定列处理与优雅渐变阴影 */
+  .vxe-table--fixed-left-wrapper,
+  .vxe-table--fixed-right-wrapper {
+    background-color: var(--vxe-ui-table-body-background-color);
+
+    .vxe-header--column {
+      background-color: var(--vxe-ui-table-header-background-color) !important;
+    }
+
+    .vxe-body--column {
+      background-color: var(--vxe-ui-table-body-background-color);
+    }
+
+    .vxe-body--row.row--hover .vxe-body--column {
+      background-color: var(--vxe-ui-table-row-hover-background-color) !important;
+    }
+  }
+
+  /* 横向滚动时固定列的清爽微光遮罩投影 */
+  &.is--fixed-left .vxe-table--fixed-left-wrapper {
+    box-shadow: 4px 0 16px -4px rgba(0, 0, 0, 0.05);
+  }
+
+  &.is--fixed-right .vxe-table--fixed-right-wrapper {
+    box-shadow: -4px 0 16px -4px rgba(0, 0, 0, 0.05);
+  }
+
+  /* 树形表格展开图标动画化与精致微按钮 */
+  .vxe-cell--tree-btn {
+    color: #94a3b8 !important;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+
+    &:hover {
+      color: #2563eb !important;
+      background-color: #f1f5f9;
+    }
+
+    i,
+    .vxe-table-icon-caret-right {
+      font-size: 11px;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+  }
+
+  .vxe-body--row.is--expand-tree .vxe-cell--tree-btn i,
+  .vxe-body--row.is--expand-tree .vxe-cell--tree-btn .vxe-table-icon-caret-right {
+    transform: rotate(90deg);
+  }
+
+  /* 排序图标现代化 */
+  .vxe-sort--asc-btn,
+  .vxe-sort--desc-btn {
+    color: #cbd5e1;
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: #2563eb;
+    }
+
+    &.sort--active {
+      color: #2563eb;
+    }
+  }
+
+  /* 复选框微调 */
+  .vxe-checkbox {
+    .vxe-checkbox--icon {
+      border-radius: 4px;
+      border-color: #cbd5e1;
+      transition: all 0.15s ease;
+    }
+
+    &:hover .vxe-checkbox--icon {
+      border-color: #2563eb;
+    }
+
+    &.is--checked .vxe-checkbox--icon {
+      background-color: #2563eb;
+      border-color: #2563eb;
+    }
+  }
+
+  /* 滚动条极简隐形胶囊设计 */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background-color: #cbd5e1;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #94a3b8;
+    }
+  }
+}
+
+html.dark .vxe-table {
+  .vxe-cell--tree-btn:hover {
+    color: #60a5fa !important;
+    background-color: #27272a;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #3f3f46;
+    &:hover {
+      background-color: #52525b;
+    }
+  }
+}
+
+/* ==========================================================================
+   3. 现代清爽分段控制工具栏 (Stripe / Linear 工业级精工质感)
+   ========================================================================== */
+.data-table-toolbar-group {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+html.dark .data-table-toolbar-group {
+  border-color: #3f3f46;
+  background-color: #18181b;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.data-table-toolbar-btn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-left: 1px solid #e2e8f0;
+  background: transparent;
+  color: #334155; /* Slate 700 沉稳高清晰度 */
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background-color: #f1f5f9;
+    color: #2563eb;
+  }
+}
+
+.data-table-toolbar-group > :first-child .data-table-toolbar-btn,
+.data-table-toolbar-group > .data-table-toolbar-btn:first-child {
+  border-left: none;
+}
+
+html.dark .data-table-toolbar-btn {
+  border-left-color: #27272a;
+  color: #e4e4e7; /* Zinc 200 高对比度 */
+
+  &:hover {
+    background-color: #27272a;
+    color: #60a5fa;
+  }
+}

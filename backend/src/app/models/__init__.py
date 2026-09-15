@@ -6,7 +6,17 @@ Usage:
     >>> from app.models import User, Character, ChatSession, ModItem, Notice
 """
 
+from app.models.admin import (
+    AdminAuditLog,
+    AdminDepartment,
+    AdminPermission,
+    AdminRole,
+    AdminUser,
+    admin_role_permissions,
+    admin_user_roles,
+)
 from app.models.character import (
+
     Character,
     CharacterComment,
     CharacterInteraction,
@@ -37,10 +47,31 @@ from app.models.user import (
     UserWallet,
     WalletTransaction,
 )
+from app.models.tavern import (
+    SystemTavernPreset,
+)
+from app.models.llm import (
+    SystemLLMProvider,
+)
+from app.models.world_book import (
+    WorldBook,
+    WorldBookEntry,
+)
 
 __all__ = [
-    # Ops
+    # Admin RBAC
+    "AdminAuditLog",
+    "AdminDepartment",
+    "AdminPermission",
+    "AdminRole",
+    "AdminUser",
+    "admin_role_permissions",
+    "admin_user_roles",
+    # Ops & System
     "Activity",
+    "SystemTavernPreset",
+    "SystemLLMProvider",
+
     # Character
     "Character",
     "CharacterComment",
@@ -65,4 +96,7 @@ __all__ = [
     "UserProfile",
     "UserWallet",
     "WalletTransaction",
+    # WorldBook
+    "WorldBook",
+    "WorldBookEntry",
 ]

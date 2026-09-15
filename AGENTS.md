@@ -35,15 +35,28 @@
         8. **Composition API 组织与 Composable 4 大铁律**：小组件内使用【注释功能域】将变量/方法/watch/mounted 物理聚拢；抽离 composable 时遵循 `MaybeRefOrGetter` 入参、普通对象包裹 ref 安全解构、`onUnmounted` 自动清理以及 `readonly()` 状态单向流保护。
         9. **强类型 API 契约与 SSE 流式状态**：所有请求经 `src/services/` 强类型包装，SSE 打字机流消费带 `AbortController` 优雅中止与 60fps 帧率保护，Pinia 状态单向流及 IndexedDB 异步持久化。
     *   **包管理器**：`pnpm`。
+*   **后台管理工程 (`admin/`)**：
+    *   **技术栈**：Vue 3.5 + TypeScript + Vite 6 + UnoCSS + Element Plus + VXE-Table + Pinia。
+    *   **排版与规范 8 大铁律**：
+        1. **UnoCSS 绝对优先**：排版与样式原子类化，减少深层 CSS/SCSS 嵌套。
+        2. **Flexbox & Grid 现代布局**：淘汰浮动布局，页面结构清晰。
+        3. **Gap 主导间距**：父容器一律使用 `gap` 管理子元素间隙。
+        4. **统一 Biome 门禁**：全面对齐 `@biomejs/biome` 1.9.4，极速检查与格式化。
+        5. **零原生弹窗**：严禁 `alert()`/`confirm()`，统一使用 Element Plus `ElMessage` 与 `ElMessageBox`。
+        6. **强类型 API 契约**：接口与数据模型提供显式 TypeScript 类型定义。
+        7. **现代 Composition API**：新写及重构组件采用 `<script setup>` 语法。
+        8. **轻量化依赖**：拒绝老旧 Polyfill 与冗余组件全量注册。
+    *   **包管理器**：`pnpm`。
 *   **后端工程 (`backend/`)**：
     *   **技术栈**：FastAPI (Python 3.12, `uv` 管理) + SQLAlchemy 2.0 Async + PostgreSQL 16 (pgvector) + Redis 7 + Pillow (PNG tEXt/iTXt 编解码) + SSE 流式网关。
     *   **包管理器**：`uv`。
+
 
 ---
 
 ## 三、 Skills 架构与前后端隔离路由表
 
-本项目 Skills 分为 **全局通用与协议层**（位于根目录 `.agents/skills/`）、**前端专属层**（位于 `frontend/.agents/skills/`）与 **后端专属层**（位于 `backend/.agents/skills/`）：
+本项目 Skills 分为 **全局通用与协议层**（位于根目录 `.agents/skills/`）、**前端专属层**（位于 `frontend/.agents/skills/`）、**后台专属层**（位于 `admin/.agents/skills/`）与 **后端专属层**（位于 `backend/.agents/skills/`）：
 
 ```
 spikeai/
@@ -70,6 +83,12 @@ spikeai/
 │       ├── ui-ux-pro-max/                   # 黑金暗黑拟物 + 移动端手势与安全区规范
 │       └── vue-flow-dag/                    # Vue Flow 剧情分支拓扑与自适应排版
 │
+├── admin/.agents/                           # 【后台专属隔离层】(仅在 admin/ 作用域生效)
+│   ├── rules/
+│   │   └── admin_habits.md                  # 🌟 后台 8 大排版、组件、规范与零原生弹窗铁律
+│   └── skills/
+│       └── admin-element-pro/               # 🌟 Element Plus + VXE-Table + UnoCSS 中后台开发专家
+│
 └── backend/.agents/skills/                  # 【后端专属隔离层】(仅在 backend/ 作用域生效)
     ├── fastapi-async-sqlalchemy/            # FastAPI + SQLAlchemy 2.0 Async + 事务行锁
     └── pgvector-worldbook-rag/              # PostgreSQL pgvector + 世界书语义混合召回
@@ -94,6 +113,13 @@ spikeai/
   - 核心编解码（`card_parser.py`）与 DAG 分支算法（`tree_service.py`）遵循 `sillytavern-card-spec` 与 `tdd` 驱动。
   - 遇到复杂逻辑异常时遵循 `diagnose` 6 步闭环。
   - 涉及钱包余额与权限校验时调用 `cso` 审查。
+
+### 3. 后台管理任务路由规则 (Scope: `admin/`)
+- 当编写/修改后台管理页面、DataTable 表格、Element Plus 表单、权限配置与报表看板时：
+  - 严格遵守 `admin_habits.md` 8 大铁律（UnoCSS 绝对优先、Flex/Grid 排版、父级 Gap 间距、Biome 格式化、零原生弹窗）。
+  - 调用 `admin-element-pro` 运用成熟的中后台 CRUD 范式、Dialog 异步提交闭环与 VXE-Table 虚拟滚动调优。
+  - 保持与后端 API 的强类型契约，禁止引入未授权的过时老旧第三方依赖。
+
 
 ---
 

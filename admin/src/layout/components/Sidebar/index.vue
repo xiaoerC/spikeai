@@ -1,0 +1,52 @@
+<template>
+  <div class="sidebar-container" :class="{ 'has-logo': themeConfig.showLogo }">
+    <Logo v-if="themeConfig.showLogo" :is-collapse="isCollapse" />
+    <el-scrollbar wrap-class="scrollbar-wrapper">
+      <el-menu
+        :default-active="activeMenu as any"
+        :unique-opened="SettingStore.themeConfig.uniqueOpened"
+        :collapse-transition="false"
+        class="el-menu-vertical-demo"
+        :collapse="isCollapse"
+      >
+        <SubItem v-for="route in permission_routes" :key="route.path" :item="route" />
+      </el-menu>
+    </el-scrollbar>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { usePermissionStore } from '@/store/modules/permission';
+import { useSettingStore } from '@/store/modules/setting';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+import SubItem from '../SubMenu/SubItem.vue';
+import Logo from './components/Logo.vue';
+
+// 在setup中获取store
+const route = useRoute();
+const PermissionStore = usePermissionStore();
+const SettingStore = useSettingStore();
+
+// 是否折叠
+const isCollapse = computed(() => !SettingStore.isCollapse);
+// 设置
+const themeConfig = computed(() => SettingStore.themeConfig);
+
+// 获取路由
+const permission_routes = computed(() => PermissionStore.permission_routes);
+
+const activeMenu = computed(() => {
+  const { meta, path } = route;
+  if (meta.activeMenu) {
+    return meta.activeMenu;
+  }
+  return path;
+});
+</script>
+
+<style lang="scss">
+  .el-menu-vertical-demo:not(.el-menu--collapse) {
+    height: 100%;
+  }
+</style>

@@ -46,6 +46,31 @@ class ModCreateRequest(BaseModel):
     entries: list[dict[str, Any]] = Field(default_factory=list, description="词条内容")
 
 
+class ModUpdateRequest(BaseModel):
+    """更新 Mod 请求体。"""
+
+    title: str | None = Field(default=None, min_length=1, max_length=128, description="Mod 标题")
+    description: str | None = Field(default=None, description="Mod 说明")
+    category_tag: Literal["worldbook", "system", "command", "regex", "artist"] | None = Field(
+        default=None, description="分类标签"
+    )
+    price: int | None = Field(default=None, ge=0, description="价格")
+    status: Literal["draft", "published"] | None = Field(default=None, description="发布状态")
+    entries: list[dict[str, Any]] | None = Field(default=None, description="词条内容")
+
+
+class ModPromptPatches(BaseModel):
+    """多锚点合并后的提示词插桩结果。"""
+
+    system_prefix: list[str] = Field(default_factory=list, description="前置系统指令 (越狱/最高规则)")
+    before_char: list[str] = Field(default_factory=list, description="角色人设前置 (画师串/基调)")
+    after_char: list[str] = Field(default_factory=list, description="角色人设后置")
+    top_an: list[str] = Field(default_factory=list, description="作者注释与场景前缀")
+    bottom_an: list[str] = Field(default_factory=list, description="深度描写与微表情增强")
+    user_suffix: list[str] = Field(default_factory=list, description="用户最新输入后置增强")
+
+
+
 class ModSquareFilterParams(BaseModel):
     """Mod 广场筛选参数。"""
 

@@ -5,7 +5,7 @@
  */
 
 import type { CharacterFormData } from "@/views/character-create/types";
-import { computed, toValue, type MaybeRefOrGetter } from "vue";
+import { type MaybeRefOrGetter, computed, toValue } from "vue";
 
 /**
  * 角色卡导出 Hook

@@ -79,8 +79,9 @@ pnpm dev
 ```bash
 cd backend
 uv sync
-uv run uvicorn app.main:app --reload --port 8000
-# 访问 http://localhost:8000/docs 查看 API Swagger 文档
+# 启动后端开发服务器 (Port: 8080)
+uv run uvicorn app.main:app --reload --port 8080
+# 访问 http://localhost:8080/docs 查看 API Swagger 文档
 ```
 
 ---

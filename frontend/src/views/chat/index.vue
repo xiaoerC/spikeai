@@ -7,17 +7,20 @@
  * @packageDocumentation
  */
 
+import BgmPlayerDrawer from "@/views/chat/components/BgmPlayerDrawer.vue";
 import ChatHeader from "@/views/chat/components/ChatHeader.vue";
 import ChatInputBar from "@/views/chat/components/ChatInputBar.vue";
 import ChatChatMessageList from "@/views/chat/components/ChatMessageList.vue";
 import ChatSidebarDrawer from "@/views/chat/components/ChatSidebarDrawer.vue";
 import ChatToolbar from "@/views/chat/components/ChatToolbar.vue";
 import ControlPanelDrawer from "@/views/chat/components/ControlPanelDrawer.vue";
-import FloatingMascotBadge from "@/views/chat/components/FloatingMascotBadge.vue";
+import ModManagerDrawer from "@/views/chat/components/ModManagerDrawer.vue";
 import ModelSelectorDrawer from "@/views/chat/components/ModelSelectorDrawer.vue";
 import NaroAssistantModal from "@/views/chat/components/NaroAssistantModal.vue";
 import NarrativePanelDrawer from "@/views/chat/components/NarrativePanelDrawer.vue";
+import StoryBranchCanvasModal from "@/views/chat/components/StoryBranchCanvasModal.vue";
 import StoryBranchDrawer from "@/views/chat/components/StoryBranchDrawer.vue";
+import WorldBookDrawer from "@/views/chat/components/WorldBookDrawer.vue";
 import { useChatSession } from "@/views/chat/composables/useChatSession";
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
@@ -29,30 +32,53 @@ const isSidebarOpen = ref(false);
 const isAssistantOpen = ref(false);
 const isControlPanelOpen = ref(false);
 const isNarrativePanelOpen = ref(false);
-const isBranchDrawerOpen = ref(false);
-const activeBranchTargetId = ref<string | undefined>(undefined);
+const isWorldBookOpen = ref(false);
+const isModDrawerOpen = ref(false);
+const isBgmOpen = ref(false);
 const inputBarRef = ref<{ appendPrompt: (text: string) => void } | null>(null);
 
 const {
   character,
+  sessionId,
   messages,
+  alternateGreetings,
+  currentGreetingIndex,
+  openingReplies,
+  bgmUrl,
+  branches,
+  currentBranchId,
+  isBranchDrawerOpen,
+  isCanvasModalOpen,
+  selectedForkMessageId,
   currentModel,
   currentMode,
   isGenerating,
   isModelDrawerOpen,
   toastMessage,
   showToast,
+  loadBranches,
   handleBack,
   handleSendMessage,
   handleStopGeneration,
   handleRegenerate,
   handleBranch,
+  handleSwitchBranch,
+  handleCreateBranch,
+  handleDeleteBranch,
+  handleRollback,
   handleEditMessage,
   handleSaveEditMessage,
   handleDeleteMessage,
   handleReadAloud,
+  handleSwitchGreeting,
   handleSelectModel,
   handleSwitchMode,
+  controlPanel,
+  narrativeState,
+  loadControlPanel,
+  loadNarrativeState,
+  saveControlPanel,
+  saveNarrativeState,
 } = useChatSession(characterId);
 
 /**
@@ -83,12 +109,15 @@ function handleSettingsAction(action: string): void {
  * 响应底部更多扩展功能面板点击
  */
 function handleMoreAction(action: string): void {
+  if (action === "modManage") {
+    isModDrawerOpen.value = true;
+    return;
+  }
   const map: Record<string, string> = {
     memoryOn: "记忆增强 · 已开启",
     memoryOff: "记忆增强 · 已关闭",
     dialogueOn: "对话增强 · 已开启",
     dialogueOff: "对话增强 · 已关闭",
-    modManage: "正在加载 Mod 管理器...",
     artistPrompt: "已注入画师串 · 二次元提示词",
   };
   if (action === "artistPrompt") {
@@ -97,33 +126,6 @@ function handleMoreAction(action: string): void {
     );
   }
   showToast(map[action] || `已触发: ${action}`);
-}
-
-/**
- * 响应点击剧情分支按钮
- */
-function onBranch(msg: { id: string }): void {
-  activeBranchTargetId.value = msg.id;
-  isBranchDrawerOpen.value = true;
-  showToast("已打开剧情分支时间线");
-}
-
-/**
- * 响应时间轴节点回溯
- */
-function handleJumpToNode(messageId: string): void {
-  const idx = messages.value.findIndex((m) => m.id === messageId);
-  if (idx !== -1) {
-    messages.value = messages.value.slice(0, idx + 1);
-    showToast("已回溯至该历史剧情节点");
-  }
-}
-
-/**
- * 响应开辟新分支
- */
-function handleCreateBranch(_fromId: string, name: string): void {
-  showToast(`已创建新分支：${name}`);
 }
 </script>
 
@@ -144,12 +146,13 @@ function handleCreateBranch(_fromId: string, name: string): void {
       <ChatHeader
         @back="handleBack"
         @open-sidebar="isSidebarOpen = true"
-        @open-music="() => {}"
+        @open-music="isBgmOpen = true"
         @open-assistant="isAssistantOpen = true"
-        @open-narrative-panel="isNarrativePanelOpen = true"
-        @open-canvas="isNarrativePanelOpen = true"
-        @open-apps="isControlPanelOpen = true"
-        @open-control-panel="isControlPanelOpen = true"
+        @open-narrative-panel="() => { isNarrativePanelOpen = true; loadNarrativeState(); }"
+        @open-worldbook="isWorldBookOpen = true"
+        @open-canvas="isCanvasModalOpen = true"
+        @open-apps="() => { isControlPanelOpen = true; loadControlPanel(); }"
+        @open-control-panel="() => { isControlPanelOpen = true; loadControlPanel(); }"
         @settings-action="handleSettingsAction"
       />
     </div>
@@ -161,11 +164,14 @@ function handleCreateBranch(_fromId: string, name: string): void {
         :author-note="character.authorNote"
         :prologue-title="character.prologueTitle"
         :prologue-content="character.prologueContent"
+        :alternate-greetings="alternateGreetings"
+        :current-greeting-index="currentGreetingIndex"
+        @switch-greeting="handleSwitchGreeting"
         @read-aloud="handleReadAloud"
         @regenerate="handleRegenerate"
         @rerun-memory="() => showToast('正在重跑记忆增强 RAG 索引...')"
         @continue="() => showToast('已触发 500 字剧情续写')"
-        @branch="onBranch"
+        @branch="handleBranch"
         @edit="handleEditMessage"
         @save-edit="handleSaveEditMessage"
         @share="() => showToast('消息链接已复制到剪贴板')"
@@ -185,15 +191,13 @@ function handleCreateBranch(_fromId: string, name: string): void {
         ref="inputBarRef"
         :disabled="false"
         :is-generating="isGenerating"
+        :opening-replies="openingReplies"
         @send="handleSendMessage"
         @stop="handleStopGeneration"
         @ai-assist="() => showToast('✦ AI 灵感辅助已启动')"
         @more-action="handleMoreAction"
       />
     </div>
-
-    <!-- 5. 右下角悬浮粉鸟吉祥物微章 -->
-    <FloatingMascotBadge @click="handleSendMessage('我想了解更多关于你的故事！')" />
 
     <!-- 6. 聊天侧边抽屉菜单 (1:1 原型) -->
     <ChatSidebarDrawer
@@ -219,20 +223,61 @@ function handleCreateBranch(_fromId: string, name: string): void {
     <!-- 9. 主控面板抽屉 (1:1 Figma 原型 Frame 80:2307) -->
     <ControlPanelDrawer
       v-model:open="isControlPanelOpen"
+      :control-panel="controlPanel"
+      @save="saveControlPanel"
     />
 
     <!-- 10. 叙梦面板/聊天信息面板抽屉 (1:1 Figma 原型 Frame 83:6511) -->
     <NarrativePanelDrawer
       v-model:open="isNarrativePanelOpen"
+      :session-id="sessionId"
+      :narrative-state="narrativeState"
+      @save="saveNarrativeState"
+    />
+
+    <!-- 10.5 世界书设定集抽屉 (Phase 6 RAG 引擎) -->
+    <WorldBookDrawer
+      v-model:open="isWorldBookOpen"
+      :character-id="characterId"
+      :character-name="character.name"
+    />
+
+    <!-- 10.6 Mod 优先级矩阵与扩展管理器抽屉 (Phase 7) -->
+    <ModManagerDrawer
+      v-model:open="isModDrawerOpen"
+    />
+
+    <!-- 10.7 BGM 场景氛围音律抽屉 (Phase 9) -->
+    <BgmPlayerDrawer
+      :is-open="isBgmOpen"
+      :character-bgm-url="bgmUrl"
+      :character-name="character.name"
+      @close="isBgmOpen = false"
     />
 
     <!-- 11. 剧情分支与时间线抽屉 (方案 1: 黑金折叠时间轴抽屉) -->
     <StoryBranchDrawer
       v-model:open="isBranchDrawerOpen"
-      :current-message-id="activeBranchTargetId"
+      :current-branch-id="currentBranchId"
+      :branches="branches"
+      :current-message-id="selectedForkMessageId"
       :messages="messages"
-      @jump-to-node="handleJumpToNode"
+      @switch-branch="handleSwitchBranch"
       @create-branch="handleCreateBranch"
+      @delete-branch="handleDeleteBranch"
+      @jump-to-node="handleRollback"
+      @rollback="handleRollback"
+      @open-canvas="isCanvasModalOpen = true"
+    />
+
+    <!-- 12. 全景剧情树拓扑图画布 (方案 2: Vue Flow 全景图) -->
+    <StoryBranchCanvasModal
+      v-model:open="isCanvasModalOpen"
+      :session-id="sessionId"
+      :current-branch-id="currentBranchId"
+      @switch-branch="handleSwitchBranch"
+      @fork-branch="handleCreateBranch"
+      @rollback="handleRollback"
     />
 
     <!-- 11. 轻量浮动 Toast 反馈 -->
