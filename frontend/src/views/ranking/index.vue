@@ -20,13 +20,13 @@ const { champion, runnerUp, thirdPlace, restUsers } = useRankingList();
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen w-full bg-gradient-to-br from-[#1A1511] to-[#2A221A] text-gray-100 relative">
+  <div class="flex flex-col min-h-screen w-full bg-gradient-to-br from-[#1A1511] to-[#2A221A] md:bg-none md:bg-[#15120E] text-gray-100 relative">
     
     <!-- 1. 顶部 Header 导航栏 -->
     <RankingHeader />
 
     <!-- 2. 主内容区 -->
-    <main class="w-full max-w-[440px] mx-auto px-3 pt-2 pb-24 flex flex-col gap-3">
+    <main class="w-full max-w-[440px] md:max-w-[1200px] mx-auto px-3 md:px-6 pt-2 md:pt-6 pb-24 md:pb-12 flex flex-col gap-3">
       
       <!-- Top 3 冠亚季军领奖台 -->
       <RankingPodiumTop3

@@ -13,6 +13,7 @@ import BottomTabBar from "@/components/navigation/BottomTabBar.vue";
 import { useMarketStore } from "@/stores/market";
 import type { MarketCard } from "@/types";
 import CharacterCard from "@/views/home/components/CharacterCard.vue";
+import DesktopHomeToolbar from "@/views/home/components/DesktopHomeToolbar.vue";
 import FilterPanel from "@/views/home/components/FilterPanel.vue";
 import HeaderModeTabs from "@/views/home/components/HeaderModeTabs.vue";
 import { Sparkles } from "lucide-vue-next";
@@ -31,22 +32,27 @@ function handleCardClick(card: MarketCard): void {
 </script>
 
 <template>
-  <!-- 主容器: 440px 基准移动视口, 黑金渐变主色 -->
-  <div class="flex flex-col min-h-screen w-full bg-gradient-to-br from-[#1A1511] to-[#2A221A] text-gray-100 relative">
+  <!-- 主容器: 移动端自适应小屏，桌面端宽屏自适应展开 -->
+  <div class="flex flex-col min-h-screen w-full bg-gradient-to-br from-[#1A1511] to-[#2A221A] md:bg-none md:bg-[#15120E] text-gray-100 relative">
     
-    <!-- 1. 顶部主模式切换 (剧情卡 / 绅士卡) -->
-    <header class="w-full bg-gradient-to-br from-[#1A1511] to-[#2A221A] pt-safe">
+    <!-- 1. 桌面端顶部复合工具栏 (仅在 md: 及以上显示，1:1 对齐截图 1/2) -->
+    <div class="hidden md:block w-full px-6 pt-5 pb-1 max-w-[1600px] mx-auto">
+      <DesktopHomeToolbar />
+    </div>
+
+    <!-- 2. 移动端顶部模式切换与筛选面板 (仅在小屏显示) -->
+    <header class="w-full bg-gradient-to-br from-[#1A1511] to-[#2A221A] pt-safe md:hidden">
       <HeaderModeTabs />
     </header>
+    <div class="md:hidden">
+      <FilterPanel />
+    </div>
 
-    <!-- 2. 复合筛选控制面板 (排序Tab、搜索、日/周/月趋势、热门标签) -->
-    <FilterPanel />
-
-    <!-- 3. 双列角色卡片网格阵列 (1:1 黑金高奢卡片流, 点击直接跳转详情) -->
-    <main class="flex-1 p-2 pb-24 w-full">
+    <!-- 3. 角色卡片响应式网格阵列 (移动端双列, 桌面端 5 列标准流) -->
+    <main class="flex-1 p-2 md:px-6 md:py-4 pb-24 md:pb-12 w-full max-w-[1600px] mx-auto">
       <div
         v-if="marketStore.filteredCards.length > 0"
-        class="grid grid-cols-2 gap-2 w-full animate-fade-in"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2.5 md:gap-4 w-full animate-fade-in"
       >
         <CharacterCard
           v-for="card in marketStore.filteredCards"
@@ -59,7 +65,7 @@ function handleCardClick(card: MarketCard): void {
       <!-- 空状态 -->
       <div
         v-else
-        class="flex flex-col items-center justify-center py-16 gap-3 text-center"
+        class="flex flex-col items-center justify-center py-20 gap-3 text-center"
       >
         <div class="w-12 h-12 rounded-full bg-[rgba(26,23,20,0.95)] border border-[#44403C] flex items-center justify-center text-[#F9C86D] shadow-gold">
           <Sparkles class="w-6 h-6" />
@@ -79,7 +85,7 @@ function handleCardClick(card: MarketCard): void {
       </div>
     </main>
 
-    <!-- 4. 全局底部导航栏 -->
+    <!-- 4. 全局底部导航栏 (自动在桌面端隐藏) -->
     <BottomTabBar />
 
   </div>

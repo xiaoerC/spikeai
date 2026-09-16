@@ -18,10 +18,12 @@ import CharacterSection from "@/views/character-create/components/CharacterSecti
 import CoverSection from "@/views/character-create/components/CoverSection.vue";
 import CreationNoticeSection from "@/views/character-create/components/CreationNoticeSection.vue";
 import CreatorHeader from "@/views/character-create/components/CreatorHeader.vue";
+import DesktopLivePreview from "@/views/character-create/components/DesktopLivePreview.vue";
 import MechanicsSection from "@/views/character-create/components/MechanicsSection.vue";
 import NavigationAnchorBar from "@/views/character-create/components/NavigationAnchorBar.vue";
 import PreviewModal from "@/views/character-create/components/PreviewModal.vue";
 import StageSection from "@/views/character-create/components/StageSection.vue";
+import { useUserStore } from "@/stores/user";
 import { useCharacterForm } from "@/views/character-create/composables/useCharacterForm";
 import { uploadService } from "@/services/upload";
 import { compressImageDataUrl, dataUrlToFile } from "@/utils/imageCompressor";
@@ -33,6 +35,7 @@ import { MOCK_CHARACTER_PRESETS } from "./constants/mockPresets";
 const route = useRoute();
 const router = useRouter();
 const appStore = useAppStore();
+const userStore = useUserStore();
 const toast = useToast();
 const { formData, validationErrors, isValid, resetForm, importFromJson, exportToJson } =
   useCharacterForm();
@@ -324,78 +327,101 @@ function handleSimulateUpload(): void {
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen w-full bg-gradient-to-br from-[#1A1511] to-[#2A221A] text-gray-100 relative">
+  <div class="flex flex-col min-h-screen w-full bg-gradient-to-br from-[#1A1511] to-[#2A221A] md:bg-none md:bg-[#15120E] text-gray-100 relative">
     
-    <!-- 1. 顶部 Header & 工具箱卡片 -->
-    <CreatorHeader
-      @import-card="handleImportCard"
-      @import-file="handleImportFile"
-      @save-form="handleSaveForm"
-      @clear-form="handleClearForm"
-      @open-tutorial="handleOpenTutorial"
-      @open-assets="handleOpenAssets"
-    />
+    <!-- 1. 顶部 Header & 工具箱卡片 (1:1 还原截图 4 顶部工具栏) -->
+    <div class="w-full max-w-[440px] md:max-w-[1600px] mx-auto px-3 md:px-8 pt-4">
+      <CreatorHeader
+        @import-card="handleImportCard"
+        @import-file="handleImportFile"
+        @save-form="handleSaveForm"
+        @clear-form="handleClearForm"
+        @open-tutorial="handleOpenTutorial"
+        @open-assets="handleOpenAssets"
+      />
+    </div>
 
-    <!-- 2. 吸顶分节锚点导航与简洁/完整双模式切换 -->
-    <NavigationAnchorBar
-      v-model:active-tab="formData.activeTab"
-      v-model:display-mode="formData.displayMode"
-      @open-preview="isPreviewModalOpen = true"
-    />
+    <!-- 2. 主表单与实时预览工作台 (桌面端双栏排版，1:1 对齐截图 4) -->
+    <main class="w-full max-w-[440px] md:max-w-[1600px] mx-auto px-3 md:px-8 pb-32 md:pb-24 flex flex-col mt-2">
+      <div class="flex flex-col md:flex-row items-start gap-8 w-full">
+        
+        <!-- 左侧/中间: 核心表单区域 -->
+        <div class="flex-1 flex flex-col gap-4 w-full min-w-0">
+          <!-- 吸顶分节锚点导航与简洁/完整双模式切换 -->
+          <NavigationAnchorBar
+            v-model:active-tab="formData.activeTab"
+            v-model:display-mode="formData.displayMode"
+            @open-preview="isPreviewModalOpen = true"
+          />
 
-    <!-- 3. 分节 1: 【卡面】(面向市场) -->
-    <CoverSection
-      v-model:name="formData.name"
-      v-model:avatar-url="formData.avatarUrl"
-      v-model:tags="formData.tags"
-      v-model:market-description="formData.marketDescription"
-      v-model:category="formData.category"
-      v-model:is-original="formData.isOriginal"
-      v-model:is-nsfw="formData.isNsfw"
-      v-model:visibility="formData.visibility"
-      v-model:creator-name="formData.creatorName"
-      v-model:version="formData.version"
-      :has-creator-notes="Boolean(formData.creatorNotes.trim())"
-      :display-mode="formData.displayMode"
-      @open-author-note="isAuthorNoteOpen = true"
-    />
+          <!-- 分节 1: 【卡面】(面向市场) -->
+          <CoverSection
+            v-model:name="formData.name"
+            v-model:avatar-url="formData.avatarUrl"
+            v-model:tags="formData.tags"
+            v-model:market-description="formData.marketDescription"
+            v-model:category="formData.category"
+            v-model:is-original="formData.isOriginal"
+            v-model:is-nsfw="formData.isNsfw"
+            v-model:visibility="formData.visibility"
+            v-model:creator-name="formData.creatorName"
+            v-model:version="formData.version"
+            :has-creator-notes="Boolean(formData.creatorNotes.trim())"
+            :display-mode="formData.displayMode"
+            @open-author-note="isAuthorNoteOpen = true"
+          />
 
-    <!-- 4. 分节 2: 【角色】(面向模型设定) -->
-    <CharacterSection
-      v-model:description="formData.description"
-      v-model:personality="formData.personality"
-      v-model:scenario="formData.scenario"
-      v-model:before-char="formData.beforeChar"
-      v-model:worldbook-version="formData.worldbookVersion"
-      v-model:worldbook-entries="formData.worldbookEntries"
-      v-model:system-prompt="formData.systemPrompt"
-      v-model:post-history-instructions="formData.postHistoryInstructions"
-      :display-mode="formData.displayMode"
-    />
+          <!-- 分节 2: 【角色】(面向模型设定) -->
+          <CharacterSection
+            v-model:description="formData.description"
+            v-model:personality="formData.personality"
+            v-model:scenario="formData.scenario"
+            v-model:before-char="formData.beforeChar"
+            v-model:worldbook-version="formData.worldbookVersion"
+            v-model:worldbook-entries="formData.worldbookEntries"
+            v-model:system-prompt="formData.systemPrompt"
+            v-model:post-history-instructions="formData.postHistoryInstructions"
+            :display-mode="formData.displayMode"
+          />
 
-    <!-- 5. 分节 3: 【舞台】(面向对话与开局) -->
-    <StageSection
-      :name="formData.name"
-      :description="formData.description"
-      :personality="formData.personality"
-      :scenario="formData.scenario"
-      v-model:first-mes="formData.firstMes"
-      v-model:alternate-greetings="formData.alternateGreetings"
-      v-model:opening-replies="formData.openingReplies"
-      v-model:prologue-html="formData.prologueHtml"
-      v-model:stage-extensions="formData.stageExtensions"
-      :display-mode="formData.displayMode"
-    />
+          <!-- 分节 3: 【舞台】(面向对话与开局) -->
+          <StageSection
+            :name="formData.name"
+            :description="formData.description"
+            :personality="formData.personality"
+            :scenario="formData.scenario"
+            v-model:first-mes="formData.firstMes"
+            v-model:alternate-greetings="formData.alternateGreetings"
+            v-model:opening-replies="formData.openingReplies"
+            v-model:prologue-html="formData.prologueHtml"
+            v-model:stage-extensions="formData.stageExtensions"
+            :display-mode="formData.displayMode"
+          />
 
-    <!-- 6. 分节 4: 【机制】(面向引擎执行脚本与变量 - 仅在完整模式下或全量展示) -->
-    <MechanicsSection
-      v-if="formData.displayMode === 'full'"
-      v-model:regex-scripts="formData.regexScripts"
-      v-model:initial-variables="formData.initialVariables"
-    />
+          <!-- 分节 4: 【机制】(面向引擎执行脚本与变量) -->
+          <MechanicsSection
+            v-if="formData.displayMode === 'full'"
+            v-model:regex-scripts="formData.regexScripts"
+            v-model:initial-variables="formData.initialVariables"
+          />
 
-    <!-- 7. 创作须知卡片 -->
-    <CreationNoticeSection />
+          <!-- 创作须知卡片 -->
+          <CreationNoticeSection />
+        </div>
+
+        <!-- 右侧: PC 桌面端吸顶实时预览卡片 (1:1 还原截图 4) -->
+        <div class="hidden md:block">
+          <DesktopLivePreview
+            :name="formData.name"
+            :avatar-url="formData.avatarUrl"
+            :tags="formData.tags"
+            :category="formData.category"
+            :author-name="formData.creatorName || userStore.profile?.username"
+          />
+        </div>
+
+      </div>
+    </main>
 
     <!-- 8. 底部固定发布 & 导出操作栏 (带 Safe Area 避让) -->
     <CardExportSection

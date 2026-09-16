@@ -56,8 +56,8 @@ function handleNavigate(tab: "community" | "history" | "create" | "more") {
   <!-- 底部“更多”抽屉弹窗 -->
   <MoreDrawer />
 
-  <!-- 底部固定容器与 iOS/Android 安全区: height: 68px; border-top: 0.667px solid rgba(83,71,65,0.50); background: rgba(26,23,20,0.95); -->
-  <nav class="fixed bottom-0 left-0 right-0 z-50 pb-safe bg-[rgba(26,23,20,0.95)] border-t border-[rgba(83,71,65,0.50)] backdrop-blur-xl">
+  <!-- 底部固定容器与 iOS/Android 安全区: 桌面端大屏自动隐藏 (md:hidden) -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 pb-safe bg-[rgba(26,23,20,0.95)] border-t border-[rgba(83,71,65,0.50)] backdrop-blur-xl md:hidden">
     <!-- 桌面端居中与 440px 移动视口宽度对齐 -->
     <div class="max-w-[440px] mx-auto h-[68px] px-2 flex items-center justify-between relative bg-transparent">
       

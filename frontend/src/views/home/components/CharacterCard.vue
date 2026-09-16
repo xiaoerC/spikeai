@@ -27,14 +27,14 @@ function handleCardClick(): void {
 </script>
 
 <template>
-  <!-- 外层卡片: 双重黑金渐变高光边框 + 内嵌发光阴影 + 全画幅 3:4 比例 -->
+  <!-- 外层卡片: 双重黑金渐变高光边框 + 内嵌发光阴影 + 响应式 3:4 比例 -->
   <div
     @click="handleCardClick"
-    class="flex flex-col items-start self-start h-[291.55px] w-full rounded-[12px] p-[1px] relative overflow-hidden cursor-pointer select-none transition-all duration-200 hover:scale-[1.01] active:scale-[0.98] group"
+    class="flex flex-col items-start self-start h-[291.55px] md:h-auto md:aspect-[3/4.2] w-full rounded-[12px] p-[1px] relative overflow-hidden cursor-pointer select-none transition-all duration-200 hover:scale-[1.02] md:hover:-translate-y-1 active:scale-[0.98] group"
     style="background-image: linear-gradient(180deg, rgba(26, 21, 16, 0.90) 0%, rgba(26, 21, 16, 0.90) 100%), linear-gradient(135deg, #D4AF37 0%, #F9C86D 25%, #FFD700 50%, #F9C86D 75%, #B8860B 100%); box-shadow: 0 1px 1px 0 rgba(255, 215, 0, 0.10) inset, 0 0 8px 0 rgba(249, 198, 109, 0.15), 0 2px 4px 0 rgba(0, 0, 0, 0.10);"
   >
     <!-- 内层暗黑曜石基座容器: 铺满全画幅背景图 -->
-    <div class="relative w-full h-[286.22px] rounded-[8px] bg-[#1C1917] overflow-hidden">
+    <div class="relative w-full h-[286.22px] md:h-full md:aspect-[3/4.2] rounded-[8px] bg-[#1C1917] overflow-hidden">
       
       <!-- 1. 全画幅角色封面背景图 (100% 贯穿充满整个卡片顶部至底部，无任何截断) -->
       <img

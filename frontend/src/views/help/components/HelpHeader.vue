@@ -27,9 +27,9 @@ function handleBack() {
 </script>
 
 <template>
-  <header class="sticky top-0 z-40 w-full max-w-[440px] mx-auto flex flex-col bg-[rgba(26,21,16,0.95)] backdrop-blur-md border-b border-white/5 shadow-md">
+  <header class="sticky top-0 z-40 w-full max-w-[440px] md:max-w-none mx-auto flex flex-col bg-[rgba(26,21,16,0.95)] backdrop-blur-md border-b border-white/5 shadow-md">
     <!-- 顶部返回栏 -->
-    <div class="px-4 pt-3 pb-1 flex items-center justify-between">
+    <div class="px-4 pt-3 pb-1 flex items-center justify-between w-full max-w-[1000px] mx-auto">
       <button
         type="button"
         @click="handleBack"
@@ -47,7 +47,7 @@ function handleBack() {
     </div>
 
     <!-- 标题与副标题 -->
-    <div class="px-4 pt-2 pb-3 flex flex-col">
+    <div class="px-4 pt-2 pb-3 flex flex-col w-full max-w-[1000px] mx-auto">
       <h1 class="text-lg font-bold text-[#F5F5F4] tracking-wide">
         Naro · 叙梦
       </h1>
@@ -57,7 +57,7 @@ function handleBack() {
     </div>
 
     <!-- 3 大分类 Tabs (新手指南 / FAQ 常见问题 / 官方指令集) -->
-    <div class="px-4 pb-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
+    <div class="px-4 pb-3 flex items-center gap-2 overflow-x-auto no-scrollbar w-full max-w-[1000px] mx-auto">
       <button
         type="button"
         @click="emit('change-tab', 'guide')"
@@ -99,7 +99,7 @@ function handleBack() {
     </div>
 
     <!-- 导言文本提示 -->
-    <div v-if="currentTab === 'guide'" class="px-4 pb-3 text-xs text-[#A8A29E] leading-relaxed border-t border-white/5 pt-2.5">
+    <div v-if="currentTab === 'guide'" class="px-4 pb-3 text-xs text-[#A8A29E] leading-relaxed border-t border-white/5 pt-2.5 w-full max-w-[1000px] mx-auto">
       从第一次打开叙梦，到建立属于你的长期剧情记忆。按下面的步骤完成设置就能更顺畅地开始一段对话。
     </div>
   </header>

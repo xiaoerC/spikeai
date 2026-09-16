@@ -20,7 +20,7 @@ const { activities, currentCategory, expandedCardIds, toggleExpand, setCategory 
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen w-full bg-gradient-to-br from-[#1A1511] to-[#2A221A] text-gray-100 relative">
+  <div class="flex flex-col min-h-screen w-full bg-gradient-to-br from-[#1A1511] to-[#2A221A] md:bg-none md:bg-[#15120E] text-gray-100 relative">
     
     <!-- 1. 顶部 Header 与分类切换 -->
     <ActivityHeader
@@ -28,8 +28,8 @@ const { activities, currentCategory, expandedCardIds, toggleExpand, setCategory 
       @select-category="setCategory"
     />
 
-    <!-- 2. 主内容区: 官方活动卡片流 -->
-    <main class="w-full max-w-[440px] mx-auto px-3 pt-3 pb-24 flex flex-col gap-3.5">
+    <!-- 2. 主内容区: 官方活动卡片流 (桌面端双列网格) -->
+    <main class="w-full max-w-[440px] md:max-w-[1200px] mx-auto px-3 md:px-6 pt-3 md:pt-6 pb-24 md:pb-12 flex flex-col md:grid md:grid-cols-2 gap-4">
       <ActivityCard
         v-for="act in activities"
         :key="act.id"

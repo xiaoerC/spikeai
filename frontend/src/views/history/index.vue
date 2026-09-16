@@ -192,9 +192,9 @@ function handleApplyCollection(coll: ModCollectionItem) {
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen w-full bg-gradient-to-br from-[#1A1511] to-[#2A221A] text-gray-100 relative">
+  <div class="flex flex-col min-h-screen w-full bg-gradient-to-br from-[#1A1511] to-[#2A221A] md:bg-none md:bg-[#15120E] text-gray-100 relative">
     
-    <main class="w-full max-w-[440px] mx-auto pb-28 flex flex-col flex-1 px-4">
+    <main class="w-full max-w-[440px] md:max-w-[1600px] mx-auto pb-28 md:pb-12 flex flex-col flex-1 px-4 md:px-8">
       <!-- 1. 顶部 Header (大标题 "历史记录" + 动态右侧操作区) -->
       <UserHistoryHeader
         :current-category="currentCategory"

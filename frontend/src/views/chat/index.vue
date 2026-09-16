@@ -130,73 +130,79 @@ function handleMoreAction(action: string): void {
 </script>
 
 <template>
-  <div class="flex flex-col h-screen w-full max-w-[440px] mx-auto text-[#F5F5F4] relative shadow-2xl overflow-hidden bg-[#0F0D0C]">
+  <div class="flex flex-col h-screen md:h-full w-full max-w-[440px] md:max-w-none mx-auto text-[#F5F5F4] relative shadow-2xl overflow-hidden bg-[#0F0D0C]">
     
     <!-- 1. 全屏沉浸式角色立绘大背景 (动态绑定角色封面/立绘 + 暗黑磨砂渐变遮罩) -->
     <div
       v-if="character.backgroundUrl || character.avatarUrl"
-      class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none transition-all duration-700"
+      class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none transition-all duration-700 opacity-80 md:opacity-60"
       :style="{ backgroundImage: `url('${character.backgroundUrl || character.avatarUrl}')` }"
     />
     <!-- 渐变暗黑磨砂玻璃蒙层 -->
     <div class="absolute inset-0 z-0 bg-gradient-to-b from-black/40 via-[#1A1511]/70 to-[#0F0D0C]/90 backdrop-blur-[2px] pointer-events-none" />
 
-    <!-- 2. 顶部 Header (左侧返回/侧边栏 + 右侧 5 个霓虹功能按钮) -->
-    <div class="relative z-20">
-      <ChatHeader
-        @back="handleBack"
-        @open-sidebar="isSidebarOpen = true"
-        @open-music="isBgmOpen = true"
-        @open-assistant="isAssistantOpen = true"
-        @open-narrative-panel="() => { isNarrativePanelOpen = true; loadNarrativeState(); }"
-        @open-worldbook="isWorldBookOpen = true"
-        @open-canvas="isCanvasModalOpen = true"
-        @open-apps="() => { isControlPanelOpen = true; loadControlPanel(); }"
-        @open-control-panel="() => { isControlPanelOpen = true; loadControlPanel(); }"
-        @settings-action="handleSettingsAction"
-      />
+    <!-- 2. 顶部 Header (桌面端限制在 max-w-4xl 舒适宽幅) -->
+    <div class="relative z-20 w-full border-b border-white/5 md:bg-black/30 md:backdrop-blur-md">
+      <div class="w-full max-w-4xl mx-auto">
+        <ChatHeader
+          @back="handleBack"
+          @open-sidebar="isSidebarOpen = true"
+          @open-music="isBgmOpen = true"
+          @open-assistant="isAssistantOpen = true"
+          @open-narrative-panel="() => { isNarrativePanelOpen = true; loadNarrativeState(); }"
+          @open-worldbook="isWorldBookOpen = true"
+          @open-canvas="isCanvasModalOpen = true"
+          @open-apps="() => { isControlPanelOpen = true; loadControlPanel(); }"
+          @open-control-panel="() => { isControlPanelOpen = true; loadControlPanel(); }"
+          @settings-action="handleSettingsAction"
+        />
+      </div>
     </div>
 
-    <!-- 3. 中间消息滚动列表 (合规提示 + 作者的话 + 序幕 + 气泡列表) -->
-    <div class="relative z-10 flex-1 overflow-hidden flex flex-col">
-      <ChatChatMessageList
-        :messages="messages"
-        :author-note="character.authorNote"
-        :prologue-title="character.prologueTitle"
-        :prologue-content="character.prologueContent"
-        :alternate-greetings="alternateGreetings"
-        :current-greeting-index="currentGreetingIndex"
-        @switch-greeting="handleSwitchGreeting"
-        @read-aloud="handleReadAloud"
-        @regenerate="handleRegenerate"
-        @rerun-memory="() => showToast('正在重跑记忆增强 RAG 索引...')"
-        @continue="() => showToast('已触发 500 字剧情续写')"
-        @branch="handleBranch"
-        @edit="handleEditMessage"
-        @save-edit="handleSaveEditMessage"
-        @share="() => showToast('消息链接已复制到剪贴板')"
-        @delete="handleDeleteMessage"
-      />
+    <!-- 3. 中间消息滚动列表 (桌面端居中 max-w-4xl，保障行宽与阅读呼吸度) -->
+    <div class="relative z-10 flex-1 overflow-hidden flex flex-col w-full">
+      <div class="w-full max-w-4xl mx-auto flex-1 overflow-hidden flex flex-col">
+        <ChatChatMessageList
+          :messages="messages"
+          :author-note="character.authorNote"
+          :prologue-title="character.prologueTitle"
+          :prologue-content="character.prologueContent"
+          :alternate-greetings="alternateGreetings"
+          :current-greeting-index="currentGreetingIndex"
+          @switch-greeting="handleSwitchGreeting"
+          @read-aloud="handleReadAloud"
+          @regenerate="handleRegenerate"
+          @rerun-memory="() => showToast('正在重跑记忆增强 RAG 索引...')"
+          @continue="() => showToast('已触发 500 字剧情续写')"
+          @branch="handleBranch"
+          @edit="handleEditMessage"
+          @save-edit="handleSaveEditMessage"
+          @share="() => showToast('消息链接已复制到剪贴板')"
+          @delete="handleDeleteMessage"
+        />
+      </div>
     </div>
 
-    <!-- 4. 底部悬浮控制区 (模型栏 + 输入栏, 底部保留 28px 留白) -->
+    <!-- 4. 底部悬浮控制区 (桌面端居中 max-w-4xl, 模型栏 + 输入栏) -->
     <div class="relative z-20 w-full px-4 pb-7 pt-1 flex flex-col gap-2 bg-transparent">
-      <ChatToolbar
-        :current-model="currentModel"
-        :current-mode="currentMode"
-        @open-model-selector="isModelDrawerOpen = true"
-        @switch-mode="handleSwitchMode"
-      />
-      <ChatInputBar
-        ref="inputBarRef"
-        :disabled="false"
-        :is-generating="isGenerating"
-        :opening-replies="openingReplies"
-        @send="handleSendMessage"
-        @stop="handleStopGeneration"
-        @ai-assist="() => showToast('✦ AI 灵感辅助已启动')"
-        @more-action="handleMoreAction"
-      />
+      <div class="w-full max-w-4xl mx-auto flex flex-col gap-2">
+        <ChatToolbar
+          :current-model="currentModel"
+          :current-mode="currentMode"
+          @open-model-selector="isModelDrawerOpen = true"
+          @switch-mode="handleSwitchMode"
+        />
+        <ChatInputBar
+          ref="inputBarRef"
+          :disabled="false"
+          :is-generating="isGenerating"
+          :opening-replies="openingReplies"
+          @send="handleSendMessage"
+          @stop="handleStopGeneration"
+          @ai-assist="() => showToast('✦ AI 灵感辅助已启动')"
+          @more-action="handleMoreAction"
+        />
+      </div>
     </div>
 
     <!-- 6. 聊天侧边抽屉菜单 (1:1 原型) -->

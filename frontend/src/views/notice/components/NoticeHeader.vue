@@ -28,9 +28,9 @@ function handleBack() {
 </script>
 
 <template>
-  <header class="sticky top-0 z-40 w-full max-w-[440px] mx-auto flex flex-col bg-[rgba(26,21,16,0.92)] backdrop-blur-md border-b border-white/5 shadow-md">
+  <header class="sticky top-0 z-40 w-full max-w-[440px] md:max-w-none mx-auto flex flex-col bg-[rgba(26,21,16,0.92)] backdrop-blur-md border-b border-white/5 shadow-md">
     <!-- 顶部标题栏 -->
-    <div class="px-4 py-3 flex items-center justify-between">
+    <div class="px-4 py-3 flex items-center justify-between w-full max-w-[1200px] mx-auto">
       <!-- 左侧返回按钮 -->
       <button
         type="button"
@@ -58,7 +58,7 @@ function handleBack() {
     </div>
 
     <!-- 4 大分类切换 Tabs (全部 / 活动公告 / 系统公告 / 更新日志) -->
-    <div class="px-4 pb-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
+    <div class="px-4 pb-3 flex items-center gap-2 overflow-x-auto no-scrollbar w-full max-w-[1200px] mx-auto">
       <button
         type="button"
         @click="emit('select-category', 'all')"

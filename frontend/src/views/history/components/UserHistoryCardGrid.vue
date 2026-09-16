@@ -32,11 +32,11 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="grid grid-cols-2 gap-3 w-full">
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 md:gap-4 w-full">
     <div
       v-for="item in historyList"
       :key="item.id"
-      class="group relative flex flex-col h-[270px] rounded-2xl border border-[rgba(83,71,65,0.40)] bg-[#1A1511] overflow-hidden shadow-xl transition-all duration-300 hover:border-[#F9C86D]/50 hover:shadow-[0_8px_24px_rgba(0,0,0,0.6)] select-none"
+      class="group relative flex flex-col h-[270px] md:h-auto md:aspect-[3/4.2] rounded-2xl border border-[rgba(83,71,65,0.40)] bg-[#1A1511] overflow-hidden shadow-xl transition-all duration-300 hover:border-[#F9C86D]/50 hover:shadow-[0_8px_24px_rgba(0,0,0,0.6)] select-none"
     >
       <!-- 1. 卡片背景大封面 (点击进入对话) -->
       <div

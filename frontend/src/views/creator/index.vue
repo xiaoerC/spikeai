@@ -34,39 +34,41 @@ function handleBack() {
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen w-full bg-gradient-to-br from-[#1A1511] to-[#2A221A] text-gray-100 relative">
+  <div class="flex flex-col min-h-screen w-full bg-gradient-to-br from-[#1A1511] to-[#2A221A] md:bg-none md:bg-[#15120E] text-gray-100 relative">
     
     <!-- 1. 顶部 Header 导航栏 -->
-    <header class="sticky top-0 z-40 w-full max-w-[440px] mx-auto px-3 py-3 flex items-center justify-between bg-[rgba(26,23,20,0.92)] backdrop-blur-md border-b border-white/5 shadow-md">
-      <div class="flex items-center gap-2">
-        <button
-          type="button"
-          @click="handleBack"
-          class="p-1.5 rounded-lg text-[#A8A29E] hover:text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
-        >
-          <ArrowLeft class="w-5 h-5" />
-        </button>
-        <div class="flex items-center gap-1.5">
-          <Sparkles class="w-4 h-4 text-[#F9C86D]" />
-          <h1 class="text-base font-bold text-[#F5F5F4] tracking-wide">
-            创作者专区
-          </h1>
+    <header class="sticky top-0 z-40 w-full max-w-[440px] md:max-w-none mx-auto px-4 py-3 flex items-center justify-between bg-[rgba(26,23,20,0.92)] backdrop-blur-md border-b border-white/5 shadow-md">
+      <div class="flex items-center justify-between w-full max-w-[1200px] mx-auto">
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            @click="handleBack"
+            class="p-1.5 rounded-lg text-[#A8A29E] hover:text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
+          >
+            <ArrowLeft class="w-5 h-5" />
+          </button>
+          <div class="flex items-center gap-1.5">
+            <Sparkles class="w-4 h-4 text-[#F9C86D]" />
+            <h1 class="text-base font-bold text-[#F5F5F4] tracking-wide">
+              创作者专区
+            </h1>
+          </div>
         </div>
-      </div>
 
-      <!-- 搜索或排序筛选图标 -->
-      <div class="flex items-center gap-2">
-        <button
-          type="button"
-          class="p-1.5 rounded-lg text-[#A8A29E] hover:text-[#F9C86D] hover:bg-white/10 transition-colors cursor-pointer"
-        >
-          <Search class="w-4 h-4" />
-        </button>
+        <!-- 搜索或排序筛选图标 -->
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            class="p-1.5 rounded-lg text-[#A8A29E] hover:text-[#F9C86D] hover:bg-white/10 transition-colors cursor-pointer"
+          >
+            <Search class="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </header>
 
-    <!-- 2. 创作者瀑布流内容区 -->
-    <main class="w-full max-w-[440px] mx-auto px-3 pt-3 pb-24 flex flex-col gap-4">
+    <!-- 2. 创作者内容区 (桌面端双列网格) -->
+    <main class="w-full max-w-[440px] md:max-w-[1200px] mx-auto px-3 md:px-6 pt-3 md:pt-6 pb-24 md:pb-12 flex flex-col md:grid md:grid-cols-2 gap-4">
       <CreatorShowcaseCard
         v-for="creator in creators"
         :key="creator.id"

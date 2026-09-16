@@ -31,7 +31,7 @@ function handleFeedbackClick() {
     <SurveyHeader />
 
     <!-- 2. 分类切换 Tabs (问卷列表 / 我的记录) -->
-    <main class="w-full max-w-[440px] mx-auto flex flex-col flex-1 pb-24">
+    <main class="w-full max-w-[440px] md:max-w-[1000px] mx-auto flex flex-col flex-1 pb-24 md:pb-12">
       <SurveyTabs
         :active-tab="activeTab"
         @change-tab="setActiveTab"
