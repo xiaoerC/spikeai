@@ -36,7 +36,14 @@ export interface WorldbookEntryItem {
   secondaryKeys?: string[];
   content: string;
   isEnabled: boolean;
-  position?: "before_char" | "after_char" | "top_an" | "bottom_an" | "at_depth" | "system_top" | string;
+  position?:
+    | "before_char"
+    | "after_char"
+    | "top_an"
+    | "bottom_an"
+    | "at_depth"
+    | "system_top"
+    | string;
   order?: number;
 }
 

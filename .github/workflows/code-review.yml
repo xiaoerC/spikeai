@@ -1,0 +1,44 @@
+name: SpikeAI AI Code Review (OCR)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  # 支持在 Actions 控制台手动触发
+  workflow_dispatch:
+    inputs:
+      commit_hash:
+        description: '可选：指定审查的特定 Commit Hash (留空则审查整个 PR)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  code-review:
+    name: OpenCodeReview PR Check
+    runs-on: ubuntu-latest
+
+    # 避免重复并发审查同一 PR
+    concurrency:
+      group: ocr-pr-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - name: 检出仓库代码 (包含完整 Git 历史)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 运行阿里 OpenCodeReview 自动化审查
+        uses: alibaba/open-code-review@main
+        with:
+          # LLM API 配置 (建议在 GitHub Repository Secrets 中配置 OPENAI_BASE_URL 与 OPENAI_API_KEY)
+          llm_url: ${{ secrets.OCR_LLM_URL || secrets.OPENAI_BASE_URL }}
+          llm_auth_token: ${{ secrets.OCR_LLM_TOKEN || secrets.OPENAI_API_KEY }}
+          llm_model: ${{ vars.OCR_LLM_MODEL || 'deepseek-chat' }}
+          llm_use_anthropic: "false"
+          language: "Chinese"
+          # 自动加载仓库根目录 .opencodereview/rule.json 中的 SpikeAI 前后端铁律

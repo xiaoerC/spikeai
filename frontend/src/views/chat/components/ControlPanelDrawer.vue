@@ -82,9 +82,8 @@ watch(
   (newVal) => {
     if (!newVal) return;
     const incoming = (newVal.user_name || "").trim();
-    userName.value = incoming && incoming !== "{{user}}"
-      ? incoming
-      : (userStore.profile?.username || "{{user}}");
+    userName.value =
+      incoming && incoming !== "{{user}}" ? incoming : userStore.profile?.username || "{{user}}";
     userPersona.value = newVal.user_persona || "";
     customPrompt.value = newVal.custom_prompt || "";
 

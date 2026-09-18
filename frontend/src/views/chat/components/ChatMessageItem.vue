@@ -12,10 +12,10 @@
  * @packageDocumentation
  */
 
+import { useUserStore } from "@/stores/user";
 import ChatMessageMenu from "@/views/chat/components/ChatMessageMenu.vue";
 import MessageHtmlSandbox from "@/views/chat/components/MessageHtmlSandbox.vue";
 import { useAudioPlayer } from "@/views/chat/composables/useAudioPlayer";
-import { useUserStore } from "@/stores/user";
 import type { ChatMessage } from "@/views/chat/constants/mockChatData";
 import DOMPurify from "dompurify";
 import {
@@ -102,12 +102,18 @@ const messageSegments = computed<MessageSegment[]>(() => {
   const currentUserName = userStore.profile?.username || "你";
 
   // 1. 展开 {{user}} 宏，消除底层变量定义块、叙梦增量标签与泄漏的增量 JSON 字典 (彻底消除图 1 宏残留与图 2 裸 JSON 泄漏)
-  let baseContent = props.message.content
+  const baseContent = props.message.content
     .replace(/{{user}}/g, currentUserName)
     .replace(/<narrative_delta>[\s\S]*?<\/narrative_delta>/gi, "")
     .replace(/<narrative_delta>[\s\S]*?$/gi, "")
-    .replace(/```(?:json)?\s*\{[\s\S]*?"(?:new_event|history_events|player_states|variables|location|date_text|time_text|tasks|consumables|social_relations)"[\s\S]*?\}\s*```\s*$/gi, "")
-    .replace(/\{\s*"(?:new_event|history_events|player_states|variables|location|date_text|time_text|tasks|consumables|social_relations)"[\s\S]*?\}\s*$/gi, "")
+    .replace(
+      /```(?:json)?\s*\{[\s\S]*?"(?:new_event|history_events|player_states|variables|location|date_text|time_text|tasks|consumables|social_relations)"[\s\S]*?\}\s*```\s*$/gi,
+      "",
+    )
+    .replace(
+      /\{\s*"(?:new_event|history_events|player_states|variables|location|date_text|time_text|tasks|consumables|social_relations)"[\s\S]*?\}\s*$/gi,
+      "",
+    )
     .replace(/<initvar>[\s\S]*?<\/initvar>/gi, "")
     .replace(/<UpdateVariable>[\s\S]*?<\/UpdateVariable>/gi, "")
     .replace(/<(?:SceneHeaderPlaceHolder|StatusPlaceHolderImpl)\s*\/?>/gi, "")
@@ -213,19 +219,8 @@ function sanitizeInlineHtml(raw: string): string {
       "ul",
       "ol",
       "li",
-      "style",
     ],
-    ALLOWED_ATTR: [
-      "style",
-      "color",
-      "size",
-      "face",
-      "class",
-      "title",
-      "open",
-      "align",
-      "dir",
-    ],
+    ALLOWED_ATTR: ["style", "color", "size", "face", "class", "title", "open", "align", "dir"],
   });
 }
 

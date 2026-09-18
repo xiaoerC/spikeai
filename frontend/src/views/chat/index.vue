@@ -7,6 +7,7 @@
  * @packageDocumentation
  */
 
+import { useResponsiveLayout } from "@/composables/useResponsiveLayout";
 import BgmPlayerDrawer from "@/views/chat/components/BgmPlayerDrawer.vue";
 import ChatHeader from "@/views/chat/components/ChatHeader.vue";
 import ChatInputBar from "@/views/chat/components/ChatInputBar.vue";
@@ -14,6 +15,7 @@ import ChatChatMessageList from "@/views/chat/components/ChatMessageList.vue";
 import ChatSidebarDrawer from "@/views/chat/components/ChatSidebarDrawer.vue";
 import ChatToolbar from "@/views/chat/components/ChatToolbar.vue";
 import ControlPanelDrawer from "@/views/chat/components/ControlPanelDrawer.vue";
+import DesktopChatView from "@/views/chat/components/DesktopChatView.vue";
 import ModManagerDrawer from "@/views/chat/components/ModManagerDrawer.vue";
 import ModelSelectorDrawer from "@/views/chat/components/ModelSelectorDrawer.vue";
 import NaroAssistantModal from "@/views/chat/components/NaroAssistantModal.vue";
@@ -27,6 +29,7 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 const characterId = computed(() => (route.params.id as string) || "c1");
+const { isMobile } = useResponsiveLayout();
 
 const isSidebarOpen = ref(false);
 const isAssistantOpen = ref(false);
@@ -36,6 +39,7 @@ const isWorldBookOpen = ref(false);
 const isModDrawerOpen = ref(false);
 const isBgmOpen = ref(false);
 const inputBarRef = ref<{ appendPrompt: (text: string) => void } | null>(null);
+const desktopChatRef = ref<{ appendPrompt: (text: string) => void } | null>(null);
 
 const {
   character,
@@ -85,7 +89,11 @@ const {
  * 响应 Naro 助手指令注入
  */
 function handleInsertPrompt(text: string): void {
-  inputBarRef.value?.appendPrompt(text);
+  if (isMobile.value) {
+    inputBarRef.value?.appendPrompt(text);
+  } else {
+    desktopChatRef.value?.appendPrompt(text);
+  }
 }
 
 /**
@@ -130,79 +138,111 @@ function handleMoreAction(action: string): void {
 </script>
 
 <template>
-  <div class="flex flex-col h-screen md:h-full w-full max-w-[440px] md:max-w-none mx-auto text-[#F5F5F4] relative shadow-2xl overflow-hidden bg-[#0F0D0C]">
+  <!-- 1. PC 桌面端 (>= 768px): 1:1 还原 media_1789565500457.png 的沉浸 Visual Novel 剧场 -->
+  <DesktopChatView
+    v-if="!isMobile"
+    ref="desktopChatRef"
+    :character="character"
+    :messages="messages"
+    :current-model="currentModel"
+    :current-mode="currentMode"
+    :is-generating="isGenerating"
+    :opening-replies="openingReplies"
+    :alternate-greetings="alternateGreetings"
+    :current-greeting-index="currentGreetingIndex"
+    @back="handleBack"
+    @send="handleSendMessage"
+    @stop="handleStopGeneration"
+    @regenerate="handleRegenerate"
+    @rerun-memory="() => showToast('正在重跑记忆增强 RAG 索引...')"
+    @continue="() => showToast('已触发 500 字剧情续写')"
+    @branch="handleBranch"
+    @edit="handleEditMessage"
+    @save-edit="handleSaveEditMessage"
+    @delete="handleDeleteMessage"
+    @read-aloud="handleReadAloud"
+    @switch-greeting="handleSwitchGreeting"
+    @open-assistant="isAssistantOpen = true"
+    @open-branch-canvas="isCanvasModalOpen = true"
+    @open-branch-drawer="isBranchDrawerOpen = true"
+    @open-narrative-panel="() => { isNarrativePanelOpen = true; loadNarrativeState(); }"
+    @open-control-panel="() => { isControlPanelOpen = true; loadControlPanel(); }"
+    @open-model-selector="isModelDrawerOpen = true"
+    @open-mod-manager="isModDrawerOpen = true"
+    @settings-action="handleSettingsAction"
+  />
+
+  <!-- 2. 移动端视口 (< 768px): 保持基准 440px 手机原生手势与气泡布局 (仅中间消息区内部滚动) -->
+  <div
+    v-else
+    class="flex flex-col h-full max-h-full w-full max-w-[440px] mx-auto text-[#F5F5F4] relative shadow-2xl overflow-hidden bg-[#0F0D0C] select-none"
+  >
     
     <!-- 1. 全屏沉浸式角色立绘大背景 (动态绑定角色封面/立绘 + 暗黑磨砂渐变遮罩) -->
     <div
       v-if="character.backgroundUrl || character.avatarUrl"
-      class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none transition-all duration-700 opacity-80 md:opacity-60"
+      class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none transition-all duration-700 opacity-80"
       :style="{ backgroundImage: `url('${character.backgroundUrl || character.avatarUrl}')` }"
     />
     <!-- 渐变暗黑磨砂玻璃蒙层 -->
     <div class="absolute inset-0 z-0 bg-gradient-to-b from-black/40 via-[#1A1511]/70 to-[#0F0D0C]/90 backdrop-blur-[2px] pointer-events-none" />
 
-    <!-- 2. 顶部 Header (桌面端限制在 max-w-4xl 舒适宽幅) -->
-    <div class="relative z-20 w-full border-b border-white/5 md:bg-black/30 md:backdrop-blur-md">
-      <div class="w-full max-w-4xl mx-auto">
-        <ChatHeader
-          @back="handleBack"
-          @open-sidebar="isSidebarOpen = true"
-          @open-music="isBgmOpen = true"
-          @open-assistant="isAssistantOpen = true"
-          @open-narrative-panel="() => { isNarrativePanelOpen = true; loadNarrativeState(); }"
-          @open-worldbook="isWorldBookOpen = true"
-          @open-canvas="isCanvasModalOpen = true"
-          @open-apps="() => { isControlPanelOpen = true; loadControlPanel(); }"
-          @open-control-panel="() => { isControlPanelOpen = true; loadControlPanel(); }"
-          @settings-action="handleSettingsAction"
-        />
-      </div>
+    <!-- 2. 顶部 Header (固定在顶部，不参与页面滚动) -->
+    <div class="relative z-20 shrink-0">
+      <ChatHeader
+        @back="handleBack"
+        @open-sidebar="isSidebarOpen = true"
+        @open-music="isBgmOpen = true"
+        @open-assistant="isAssistantOpen = true"
+        @open-narrative-panel="() => { isNarrativePanelOpen = true; loadNarrativeState(); }"
+        @open-worldbook="isWorldBookOpen = true"
+        @open-canvas="isCanvasModalOpen = true"
+        @open-apps="() => { isControlPanelOpen = true; loadControlPanel(); }"
+        @open-control-panel="() => { isControlPanelOpen = true; loadControlPanel(); }"
+        @settings-action="handleSettingsAction"
+      />
     </div>
 
-    <!-- 3. 中间消息滚动列表 (桌面端居中 max-w-4xl，保障行宽与阅读呼吸度) -->
-    <div class="relative z-10 flex-1 overflow-hidden flex flex-col w-full">
-      <div class="w-full max-w-4xl mx-auto flex-1 overflow-hidden flex flex-col">
-        <ChatChatMessageList
-          :messages="messages"
-          :author-note="character.authorNote"
-          :prologue-title="character.prologueTitle"
-          :prologue-content="character.prologueContent"
-          :alternate-greetings="alternateGreetings"
-          :current-greeting-index="currentGreetingIndex"
-          @switch-greeting="handleSwitchGreeting"
-          @read-aloud="handleReadAloud"
-          @regenerate="handleRegenerate"
-          @rerun-memory="() => showToast('正在重跑记忆增强 RAG 索引...')"
-          @continue="() => showToast('已触发 500 字剧情续写')"
-          @branch="handleBranch"
-          @edit="handleEditMessage"
-          @save-edit="handleSaveEditMessage"
-          @share="() => showToast('消息链接已复制到剪贴板')"
-          @delete="handleDeleteMessage"
-        />
-      </div>
+    <!-- 3. 中间消息滚动列表 (自适应剩余视口空间，仅内部独立滚动) -->
+    <div class="relative z-10 flex-1 min-h-0 overflow-hidden flex flex-col w-full">
+      <ChatChatMessageList
+        :messages="messages"
+        :author-note="character.authorNote"
+        :prologue-title="character.prologueTitle"
+        :prologue-content="character.prologueContent"
+        :alternate-greetings="alternateGreetings"
+        :current-greeting-index="currentGreetingIndex"
+        @switch-greeting="handleSwitchGreeting"
+        @read-aloud="handleReadAloud"
+        @regenerate="handleRegenerate"
+        @rerun-memory="() => showToast('正在重跑记忆增强 RAG 索引...')"
+        @continue="() => showToast('已触发 500 字剧情续写')"
+        @branch="handleBranch"
+        @edit="handleEditMessage"
+        @save-edit="handleSaveEditMessage"
+        @share="() => showToast('消息链接已复制到剪贴板')"
+        @delete="handleDeleteMessage"
+      />
     </div>
 
-    <!-- 4. 底部悬浮控制区 (桌面端居中 max-w-4xl, 模型栏 + 输入栏) -->
-    <div class="relative z-20 w-full px-4 pb-7 pt-1 flex flex-col gap-2 bg-transparent">
-      <div class="w-full max-w-4xl mx-auto flex flex-col gap-2">
-        <ChatToolbar
-          :current-model="currentModel"
-          :current-mode="currentMode"
-          @open-model-selector="isModelDrawerOpen = true"
-          @switch-mode="handleSwitchMode"
-        />
-        <ChatInputBar
-          ref="inputBarRef"
-          :disabled="false"
-          :is-generating="isGenerating"
-          :opening-replies="openingReplies"
-          @send="handleSendMessage"
-          @stop="handleStopGeneration"
-          @ai-assist="() => showToast('✦ AI 灵感辅助已启动')"
-          @more-action="handleMoreAction"
-        />
-      </div>
+    <!-- 4. 底部悬浮控制区 (固定在底部，不参与页面滚动) -->
+    <div class="relative z-20 w-full px-4 pb-7 pt-1 flex flex-col gap-2 bg-transparent shrink-0">
+      <ChatToolbar
+        :current-model="currentModel"
+        :current-mode="currentMode"
+        @open-model-selector="isModelDrawerOpen = true"
+        @switch-mode="handleSwitchMode"
+      />
+      <ChatInputBar
+        ref="inputBarRef"
+        :disabled="false"
+        :is-generating="isGenerating"
+        :opening-replies="openingReplies"
+        @send="handleSendMessage"
+        @stop="handleStopGeneration"
+        @ai-assist="() => showToast('✦ AI 灵感辅助已启动')"
+        @more-action="handleMoreAction"
+      />
     </div>
 
     <!-- 6. 聊天侧边抽屉菜单 (1:1 原型) -->

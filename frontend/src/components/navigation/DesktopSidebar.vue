@@ -27,8 +27,7 @@ import {
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
-const { isSidebarCollapsed, toggleSidebar, withoutAnimation } =
-  useResponsiveLayout();
+const { isSidebarCollapsed, toggleSidebar, withoutAnimation } = useResponsiveLayout();
 const appStore = useAppStore();
 const userStore = useUserStore();
 const router = useRouter();

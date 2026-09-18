@@ -62,7 +62,7 @@ class TavernRegexScript(BaseModel):
     )
     disabled: bool = Field(default=False, description="是否禁用")
     markdownOnly: bool = Field(default=False, description="仅影响显示 (表层替换)")
-    promptOnly: bool = Field(default=True, description="仅影响后端提示词")
+    promptOnly: bool = Field(default=False, description="仅影响后端提示词")
     runOnEdit: bool = Field(default=True, description="在编辑时运行")
     substituteRegex: int = Field(default=0, description="查找时的宏代换模式 (0=不替换)")
     minDepth: int | None = Field(default=None, description="最小生效消息深度")

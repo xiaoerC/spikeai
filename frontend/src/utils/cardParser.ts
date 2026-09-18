@@ -91,7 +91,9 @@ async function decompressDeflate(compressedBytes: Uint8Array): Promise<Uint8Arra
  * @param buffer - PNG 图像的 ArrayBuffer
  * @returns 角色卡 JSON 字典对象或 null
  */
-export async function extractCardFromPngBuffer(buffer: ArrayBuffer): Promise<Record<string, any> | null> {
+export async function extractCardFromPngBuffer(
+  buffer: ArrayBuffer,
+): Promise<Record<string, any> | null> {
   const view = new DataView(buffer);
   const uint8 = new Uint8Array(buffer);
 
@@ -271,9 +273,7 @@ export async function parseCharacterCardFile(file: File): Promise<CardParseResul
 
   // 2. 图像文件处理 (PNG / JPG / WebP 等)
   const isJpg =
-    fileName.endsWith(".jpg") ||
-    fileName.endsWith(".jpeg") ||
-    file.type === "image/jpeg";
+    fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") || file.type === "image/jpeg";
   const isWebp = fileName.endsWith(".webp") || file.type === "image/webp";
   const isPng = fileName.endsWith(".png") || file.type === "image/png";
 

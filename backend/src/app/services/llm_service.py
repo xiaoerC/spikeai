@@ -274,6 +274,10 @@ class LLMService:
         await db.refresh(entity)
         logger.info("已更新大模型 API 渠道: ID=%s, 名称=%s", entity.id, entity.name)
 
+        # 刷新模型绑定预设的内存高速缓存
+        from app.services.tavern_service import TavernService
+        TavernService.clear_preset_cache()
+
         model_items = [LLMModelItem.model_validate(m) for m in (entity.models or [])]
         public_count = sum(1 for m in model_items if m.is_public and m.is_enabled)
         return LLMProviderResponse(

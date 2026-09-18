@@ -27,6 +27,8 @@ class LLMModelItem(BaseModel):
     family: str = Field(default="deepseek", description="模型所属家族 ('deepseek', 'gpt', 'claude', 'gemini', 'other')")
     context_limit: int = Field(default=64000, description="上下文窗口大小 (Tokens)")
     sort_order: int = Field(default=0, description="排序权重 (越大越靠前)")
+    preset_id: str | None = Field(default=None, description="绑定的专属酒馆调音预设唯一ID (若为空则跟随全局默认激活预设)")
+    preset_name: str | None = Field(default=None, description="绑定的专属预设展示名称 (冗余字段方便快速展示与排查)")
 
 
 class LLMProviderCreate(BaseModel):

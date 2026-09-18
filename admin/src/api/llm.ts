@@ -23,6 +23,8 @@ export interface LLMModelItem {
   family: string;
   context_limit: number;
   sort_order: number;
+  preset_id?: string | null;
+  preset_name?: string | null;
 }
 
 export interface LLMProviderItem {

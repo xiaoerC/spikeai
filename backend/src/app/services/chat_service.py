@@ -62,16 +62,17 @@ class ChatService:
         db: AsyncSession | None = None,
         tavern_preset: Any | None = None,
         placement: int = 2,
+        model_id: str | None = None,
     ) -> str:
         """清洗 AI 文本（开场白或大模型输出消息）。
 
         依次执行:
-        1. 酒馆预设正则流水线 (Placement 2 & 999)
+        1. 酒馆专属/全局预设正则流水线 (Placement 2 & 999)
         2. 角色卡私有正则脚本流水线 (extensions.regex_scripts)
         3. 酒馆高级格式化流水线 (Advanced Formatting 多余换行、修剪不完整句等)
 
         Usage:
-            >>> cleaned = await ChatService.clean_ai_text(greeting, character, user_id, db)
+            >>> cleaned = await ChatService.clean_ai_text(greeting, character, user_id, db, model_id="deepseek-chat")
         """
         if not text:
             return ""
@@ -81,10 +82,10 @@ class ChatService:
 
         cleaned = text
 
-        # 1. 尝试获取预设
-        if tavern_preset is None and user_id is not None and db is not None:
+        # 1. 尝试获取模型专属或全局预设
+        if tavern_preset is None and db is not None:
             try:
-                tavern_preset = await TavernService.get_user_preset(user_id, db=db)
+                tavern_preset = await TavernService.get_preset_for_model(model_id=model_id, db=db)
             except Exception as err:
                 logger.warning("[Tavern] 获取预设异常: %s", err)
                 tavern_preset = None
@@ -803,10 +804,14 @@ class ChatService:
         )
         sys_prompt_parts.append(delta_protocol_prompt)
 
-        # 检查是否激活了 SillyTavern 酒馆调音台流水线
+        # 检查是否激活了 SillyTavern 酒馆调音台流水线 (根据模型标识路由专属预设)
         try:
             from app.services.tavern_service import TavernService
-            tavern_preset = await TavernService.get_user_preset(user_id, db=db)
+            tavern_preset = await TavernService.get_user_preset(
+                user_id=user_id,
+                db=db,
+                model_id=payload.model_id,
+            )
             use_tavern = bool(tavern_preset and tavern_preset.is_active)
         except Exception as err:
             logger.warning("[SillyTavern] 获取酒馆调音台预设异常: %s", err)
@@ -876,7 +881,7 @@ class ChatService:
             if not supports_reasoning:
                 sampling_kwargs.pop("reasoning_effort", None)
             logger.info(
-                f"[SillyTavern] 酒馆调音台接管聊天装配 | 预设: {tavern_preset.preset_name} | "
+                f"[SillyTavern] 酒馆调音台接管聊天装配 | 模型: {payload.model_id} | 预设: {tavern_preset.preset_name} | "
                 f"流水线消息数: {len(messages_for_llm)} | 采样参数: {sampling_kwargs}"
             )
         else:
@@ -955,6 +960,7 @@ class ChatService:
             db=db,
             tavern_preset=tavern_preset,
             placement=2,
+            model_id=payload.model_id,
         )
 
         # 再次执行切除以防二次拼接残留，并替换正文中可能的 {{user}}

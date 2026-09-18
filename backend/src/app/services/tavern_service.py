@@ -43,9 +43,26 @@ _USER_CUSTOM_PRESETS: dict[str, dict[str, TavernPresetConfig]] = {}
 _DEFAULT_PRESET: TavernPresetConfig | None = None
 _BUILTIN_PRESETS_CACHE: dict[str, TavernPresetConfig] = {}
 
+# 模型专属预设映射与实体详情高速缓存
+_MODEL_PRESET_MAP_CACHE: dict[str, str | None] = {}  # model_id -> preset_id (若未绑定为 None)
+_PRESET_BY_ID_CACHE: dict[str, TavernPresetConfig] = {}  # preset_id -> TavernPresetConfig
+
 
 class TavernService:
     """酒馆调音台领域服务。"""
+
+    @classmethod
+    def clear_preset_cache(cls) -> None:
+        """清空全量预设内存缓存（全局预设、模型专属预设映射与预设实体详情）。
+
+        Usage:
+            >>> TavernService.clear_preset_cache()
+        """
+        global _CACHED_SYSTEM_PRESET, _MODEL_PRESET_MAP_CACHE, _PRESET_BY_ID_CACHE
+        _CACHED_SYSTEM_PRESET = None
+        _MODEL_PRESET_MAP_CACHE.clear()
+        _PRESET_BY_ID_CACHE.clear()
+        logger.info("[Tavern] 已清空酒馆预设全局与模型专属内存高速缓存")
 
     @classmethod
     def get_default_preset(cls) -> TavernPresetConfig:
@@ -150,7 +167,7 @@ class TavernService:
                                 placement=list(r.get("placement", [2]) or [2]),
                                 disabled=bool(r.get("disabled", False)),
                                 markdownOnly=bool(r.get("markdownOnly", False)),
-                                promptOnly=bool(r.get("promptOnly", True)),
+                                promptOnly=bool(r.get("promptOnly", False)),
                                 runOnEdit=bool(r.get("runOnEdit", True)),
                                 substituteRegex=int(r.get("substituteRegex", 0)),
                                 minDepth=r.get("minDepth"),
@@ -298,10 +315,144 @@ class TavernService:
         Usage:
             >>> preset = await TavernService.get_user_preset(user_id, db)
         """
-        uid_str = str(user_id)
-        if uid_str in _USER_ACTIVE_PRESETS:
-            return _USER_ACTIVE_PRESETS[uid_str].model_copy(deep=True)
-        return await cls.get_system_preset(db)
+    @classmethod
+    async def get_preset_for_model(
+        cls,
+        model_id: str | None = None,
+        db: AsyncSession | None = None,
+    ) -> TavernPresetConfig:
+        """根据大模型标识动态路由获取最适配的酒馆调音预设。
+
+        极简双级路由策略:
+        1. 第一级 (专属绑定): 检查启用的 API 渠道中当前 model_id 是否配置了专属 preset_id。
+           若已绑定且对应预设在数据库中有效存在，直接返回深拷贝的专属预设；
+        2. 第二级 (全局生效): 若当前模型未绑定专属预设（或绑定的预设已被删除），平滑回退至
+           当前后台处于激活状态的全局预设 (is_active == True)。
+
+        Args:
+            model_id: 上游真实模型标识 (如 'deepseek-chat', 'claude-3-5-sonnet')。
+            db: 可选的异步数据库会话对象。
+
+        Returns:
+            TavernPresetConfig: 酒馆调音预设配置深拷贝对象。
+
+        Usage:
+            >>> preset = await TavernService.get_preset_for_model("deepseek-chat", db)
+        """
+        global _MODEL_PRESET_MAP_CACHE, _PRESET_BY_ID_CACHE
+
+        target_preset_id: str | None = None
+
+        if model_id and str(model_id).strip():
+            mid = str(model_id).strip()
+            # 1. 检查模型与专属预设映射缓存
+            if mid in _MODEL_PRESET_MAP_CACHE:
+                target_preset_id = _MODEL_PRESET_MAP_CACHE[mid]
+            else:
+                async def _find_bound_preset_id(session: AsyncSession) -> str | None:
+                    from app.models.llm import SystemLLMProvider
+
+                    stmt = select(SystemLLMProvider).where(SystemLLMProvider.is_active.is_(True))
+                    res = await session.execute(stmt)
+                    providers = res.scalars().all()
+                    for provider in providers:
+                        if not provider.models or not isinstance(provider.models, list):
+                            continue
+                        for m in provider.models:
+                            if isinstance(m, dict) and m.get("id") == mid:
+                                pid = m.get("preset_id")
+                                if pid and str(pid).strip():
+                                    return str(pid).strip()
+                    return None
+
+                try:
+                    if db is not None:
+                        target_preset_id = await _find_bound_preset_id(db)
+                    else:
+                        async with AsyncSessionLocal() as session:
+                            target_preset_id = await _find_bound_preset_id(session)
+                except Exception as err:
+                    logger.warning("[Tavern] 检索模型 [%s] 专属预设配置异常: %s", mid, err)
+                    target_preset_id = None
+
+                _MODEL_PRESET_MAP_CACHE[mid] = target_preset_id
+
+            # 2. 若命中绑定的专属 preset_id，提取预设实体
+            if target_preset_id:
+                if target_preset_id in _PRESET_BY_ID_CACHE:
+                    hit_preset = _PRESET_BY_ID_CACHE[target_preset_id]
+                    logger.info(
+                        "[Tavern] 命中模型专属预设 (内存命中) | 模型: %s | 预设: %s (ID: %s)",
+                        mid,
+                        hit_preset.preset_name,
+                        target_preset_id,
+                    )
+                    return hit_preset.model_copy(deep=True)
+
+                async def _query_preset_by_id(session: AsyncSession, pid_str: str) -> TavernPresetConfig | None:
+                    try:
+                        pid_uuid = uuid.UUID(pid_str)
+                    except ValueError:
+                        return None
+                    stmt = select(SystemTavernPreset).where(SystemTavernPreset.id == pid_uuid)
+                    res = await session.execute(stmt)
+                    row = res.scalar_one_or_none()
+                    if row and isinstance(row.config, dict):
+                        loaded = TavernPresetConfig.model_validate(row.config)
+                        loaded.preset_name = row.preset_name
+                        loaded.is_active = bool(row.is_active)
+                        cls.normalize_prompt_order(loaded)
+                        return loaded
+                    return None
+
+                loaded_preset: TavernPresetConfig | None = None
+                try:
+                    if db is not None:
+                        loaded_preset = await _query_preset_by_id(db, target_preset_id)
+                    else:
+                        async with AsyncSessionLocal() as session:
+                            loaded_preset = await _query_preset_by_id(session, target_preset_id)
+                except Exception as err:
+                    logger.warning("[Tavern] 读取模型 [%s] 专属预设 [%s] 失败: %s", mid, target_preset_id, err)
+                    loaded_preset = None
+
+                if loaded_preset:
+                    _PRESET_BY_ID_CACHE[target_preset_id] = loaded_preset
+                    logger.info(
+                        "[Tavern] 命中模型专属预设 (数据库读取) | 模型: %s | 预设: %s (ID: %s)",
+                        mid,
+                        loaded_preset.preset_name,
+                        target_preset_id,
+                    )
+                    return loaded_preset.model_copy(deep=True)
+                else:
+                    logger.warning(
+                        "[Tavern] 模型 [%s] 绑定的专属预设 [%s] 在数据库中不存在或已删除，自动降级至全局激活预设",
+                        mid,
+                        target_preset_id,
+                    )
+
+        # 3. 第二级: 平滑回退至平台全局激活预设
+        global_preset = await cls.get_system_preset(db=db)
+        logger.info(
+            "[Tavern] 模型 [%s] 未配置专属预设，使用全平台全局激活预设: %s",
+            model_id or "未指定",
+            global_preset.preset_name,
+        )
+        return global_preset
+
+    @classmethod
+    async def get_user_preset(
+        cls,
+        user_id: uuid.UUID | str,
+        db: AsyncSession | None = None,
+        model_id: str | None = None,
+    ) -> TavernPresetConfig:
+        """获取酒馆预设配置 (向下兼容代理)。
+
+        若传入 model_id 则走专属路由；否则走全局预设。
+        """
+        return await cls.get_preset_for_model(model_id=model_id, db=db)
 
     @classmethod
     async def get_system_preset(cls, db: AsyncSession | None = None) -> TavernPresetConfig:
@@ -403,6 +554,7 @@ class TavernService:
         await db.refresh(new_row)
 
         # 3. 刷新全平台内存缓存
+        cls.clear_preset_cache()
         _CACHED_SYSTEM_PRESET = updated.model_copy(deep=True)
         logger.info(
             "管理员 [%s] 已成功更新并发布全平台全局酒馆预设: %s (激活状态: %s)",
@@ -528,6 +680,7 @@ class TavernService:
         await db.refresh(new_row)
 
         if is_active:
+            cls.clear_preset_cache()
             _CACHED_SYSTEM_PRESET = preset.model_copy(deep=True)
 
         logger.info("已创建新预设: ID=%s, 名称=%s, 激活=%s", new_row.id, new_row.preset_name, is_active)
@@ -573,6 +726,7 @@ class TavernService:
         await db.commit()
         await db.refresh(row)
 
+        cls.clear_preset_cache()
         if row.is_active:
             _CACHED_SYSTEM_PRESET = updated.model_copy(deep=True)
 
@@ -621,6 +775,7 @@ class TavernService:
         if not config.regex_scripts:
             config.regex_scripts = cls.get_default_preset().regex_scripts
 
+        cls.clear_preset_cache()
         _CACHED_SYSTEM_PRESET = config.model_copy(deep=True)
         logger.info("管理员 [%s] 已激活全平台全局生效预设: %s (%s)", admin_user, row.preset_name, row.id)
         return config
@@ -646,6 +801,7 @@ class TavernService:
 
         await db.delete(row)
         await db.commit()
+        cls.clear_preset_cache()
         logger.info("已删除预设: ID=%s, 名称=%s", preset_id, row.preset_name)
         return True
 
@@ -914,7 +1070,8 @@ class TavernService:
                 continue
 
             # 严格遵循 SillyTavern promptOnly 与 markdownOnly 作用域隔离
-            if not is_prompt and s.promptOnly:
+            # 若标记了 markdownOnly，说明是输出/渲染层脚本，在非 prompt 阶段不应被冲突的 promptOnly 误杀
+            if not is_prompt and s.promptOnly and not s.markdownOnly:
                 continue
             if is_prompt and s.markdownOnly:
                 continue

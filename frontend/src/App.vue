@@ -63,9 +63,17 @@ onUnmounted(() => {
   <!-- 1. 移动端视口外壳 (< 768px): 保持基准 440px 居中安全画布 -->
   <div
     v-if="isMobile"
-    class="min-h-screen w-full bg-[#050508] flex justify-center font-sans antialiased selection:bg-naro-gold selection:text-black"
+    :class="[
+      'w-full bg-[#050508] flex justify-center font-sans antialiased selection:bg-naro-gold selection:text-black',
+      route.path.startsWith('/chat') ? 'fixed inset-0 overflow-hidden' : 'min-h-screen'
+    ]"
   >
-    <div class="w-full max-w-[440px] min-h-screen bg-[#1A1511] shadow-2xl relative flex flex-col overflow-x-hidden">
+    <div
+      :class="[
+        'w-full max-w-[440px] bg-[#1A1511] shadow-2xl relative flex flex-col',
+        route.path.startsWith('/chat') ? 'h-full max-h-full overflow-hidden' : 'min-h-screen overflow-x-hidden'
+      ]"
+    >
       <RouterView />
     </div>
   </div>
@@ -119,8 +127,8 @@ onUnmounted(() => {
 }
 
 html, body {
-  margin: 0;
-  padding: 0;
+  margin: 0 !important;
+  padding: 0 !important;
   background-color: #050508;
   color: #F3F4F6;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";

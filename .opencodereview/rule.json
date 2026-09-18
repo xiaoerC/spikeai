@@ -1,0 +1,37 @@
+{
+  "rules": [
+    {
+      "path": "frontend/src/**/*.{vue,ts}",
+      "rule": "【前端排版、组件库与交互铁律】\n1. 绝对禁止浏览器原生弹窗：严禁调用 window.alert() / confirm() / prompt()，用户提示必须使用 Toast 轻提示，弹窗必须使用 <AppModal> 或 <AppDrawer>；\n2. UnoCSS 绝对优先：能用 UnoCSS 原子类解决的严禁手写内联 style 或原生 <style> 标签；\n3. 间距由 Gap 主导：兄弟元素间距必须在父容器上使用 gap 控制，严禁子元素 Ad-hoc margin；\n4. 组件库规范：交互按钮统一使用 @/components/common 下的 <AppButton>，移动端抽屉使用 <AppDrawer>，居中弹窗使用 <AppModal>；\n5. 特性内聚与容器模式：页面私有组件与 composables 必须就近收敛在 views/{feature}/ 目录内，index.vue 仅作容器装配分发(~100行)；\n6. 强类型 API 与 SSE：所有网络请求必须经 src/services/ 强类型封装，SSE 流式消费必须包含 AbortController 取消机制与 60fps 调度；\n7. 防御编程：严禁空 catch 块静默捕获异常。",
+      "merge_system_rule": true
+    },
+    {
+      "path": "admin/src/**/*.{vue,ts}",
+      "rule": "【后台管理排版、组件与规范铁律】\n1. 绝对禁止浏览器原生弹窗：严禁调用 window.alert() / confirm() / prompt()，敏感操作必须使用 ElMessageBox.confirm 二次确认，轻提示必须使用 ElMessage；\n2. UnoCSS 优先与 Flex/Grid 布局：排版一律使用 Flexbox 与 Grid，父级容器 gap 控制间距，消除深层 SCSS 嵌套；\n3. 组件库规范：表单控件使用 Element Plus 2.x 标准组件，表格统一使用基于 vxe-table 的 @/components/DataTable；\n4. 强类型与防御编程：接口参数与返回值必须提供完整的 TypeScript 接口，严禁大面积裸 any；严禁空 try-catch 静默吞掉错误。",
+      "merge_system_rule": true
+    },
+    {
+      "path": "backend/src/app/**/*.py",
+      "rule": "【FastAPI 异步高并发与防御编程规约】\n1. 必须使用 SQLAlchemy 2.0 Async 语法 (Mapped, mapped_column, select())，严禁阻塞式同步 I/O 查询；\n2. 资金流水与并发安全：涉及钱包余额增减、货币结算、状态机变更必须显式使用 with_for_update 行级排他锁或版本号乐观锁，杜绝超卖并发漏洞；\n3. 防御编程：严禁写空的 except: 或 except Exception: pass 静默吞掉异常，错误必须显式记录 logger.error 或抛出 HTTPException；\n4. Pydantic v2 强类型契约校验：接口出入参必须声明显式 Type Hints 与 Field 校验；\n5. 安全合规：密码必须经 bcrypt/Argon2 哈希，JWT 必须包含过期时间验证与安全签名，禁止凭据明文硬编码。",
+      "merge_system_rule": true
+    },
+    {
+      "path": "backend/src/app/**/card_parser.py",
+      "rule": "【SillyTavern 角色卡编解码规约】\n1. PNG 图片元数据解析必须严格兼容 SillyTavern V2 (chardata) 与 V3 (cc_v3) 协议规范；\n2. 使用 Pillow 读取/写入 PNG tEXt/iTXt chunk 时必须确保元数据无损与安全编码，防止恶意构造的超大 chunk 引发 DoS；\n3. 结构体反序列化前必须进行防御性数据校验与防腐隔离。",
+      "merge_system_rule": true
+    }
+  ],
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.venv/**",
+    "**/__pycache__/**",
+    "**/.codegraph/**",
+    "**/coverage/**",
+    "**/*.png",
+    "**/*.jpg",
+    "**/*.jpeg",
+    "**/*.svg",
+    "**/*.ico"
+  ]
+}

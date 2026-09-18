@@ -11,12 +11,7 @@
  * @packageDocumentation
  */
 
-import {
-  ChevronDown,
-  Code2,
-  RotateCcw,
-  Sparkles,
-} from "lucide-vue-next";
+import { ChevronDown, Code2, RotateCcw, Sparkles } from "lucide-vue-next";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 
 const props = withDefaults(
@@ -95,7 +90,7 @@ const injectedSrcdoc = computed(() => {
 <\/script>
 `;
 
-  let content = rawHtml.value;
+  const content = rawHtml.value;
   if (content.includes("</body>")) {
     return content.replace("</body>", `${resizeScript}</body>`);
   }
@@ -107,10 +102,7 @@ const injectedSrcdoc = computed(() => {
  */
 function handleWindowMessage(event: MessageEvent): void {
   if (!event.data || typeof event.data !== "object") return;
-  if (
-    event.data.type === "spikeai-sandbox-resize" &&
-    event.data.sandboxId === sandboxId
-  ) {
+  if (event.data.type === "spikeai-sandbox-resize" && event.data.sandboxId === sandboxId) {
     const receivedHeight = Number(event.data.height);
     if (receivedHeight && receivedHeight > 30) {
       // 限制最小 60px，最大 1200px

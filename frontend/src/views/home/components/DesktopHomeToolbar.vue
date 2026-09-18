@@ -12,13 +12,7 @@
 import { useMarketStore } from "@/stores/market";
 import type { CardMode, SortType } from "@/types";
 import { HOT_TAGS } from "@/views/home/constants/marketConfig";
-import {
-  ChevronDown,
-  Filter,
-  Search,
-  SlidersHorizontal,
-  X,
-} from "lucide-vue-next";
+import { ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-vue-next";
 import { onMounted, onUnmounted, ref } from "vue";
 
 const marketStore = useMarketStore();

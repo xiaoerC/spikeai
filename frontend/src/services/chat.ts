@@ -172,7 +172,10 @@ export interface StreamCallbacks {
   onThinking?: (chunk: string) => void;
   onMessage?: (chunk: string) => void;
   onUsage?: (usage: StreamUsageData) => void;
-  onStateUpdated?: (data: { narrative_state?: NarrativeStateDTO; control_panel?: ControlPanelDTO }) => void;
+  onStateUpdated?: (data: {
+    narrative_state?: NarrativeStateDTO;
+    control_panel?: ControlPanelDTO;
+  }) => void;
   onError?: (error: { code?: string; message: string }) => void;
   onDone?: () => void;
 }
@@ -312,7 +315,9 @@ export const chatService = {
             } else if (eventType === "usage") {
               callbacks.onUsage?.(parsed as StreamUsageData);
             } else if (eventType === "state_updated") {
-              callbacks.onStateUpdated?.(parsed as { narrative_state?: NarrativeStateDTO; control_panel?: ControlPanelDTO });
+              callbacks.onStateUpdated?.(
+                parsed as { narrative_state?: NarrativeStateDTO; control_panel?: ControlPanelDTO },
+              );
             } else if (eventType === "error") {
               hasError = true;
               callbacks.onError?.(parsed);

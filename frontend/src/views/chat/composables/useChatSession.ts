@@ -150,8 +150,14 @@ export function useChatSession(characterIdParam?: MaybeRefOrGetter<string>) {
     return text
       .replace(/<narrative_delta>[\s\S]*?<\/narrative_delta>/gi, "")
       .replace(/<narrative_delta>[\s\S]*?$/gi, "")
-      .replace(/```(?:json)?\s*\{[\s\S]*?"(?:new_event|history_events|player_states|variables|location|date_text|time_text|tasks|consumables|social_relations)"[\s\S]*?\}\s*```\s*$/gi, "")
-      .replace(/\{\s*"(?:new_event|history_events|player_states|variables|location|date_text|time_text|tasks|consumables|social_relations)"[\s\S]*?\}\s*$/gi, "")
+      .replace(
+        /```(?:json)?\s*\{[\s\S]*?"(?:new_event|history_events|player_states|variables|location|date_text|time_text|tasks|consumables|social_relations)"[\s\S]*?\}\s*```\s*$/gi,
+        "",
+      )
+      .replace(
+        /\{\s*"(?:new_event|history_events|player_states|variables|location|date_text|time_text|tasks|consumables|social_relations)"[\s\S]*?\}\s*$/gi,
+        "",
+      )
       .trim();
   }
 
@@ -319,7 +325,10 @@ export function useChatSession(characterIdParam?: MaybeRefOrGetter<string>) {
       }
 
       // 提取备选开场白 (支持首句与 alternate_greetings 轮换)
-      if (sessionDetail.character_alternate_greetings && sessionDetail.character_alternate_greetings.length > 0) {
+      if (
+        sessionDetail.character_alternate_greetings &&
+        sessionDetail.character_alternate_greetings.length > 0
+      ) {
         alternateGreetings.value = sessionDetail.character_alternate_greetings;
       } else if (charDetail) {
         const gList: string[] = [];
@@ -339,7 +348,9 @@ export function useChatSession(characterIdParam?: MaybeRefOrGetter<string>) {
       // 提取快捷回复引导 (opening_replies) 与 场景 BGM (bgm_url)
       const ext = sessionDetail.character_extensions || (charDetail as any)?.extensions || {};
       if (Array.isArray(ext.opening_replies)) {
-        openingReplies.value = ext.opening_replies.filter((r: any) => typeof r === "string" && r.trim());
+        openingReplies.value = ext.opening_replies.filter(
+          (r: any) => typeof r === "string" && r.trim(),
+        );
       }
       if (typeof ext.bgm_url === "string" && ext.bgm_url.trim()) {
         bgmUrl.value = ext.bgm_url.trim();

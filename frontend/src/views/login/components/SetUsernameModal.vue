@@ -9,11 +9,11 @@
  * @packageDocumentation
  */
 
-import { useUserStore } from "@/stores/user";
 import { useToast } from "@/composables/useToast";
+import { useUserStore } from "@/stores/user";
+import { Loader2, Sparkles, UserCheck } from "lucide-vue-next";
 import { DialogContent, DialogOverlay, DialogPortal, DialogRoot } from "reka-ui";
 import { computed, ref, watch } from "vue";
-import { Sparkles, Loader2, UserCheck } from "lucide-vue-next";
 
 interface Props {
   /** 弹窗显隐状态 */

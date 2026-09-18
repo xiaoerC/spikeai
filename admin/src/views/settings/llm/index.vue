@@ -317,6 +317,30 @@
                 </template>
               </el-table-column>
 
+              <!-- 专属调音预设 -->
+              <el-table-column label="专属预设" min-width="150">
+                <template #default="{ row }">
+                  <el-tooltip
+                    :content="row.preset_id ? `已绑定专属预设: ${row.preset_name || row.preset_id}` : '未配置专属预设，自动跟随后台当前全局激活预设'"
+                    placement="top"
+                  >
+                    <button
+                      type="button"
+                      class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs transition-all border outline-none cursor-pointer"
+                      :class="
+                        row.preset_id
+                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
+                          : 'bg-gray-500/5 text-gray-400 border-dashed border-gray-400/30 hover:text-blue-500 hover:border-blue-400'
+                      "
+                      @click="openEditModelDialog(row)"
+                    >
+                      <span>{{ row.preset_id ? '🎛️' : '🌐' }}</span>
+                      <span class="truncate max-w-[120px]">{{ row.preset_name || (row.preset_id ? '专属预设' : '全局默认') }}</span>
+                    </button>
+                  </el-tooltip>
+                </template>
+              </el-table-column>
+
               <!-- 消耗星石 -->
               <el-table-column label="单次消耗" width="85" align="center">
                 <template #default="{ row }">
@@ -466,6 +490,26 @@
             <el-input-number v-model="fetchImportDefaultCost" :min="1" :max="10" size="small" />
           </div>
         </div>
+
+        <div class="flex flex-col gap-1 pt-2">
+          <span class="text-xs text-[var(--el-text-color-secondary)]">批量绑定专属预设 (可选):</span>
+          <el-select
+            v-model="fetchImportPresetId"
+            placeholder="留空则跟随全局激活预设"
+            clearable
+            filterable
+            size="small"
+            class="w-full"
+          >
+            <el-option label="🌐 跟随全平台全局激活预设 (默认)" value="" />
+            <el-option
+              v-for="p in availablePresets"
+              :key="p.id"
+              :label="p.preset_name"
+              :value="p.id"
+            />
+          </el-select>
+        </div>
       </div>
 
       <template #footer>
@@ -552,6 +596,47 @@
             </div>
             <el-switch v-model="singleModelForm.supports_reasoning" active-color="#e6a23c" />
           </div>
+
+          <!-- 专属酒馆调音预设绑定 -->
+          <el-form-item label="专属酒馆调音预设 (Tavern Preset)" class="!mb-0">
+            <div class="flex flex-col gap-1 w-full">
+              <el-select
+                v-model="singleModelForm.preset_id"
+                placeholder="选择专属预设 (留空跟随全局默认)"
+                clearable
+                filterable
+                class="w-full"
+                @change="handleModelPresetChange"
+              >
+                <el-option
+                  label="🌐 跟随全平台全局激活预设 (默认)"
+                  :value="null"
+                >
+                  <div class="flex items-center justify-between w-full">
+                    <span class="text-xs text-[var(--el-text-color-secondary)]">🌐 跟随全平台全局激活预设 (默认)</span>
+                    <el-tag size="small" type="info" effect="plain" class="!text-[10px]">跟随全局</el-tag>
+                  </div>
+                </el-option>
+                <el-option
+                  v-for="p in availablePresets"
+                  :key="p.id"
+                  :label="p.preset_name"
+                  :value="p.id"
+                >
+                  <div class="flex items-center justify-between w-full">
+                    <div class="flex items-center gap-1.5">
+                      <span class="font-medium text-xs">{{ p.preset_name }}</span>
+                      <el-tag v-if="p.is_active" size="small" type="success" effect="dark" class="!text-[10px] scale-90">当前全局</el-tag>
+                    </div>
+                    <span class="text-[11px] text-[var(--el-text-color-secondary)] font-mono">{{ p.active_prompts_count }} 条提示词</span>
+                  </div>
+                </el-option>
+              </el-select>
+              <span class="text-[11px] text-[var(--el-text-color-secondary)]">
+                为该模型专属匹配提示词排版骨架、采样参数与正则清洗。留空时自动回退至平台当前全局激活预设。
+              </span>
+            </div>
+          </el-form-item>
         </el-form>
       </div>
 
@@ -660,6 +745,7 @@ import {
   toggleAdminLLMModelPublic,
   updateAdminLLMProvider,
 } from '@/api/llm';
+import { listAdminTavernPresets, type TavernPresetListItem } from '@/api/tavern';
 
 // ======================== 1. 响应式状态定义 ========================
 
@@ -669,6 +755,10 @@ const isSaving = ref(false);
 const isTestingConnection = ref(false);
 const isFetchingUpstream = ref(false);
 const testResult = ref<LLMTestConnectionResponse | null>(null);
+
+// 可选的酒馆调音预设列表
+const availablePresets = ref<TavernPresetListItem[]>([]);
+const isLoadingPresets = ref(false);
 
 // 当前正在编辑的渠道表单
 const providerForm = reactive<{
@@ -722,6 +812,7 @@ const fetchedSearchQuery = ref('');
 const isSelectAllFetched = ref(false);
 const fetchImportAsPublic = ref(true);
 const fetchImportDefaultCost = ref(1);
+const fetchImportPresetId = ref<string>('');
 
 // 单模型编辑弹窗状态
 const isModelEditDialogOpen = ref(false);
@@ -738,6 +829,8 @@ const singleModelForm = reactive<LLMModelItem>({
   family: 'deepseek',
   context_limit: 64000,
   sort_order: 100,
+  preset_id: null,
+  preset_name: null,
 });
 
 // 沙盒抽屉状态
@@ -1013,6 +1106,12 @@ async function handleConfirmImportFetchedModels() {
   const count = selectedFetchedModelIds.value.length;
   const existingMap = new Map(providerForm.models.map((m) => [m.id, m]));
 
+  let boundPresetName: string | null = null;
+  if (fetchImportPresetId.value) {
+    const foundPreset = availablePresets.value.find((p) => p.id === fetchImportPresetId.value);
+    if (foundPreset) boundPresetName = foundPreset.preset_name;
+  }
+
   for (const mid of selectedFetchedModelIds.value) {
     if (!existingMap.has(mid)) {
       let family = 'other';
@@ -1038,6 +1137,8 @@ async function handleConfirmImportFetchedModels() {
         family,
         context_limit: 64000,
         sort_order: 50,
+        preset_id: fetchImportPresetId.value || null,
+        preset_name: boundPresetName,
       });
     }
   }
@@ -1104,6 +1205,39 @@ async function handleBatchModelAction(cmd: string) {
 }
 
 /**
+ * 加载全平台可选酒馆调音预设列表
+ */
+async function loadAvailablePresets() {
+  try {
+    isLoadingPresets.value = true;
+    const res = await listAdminTavernPresets();
+    if (res.code === 0 && Array.isArray(res.data)) {
+      availablePresets.value = res.data;
+    }
+  } catch (error) {
+    console.error('加载酒馆预设列表失败:', error);
+  } finally {
+    isLoadingPresets.value = false;
+  }
+}
+
+/**
+ * 监听模型专属预设选择变动并同步冗余名称
+ */
+function handleModelPresetChange(val: string | null) {
+  if (!val) {
+    singleModelForm.preset_id = null;
+    singleModelForm.preset_name = null;
+    return;
+  }
+  const target = availablePresets.value.find((p) => p.id === val);
+  if (target) {
+    singleModelForm.preset_id = target.id;
+    singleModelForm.preset_name = target.preset_name;
+  }
+}
+
+/**
  * 打开新建模型弹窗
  */
 function openAddModelDialog() {
@@ -1119,6 +1253,8 @@ function openAddModelDialog() {
   singleModelForm.family = 'deepseek';
   singleModelForm.context_limit = 64000;
   singleModelForm.sort_order = 50;
+  singleModelForm.preset_id = null;
+  singleModelForm.preset_name = null;
   isModelEditDialogOpen.value = true;
 }
 
@@ -1127,7 +1263,11 @@ function openAddModelDialog() {
  */
 function openEditModelDialog(row: any) {
   modelFormMode.value = 'edit';
-  Object.assign(singleModelForm, row);
+  Object.assign(singleModelForm, {
+    preset_id: null,
+    preset_name: null,
+    ...row,
+  });
   isModelEditDialogOpen.value = true;
 }
 
@@ -1135,6 +1275,8 @@ function resetSingleModelForm() {
   singleModelForm.id = '';
   singleModelForm.display_name = '';
   singleModelForm.cost = 1;
+  singleModelForm.preset_id = null;
+  singleModelForm.preset_name = null;
 }
 
 /**
@@ -1281,7 +1423,7 @@ async function handleRunSandbox() {
 }
 
 onMounted(async () => {
-  await loadProviders();
+  await Promise.all([loadProviders(), loadAvailablePresets()]);
 });
 </script>
 

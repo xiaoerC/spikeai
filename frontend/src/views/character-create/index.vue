@@ -11,7 +11,10 @@
 import BottomTabBar from "@/components/navigation/BottomTabBar.vue";
 import { useToast } from "@/composables/useToast";
 import { type CharacterCreatePayload, characterService } from "@/services/character";
+import { uploadService } from "@/services/upload";
 import { useAppStore } from "@/stores/app";
+import { useUserStore } from "@/stores/user";
+import { compressImageDataUrl, dataUrlToFile } from "@/utils/imageCompressor";
 import AuthorNoteModal from "@/views/character-create/components/AuthorNoteModal.vue";
 import CardExportSection from "@/views/character-create/components/CardExportSection.vue";
 import CharacterSection from "@/views/character-create/components/CharacterSection.vue";
@@ -23,10 +26,7 @@ import MechanicsSection from "@/views/character-create/components/MechanicsSecti
 import NavigationAnchorBar from "@/views/character-create/components/NavigationAnchorBar.vue";
 import PreviewModal from "@/views/character-create/components/PreviewModal.vue";
 import StageSection from "@/views/character-create/components/StageSection.vue";
-import { useUserStore } from "@/stores/user";
 import { useCharacterForm } from "@/views/character-create/composables/useCharacterForm";
-import { uploadService } from "@/services/upload";
-import { compressImageDataUrl, dataUrlToFile } from "@/utils/imageCompressor";
 import { normalizePosition } from "@/views/character-create/types";
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -230,7 +230,10 @@ async function handlePublishCharacter(): Promise<void> {
         }
       } catch (uploadErr) {
         console.warn("发布前上传立绘失败，降级为轻量压缩 base64:", uploadErr);
-        finalAvatarUrl = await compressImageDataUrl(finalAvatarUrl, { maxWidth: 800, quality: 0.8 });
+        finalAvatarUrl = await compressImageDataUrl(finalAvatarUrl, {
+          maxWidth: 800,
+          quality: 0.8,
+        });
       }
     }
 

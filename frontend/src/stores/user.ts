@@ -104,7 +104,10 @@ export const useUserStore = defineStore("user", () => {
   }
 
   /** 更新用户资料（昵称、头像） */
-  async function updateProfile(payload: { username: string; avatar_url?: string }): Promise<boolean> {
+  async function updateProfile(payload: {
+    username: string;
+    avatar_url?: string;
+  }): Promise<boolean> {
     isLoading.value = true;
     errorMessage.value = null;
     try {

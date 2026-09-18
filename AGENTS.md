@@ -70,7 +70,8 @@ spikeai/
 │   ├── qa/                                  # 真机视口渲染与端到端回归
 │   ├── design-review/                       # 视觉与交互专项审查
 │   ├── setup-pre-commit/                    # 提交前门禁配置 (Biome + uv)
-│   └── sillytavern-card-spec/               # SillyTavern V2/V3 协议 + PNG tEXt 编解码标准
+│   ├── sillytavern-card-spec/               # SillyTavern V2/V3 协议 + PNG tEXt 编解码标准
+│   └── open-code-review/                    # 阿里高精度 AI 代码审查与委托模式自检 (结合 .opencodereview 铁律)
 │
 ├── frontend/.agents/                        # 【前端专属隔离层】(仅在 frontend/ 作用域生效)
 │   ├── rules/
@@ -119,6 +120,11 @@ spikeai/
   - 严格遵守 `admin_habits.md` 8 大铁律（UnoCSS 绝对优先、Flex/Grid 排版、父级 Gap 间距、Biome 格式化、零原生弹窗）。
   - 调用 `admin-element-pro` 运用成熟的中后台 CRUD 范式、Dialog 异步提交闭环与 VXE-Table 虚拟滚动调优。
   - 保持与后端 API 的强类型契约，禁止引入未授权的过时老旧第三方依赖。
+
+### 4. 代码审查与变更自检路由规则 (Scope: 全局通用)
+- 在完成核心功能重构、敏感模块（如钱包资金流、权限校验、SillyTavern PNG编解码）编写或提交前自检时：
+  - 调用 `open-code-review` 技能，通过 `ocr delegate` 结合 `.opencodereview/rule.json` 进行确定性分块与行级自检；
+  - 开发者本地可使用 `.\scripts\ocr-review.ps1` 进行快捷审查或启动 `ocr viewer` 交互复核，确保改动严格符合 SpikeAI 架构约束。
 
 
 ---
